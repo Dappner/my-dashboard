@@ -166,7 +166,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          note_text: string
+          note_text: string | null
           price_per_share: number
           settlement_date: string | null
           shares: number
@@ -180,7 +180,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
-          note_text: string
+          note_text?: string | null
           price_per_share: number
           settlement_date?: string | null
           shares: number
@@ -194,7 +194,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
-          note_text?: string
+          note_text?: string | null
           price_per_share?: number
           settlement_date?: string | null
           shares?: number

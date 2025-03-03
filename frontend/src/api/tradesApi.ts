@@ -49,6 +49,17 @@ export const tradesApi = {
     }
 
     return data;
+  },
+
+  async deleteTrade(id: string): Promise<void> {
+    const { error } = await supabase
+      .from("trades")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      throw error;
+    }
   }
 }
 
