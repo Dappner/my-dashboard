@@ -1,0 +1,191 @@
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
+import MonthPicker from "@/components/forms/MonthPicker";
+
+export const tickerFormSchema = z.object({
+  symbol: z.string().min(1, "Symbol is required").max(10),
+  name: z.string().optional(),
+  exchange: z.string().optional(),
+  sector: z.string().optional(),
+  industry: z.string().optional(),
+  dividend_amount: z.coerce.number().optional(),
+  dividend_months: z.array(z.number()).optional(),
+  cik: z.string().optional(),
+});
+
+export type TickerFormValues = z.infer<typeof tickerFormSchema>;
+
+interface TickerFormProps {
+  defaultValues?: TickerFormValues;
+  onSubmit: (values: TickerFormValues) => void;
+  onCancel: () => void;
+  isSubmitting: boolean;
+  isEditing: boolean;
+}
+
+export function TickerForm({
+  defaultValues = {
+    symbol: "",
+    name: "",
+    exchange: "",
+    sector: "",
+    industry: "",
+    dividend_amount: 0,
+    dividend_months: [],
+    cik: ""
+  },
+  onSubmit,
+  onCancel,
+  isSubmitting,
+  isEditing,
+}: TickerFormProps) {
+  const form = useForm<TickerFormValues>({
+    resolver: zodResolver(tickerFormSchema),
+    defaultValues,
+  });
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="px-4 space-y-6">
+        <FormField
+          control={form.control}
+          name="symbol"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Symbol *</FormLabel>
+              <FormControl>
+                <Input placeholder="AAPL" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Apple Inc." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="exchange"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Exchange</FormLabel>
+              <FormControl>
+                <Input placeholder="NASDAQ" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="sector"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sector</FormLabel>
+              <FormControl>
+                <Input placeholder="Technology" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="industry"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Industry</FormLabel>
+              <FormControl>
+                <Input placeholder="Consumer Electronics" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="dividend_amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Dividend Amount </FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="dividend_months"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Dividend Months</FormLabel>
+              <FormControl>
+                <MonthPicker
+                  onChange={field.onChange}
+                  selectedMonths={field.value}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="cik"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>CIK</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. 320193" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isEditing ? "Update Ticker" : "Add Ticker"}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
