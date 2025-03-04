@@ -71,7 +71,7 @@ export default function TickerPage() {
           <TabsTrigger value="overview" className="cursor-pointer">Overview</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
-          <OverviewTab exchange={exchange} tickerSymbol={tickerSymbol} historicalPrices={historicalPrices} />
+          <OverviewTab tickerId={ticker?.id} exchange={exchange} tickerSymbol={tickerSymbol} historicalPrices={historicalPrices} />
         </TabsContent>
       </Tabs>
 
