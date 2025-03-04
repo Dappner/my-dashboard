@@ -7,17 +7,32 @@ export const tradesApiKeys = {
 }
 
 export const tradesApi = {
-  async getTrades() {
-    const { data, error } = await supabase.from("trades_view").select().order("transaction_date", { ascending: false });
+  async getTrades(limit?: number) {
+    const query = supabase.from("trades_view").select()
+      .order("transaction_date", { ascending: false });
+    if (limit) {
+      query.limit(limit);
+    }
+
+    const { data, error } = await query;
+
     if (error) {
       throw error
     }
     return data as TradeView[];
   },
 
-  async getTickerTrades(exchange: string, ticker: string) {
-    const { data, error } = await supabase.from("trades_view").select().eq("symbol", ticker).eq("exchange", exchange).order("transaction_date", { ascending: false });
+  async getTickerTrades(exchange: string, ticker: string, limit?: number) {
+    const query = supabase.from("trades_view").select()
+      .eq("symbol", ticker)
+      .eq("exchange", exchange)
+      .order("transaction_date", { ascending: false })
 
+    if (limit) {
+      query.limit(limit)
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
 
     return data as TradeView[];

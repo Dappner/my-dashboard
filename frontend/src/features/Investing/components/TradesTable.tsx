@@ -18,11 +18,12 @@ interface TradesTableProps {
   exchange?: string;
   symbol?: string;
   onEditTrade: (trade: TradeView) => void;
+  short?: boolean;
 }
-export default function TradesTable({ exchange, symbol, onEditTrade }: TradesTableProps) {
+export default function TradesTable({ exchange, symbol, onEditTrade, short }: TradesTableProps) {
   const { data: trades = [], isLoading, isError } = useQuery({
     queryKey: exchange ? tradesApiKeys.ticker(exchange, symbol!) : tradesApiKeys.all,
-    queryFn: exchange ? () => tradesApi.getTickerTrades(exchange!, symbol!) : () => tradesApi.getTrades(),
+    queryFn: exchange ? () => tradesApi.getTickerTrades(exchange!, symbol!, short ? 5 : undefined) : () => tradesApi.getTrades(short ? 5 : undefined),
   });
 
   const { deleteTrade } = useTrades();

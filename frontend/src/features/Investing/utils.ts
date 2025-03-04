@@ -9,7 +9,7 @@ export const prepareSectorData = (holdings: Holding[]) => {
 
   holdings.forEach(holding => {
     const sector = holding.sector || "Unknown";
-    const value = (holding.current_shares || 0) * (holding.average_cost_basis || 0);
+    const value = (holding.shares || 0) * (holding.average_cost_basis || 0);
 
     if (sectorMap.has(sector)) {
       sectorMap.set(sector, (sectorMap.get(sector) || 0) + value);
@@ -36,7 +36,7 @@ export const prepareIndustryData = (holdings: Holding[]) => {
 
   holdings.forEach(holding => {
     const industry = holding.industry || "Unknown";
-    const value = (holding.current_shares || 0) * (holding.average_cost_basis || 0);
+    const value = (holding.shares || 0) * (holding.average_cost_basis || 0);
 
     if (industryMap.has(industry)) {
       industryMap.set(industry, (industryMap.get(industry) || 0) + value);
@@ -80,9 +80,9 @@ export function calculateAverageYield(holdings: Holding[]): number {
   let weightedYieldSum = 0;
 
   holdings.forEach(holding => {
-    const positionValue = (holding.average_cost_basis || 0) * (holding.current_shares || 0);
+    const positionValue = (holding.average_cost_basis || 0) * (holding.shares || 0);
     totalValue += positionValue;
-    weightedYieldSum += (holding.dividend_yield_percent || 0) * positionValue;
+    weightedYieldSum += (holding.cost_basis_dividend_yield_percent || 0) * positionValue;
   });
 
   return totalValue > 0 ? weightedYieldSum / totalValue : 0;
@@ -193,11 +193,11 @@ export const prepareDividendChartData = (holdings?: Holding[]) => {
       symbol,
       dividend_amount,
       dividend_months,
-      current_shares
+      shares
     } = holding;
 
-    if (dividend_amount && dividend_months && current_shares) {
-      const monthlyDividend = dividend_amount * current_shares;
+    if (dividend_amount && dividend_months && shares) {
+      const monthlyDividend = dividend_amount * shares;
 
       dividend_months.forEach((monthIndex: number) => {
         // Need to ensure monthIndex is valid

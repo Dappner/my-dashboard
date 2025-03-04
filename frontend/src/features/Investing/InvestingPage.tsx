@@ -49,7 +49,6 @@ export default function InvestingPage() {
         <Card className="col-span-1">
           <CardHeader className="flex flex-row justify-between">
             <CardTitle>Holdings</CardTitle>
-            <ArrowUpRight className="text-blue-500 cursor-pointer hover:underline size-5" />
           </CardHeader>
           <CardContent>
             <HoldingsTable />
@@ -63,7 +62,7 @@ export default function InvestingPage() {
               onClick={onAddTrade} />
           </CardHeader>
           <CardContent>
-            <TradesTable onEditTrade={onEditTrade} />
+            <TradesTable onEditTrade={onEditTrade} short />
           </CardContent>
         </Card>
       </div>

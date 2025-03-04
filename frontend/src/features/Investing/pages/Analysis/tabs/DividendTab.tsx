@@ -110,9 +110,9 @@ export default function DividendTab() {
                       topContributionHoldings.map((holding) => (
                         <TableRow key={holding.ticker_id}>
                           <TableCell>{holding.symbol}</TableCell>
-                          <TableCell>{holding.current_shares}</TableCell>
+                          <TableCell>{holding.shares}</TableCell>
                           <TableCell>${holding.annual_dividend_amount?.toFixed(2)}</TableCell>
-                          <TableCell>{holding.dividend_yield_percent?.toFixed(2)}%</TableCell>
+                          <TableCell>{holding.cost_basis_dividend_yield_percent?.toFixed(2)}%</TableCell>
                         </TableRow>
                       ))
                     )

@@ -8,6 +8,7 @@ import ResearchPage from '@/features/Investing/pages/Research/ResearchPage'
 import ManageInvestingPage from '@/features/Investing/pages/ManageInvesting/ManageInvestingPage'
 import TickerPage from '@/features/Investing/pages/Research/TickerPage'
 import SettingsPage from '@/features/Settings/SettingsPage'
+import TransactionsPage from './features/Investing/pages/Transactions/TransactionsPage'
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
             <Route index element={<InvestingPage />} />
             <Route path="manage" element={<ManageInvestingPage />} />
             <Route path="analysis" element={<AnalysisPage />} />
+            <Route path="transactions" element={<TransactionsPage />} />
             <Route path="research" >
               <Route index element={<ResearchPage />} />
             </Route>
