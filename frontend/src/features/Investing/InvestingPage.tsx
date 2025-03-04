@@ -7,17 +7,29 @@ import { useState } from "react";
 import { TradeView } from "@/types/tradeTypes";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { TradeForm } from "./forms/TradeForm";
+import { useQuery } from "@tanstack/react-query";
+import { portfoliosApi, portfoliosApiKey } from "@/api/portfoliosApi";
+import { useAuthContext } from "@/contexts/AuthContext";
+import PortfolioKpis from "./components/PortfolioKpis";
+
 
 export default function InvestingPage() {
+  const { user } = useAuthContext();
   const [isTradeSheetOpen, setIsTradeSheetOpen] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<TradeView | null>(null);
 
-  const onEditClick = (trade: TradeView) => {
+  const { data: portfolio } = useQuery({
+    queryFn: () => portfoliosApi.fetchUserPortfolio(user!.id),
+    queryKey: portfoliosApiKey.all,
+    enabled: !!user
+  });
+
+  const onEditTrade = (trade: TradeView) => {
     setSelectedTrade(trade);
     setIsTradeSheetOpen(true);
   };
 
-  const onAddClick = () => {
+  const onAddTrade = () => {
     setSelectedTrade(null);
     setIsTradeSheetOpen(true);
   };
@@ -30,6 +42,7 @@ export default function InvestingPage() {
   return (
     <>
       <div className="grid grid-cols-3 gap-4">
+        <PortfolioKpis portfolio={portfolio} />
         <div className="col-span-3">
           <PortfolioChart />
         </div>
@@ -47,10 +60,10 @@ export default function InvestingPage() {
             <CardTitle>Recent Transactions</CardTitle>
             <Plus
               className="text-blue-500 cursor-pointer hover:underline size-5"
-              onClick={onAddClick} />
+              onClick={onAddTrade} />
           </CardHeader>
           <CardContent>
-            <TradesTable onEditClick={onEditClick} />
+            <TradesTable onEditTrade={onEditTrade} />
           </CardContent>
         </Card>
       </div>

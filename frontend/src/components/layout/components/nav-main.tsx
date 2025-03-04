@@ -1,4 +1,4 @@
-import { BookOpen, ChartNoAxesCombined, ChevronRight, Home, Settings2, type LucideIcon } from "lucide-react"
+import { BookOpen, ChartNoAxesCombined, ChevronRight, Home, Settings2, Settings2Icon, type LucideIcon } from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils"
 type NavBarItem = {
   title: string
   url: string
+  rootName?: string;
   icon?: LucideIcon
   isActive?: boolean
   items?: {
@@ -33,6 +34,7 @@ const navBarItems: NavBarItem[] = [
   {
     title: "Investing",
     url: "/investing",
+    rootName: "Overview",
     icon: ChartNoAxesCombined,
     items: [
       {
@@ -53,6 +55,7 @@ const navBarItems: NavBarItem[] = [
     title: "Literature",
     url: "/literature",
     icon: BookOpen,
+    rootName: "Overview",
     items: [
       {
         title: "Introduction",
@@ -72,6 +75,12 @@ const navBarItems: NavBarItem[] = [
       },
     ],
   },
+  {
+    title: "Settings",
+    url: "/settings",
+    rootName: "General",
+    icon: Settings2Icon,
+  }
 ]
 
 
@@ -137,10 +146,11 @@ export function NavMain() {
                   <SidebarMenuSubItem key={`${item.title}-main`}>
                     <SidebarMenuSubButton className={isCurrentUrl(item.url) ? "bg-gray-200 hover:bg-gray-200" : ""} asChild>
                       <Link to={item.url} >
-                        <span>Overview</span>
+                        <span>{item.rootName}</span>
                       </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
+
                   {/* Original subitems */}
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem key={subItem.title}>

@@ -1,3 +1,4 @@
+import { holdingsApiKeys } from "@/api/holdingsApi";
 import { tradesApiKeys, tradesApi } from "@/api/tradesApi";
 import { TradeView } from "@/types/tradeTypes";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,7 +14,7 @@ interface UseTradesOptions {
 export const useTrades = (options?: UseTradesOptions) => {
   const queryClient = useQueryClient();
 
-  const { data: trades, isLoading } = useQuery<TradeView[]>({
+  const { data: trades, isLoading, isError } = useQuery<TradeView[]>({
     queryKey: tradesApiKeys.all,
     queryFn: () => tradesApi.getTrades(),
   });
@@ -22,6 +23,8 @@ export const useTrades = (options?: UseTradesOptions) => {
     mutationFn: tradesApi.addTrade,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tradesApiKeys.all });
+      queryClient.invalidateQueries({ queryKey: holdingsApiKeys.all });
+
       toast.success("Trade added successfully");
       options?.onAddSuccess?.();
     },
@@ -35,12 +38,13 @@ export const useTrades = (options?: UseTradesOptions) => {
     mutationFn: tradesApi.updateTrade,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tradesApiKeys.all });
+      queryClient.invalidateQueries({ queryKey: holdingsApiKeys.all });
       toast.success("trade updated successfully");
-      options?.onUpdateSuccess?.(); // Call the success callback if provided
+      options?.onUpdateSuccess?.();
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to update trade");
-      options?.onError?.(error); // Call the error callback if provided
+      toast.error(error.message || "Failed to update Trade");
+      options?.onError?.(error);
     },
   });
 
@@ -48,18 +52,20 @@ export const useTrades = (options?: UseTradesOptions) => {
     mutationFn: tradesApi.deleteTrade,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tradesApiKeys.all });
+      queryClient.invalidateQueries({ queryKey: holdingsApiKeys.all });
       toast.success("Trade deleted successfully");
-      options?.onDeleteSuccess?.(); // Call the success callback if provided
+      options?.onDeleteSuccess?.();
     },
     onError: (error: Error) => {
-      toast.error("Failed to delete trade");
-      options?.onError?.(error); // Call the error callback if provided
+      toast.error("Failed to delete Trade");
+      options?.onError?.(error);
     },
   });
 
   return {
     trades,
     isLoading,
+    isError,
     addTrade: addTradeMutation.mutate,
     updateTrade: updateTradeMutation.mutate,
     deleteTrade: deleteTradeMutation.mutate,

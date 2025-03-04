@@ -69,6 +69,52 @@ export type Database = {
           },
         ]
       }
+      portfolio: {
+        Row: {
+          cash: number
+          currency: string | null
+          id: string
+          name: string | null
+          user_id: string
+        }
+        Insert: {
+          cash: number
+          currency?: string | null
+          id?: string
+          name?: string | null
+          user_id: string
+        }
+        Update: {
+          cash?: number
+          currency?: string | null
+          id?: string
+          name?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "portfolio_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_performance"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "portfolio_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_notes: {
         Row: {
           created_at: string | null

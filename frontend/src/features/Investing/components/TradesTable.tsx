@@ -10,18 +10,29 @@ import {
 } from "@/components/ui/table";
 import { tradesApi, tradesApiKeys } from '@/api/tradesApi';
 import { TradeView } from '@/types/tradeTypes';
+import { useTrades } from '../hooks/useTrades';
+import { Button } from '@/components/ui/button';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface TradesTableProps {
   exchange?: string;
   symbol?: string;
-  onEditClick: (trade: TradeView) => void;
+  onEditTrade: (trade: TradeView) => void;
 }
-export default function TradesTable({ exchange, symbol, onEditClick }: TradesTableProps) {
-
+export default function TradesTable({ exchange, symbol, onEditTrade }: TradesTableProps) {
   const { data: trades = [], isLoading, isError } = useQuery({
     queryKey: exchange ? tradesApiKeys.ticker(exchange, symbol!) : tradesApiKeys.all,
     queryFn: exchange ? () => tradesApi.getTickerTrades(exchange!, symbol!) : () => tradesApi.getTrades(),
   });
+
+  const { deleteTrade } = useTrades();
+
+  const onDeleteTrade = (id: string) => {
+    if (confirm("Are you sure you want to delete this trade?")) {
+      deleteTrade(id);
+    }
+  };
+
 
   return (
     <div className="w-full">
@@ -63,7 +74,25 @@ export default function TradesTable({ exchange, symbol, onEditClick }: TradesTab
                   <TableCell className="text-right font-medium">
                     ${trade.total_cost_basis?.toFixed(2)}
                   </TableCell>
-                  <TableCell onClick={() => onEditClick(trade)}>Edit</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEditTrade(trade)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onDeleteTrade(trade.id!)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))
             )}

@@ -6,7 +6,8 @@ import LoginPage from '@/features/Auth/Login'
 import AnalysisPage from '@/features/Investing/pages/Analysis/AnalysisPage'
 import ResearchPage from '@/features/Investing/pages/Research/ResearchPage'
 import ManageInvestingPage from '@/features/Investing/pages/ManageInvesting/ManageInvestingPage'
-import TickerPage from './features/Investing/pages/Research/TickerPage'
+import TickerPage from '@/features/Investing/pages/Research/TickerPage'
+import SettingsPage from '@/features/Settings/SettingsPage'
 
 function App() {
 
@@ -24,6 +25,8 @@ function App() {
             </Route>
             <Route path="stock/:exchange/:ticker" element={<TickerPage />} />
           </Route>
+
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
         <Route path="login" element={<LoginPage />} />
       </Routes>

@@ -22,7 +22,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <NavUser user={user} />
       </SidebarFooter>
-    </Sidebar>
+    </Sidebar >
   )
 }
 
