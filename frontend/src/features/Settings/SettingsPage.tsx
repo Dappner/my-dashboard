@@ -1,63 +1,105 @@
-import { portfoliosApi, portfoliosApiKey } from "@/api/portfoliosApi";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { portfoliosApi, portfoliosApiKey } from "@/api/portfoliosApi";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthContext } from '@/contexts/AuthContext';
 
 export default function SettingsPage() {
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [selectedPortfolio, setSelectedPortfolio] = useState(null);
+  const { user } = useAuthContext();
+  const queryClient = useQueryClient();
 
-  const { data: portfolios, isLoading } = useQuery({
-    queryFn: portfoliosApi.fetchAll,
-    queryKey: portfoliosApiKey.all
-  })
+  const { data: portfolio, isLoading } = useQuery({
+    queryFn: () => portfoliosApi.fetchUserPortfolio(user!.id),
+    queryKey: portfoliosApiKey.all,
+    enabled: !!user
 
-  const onAddPortfolio = () => {
-    setSelectedPortfolio(null);
-    setIsSheetOpen(true);
-  }
+  });
+
+  // Mutation for updating portfolio
+  const updatePortfolioMutation = useMutation({
+    mutationFn: (updatedPortfolio) => portfoliosApi.updatePortfolio(updatedPortfolio),
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: portfoliosApiKey.all });
+    }
+  });
+
+  // Local state for editing
+  const [editedPortfolio, setEditedPortfolio] = useState(null);
+
+  // If loading, return null
+  if (isLoading) return null;
+
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedPortfolio(prev => ({
+      ...prev || portfolio,
+      [name]: name === 'cash' ? parseFloat(value) : value
+    }));
+  };
+
+  // Handle save
+  const handleSave = () => {
+    if (editedPortfolio) {
+      updatePortfolioMutation.mutate(editedPortfolio);
+    }
+  };
 
   return (
-    <>
-      <Tabs defaultValue="portfolio">
-        <TabsList>
-          <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-        </TabsList>
-        <TabsContent value="portfolio">
-          <div className="flex flex-col space-y-4">
-            <div className="flex flex-row justify-between space-x-4">
-              <Button onClick={onAddPortfolio}>Add</Button>
+    <Tabs defaultValue="portfolio" className="w-full max-w-md mx-auto">
+      <TabsList className="grid w-full grid-cols-1">
+        <TabsTrigger value="portfolio">Portfolio Settings</TabsTrigger>
+      </TabsList>
+      <TabsContent value="portfolio">
+        <Card>
+          <CardHeader>
+            <CardTitle>Portfolio Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              <div>
+                <Label htmlFor="name">Portfolio Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  defaultValue={portfolio!.name!}
+                  onChange={handleInputChange}
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="cash">Cash Balance</Label>
+                <div className="flex items-center mt-2">
+                  <Input
+                    id="cash"
+                    name="cash"
+                    type="number"
+                    step="0.01"
+                    defaultValue={portfolio?.cash}
+                    onChange={handleInputChange}
+                    className="flex-grow"
+                  />
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {portfolio?.currency}
+                  </span>
+                </div>
+              </div>
+              <Button
+                onClick={handleSave}
+                disabled={!editedPortfolio}
+                className="w-full mt-4"
+              >
+                Save Changes
+              </Button>
             </div>
-            <div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Value</TableHead>
-                    <TableHead>Cash</TableHead>
-                    <TableHead>Currency</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <>Loading</>
-                  ) : portfolios?.map((portfolio) => (
-                    <TableRow>
-                      <TableCell>{portfolio.name}</TableCell>
-                      <TableCell>BIg BUCKS</TableCell>
-                      <TableCell>{portfolio.cash}</TableCell>
-                      <TableCell>{portfolio.currency}</TableCell>
-                    </TableRow>
-                  ))
-                  }
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </>
-  )
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  );
 }

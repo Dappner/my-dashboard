@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { Portfolio } from "@/types/portfolioTypes";
+import { Portfolio, UpdatePortfolio } from "@/types/portfolioTypes";
 
 export const portfoliosApiKey = {
   all: ['portfolios'] as const
@@ -21,6 +21,25 @@ export const portfoliosApi = {
     if (error) throw error;
 
     return data as Portfolio;
+  },
 
-  }
+
+  async updatePortfolio(portfolio: UpdatePortfolio): Promise<Portfolio> {
+    const { id, ...portfolioData } = portfolio;
+    const { data, error } = await supabase
+      .from("portfolio")
+      .update({ ...portfolioData })
+      .eq("id", id!)
+      .select("*")
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data as Portfolio;
+  },
+
+
+
 }

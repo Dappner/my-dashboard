@@ -65,7 +65,6 @@ export default function CustomPieChart({
 
   const CustomLegend: React.FC<any> = (props) => {
     const { payload } = props;
-    console.log(payload);
     return (
       <ul className="text-xs space-y-1 mt-2">
         {payload.map((entry: any, index: number) => {
