@@ -1,13 +1,12 @@
 import CustomPieChart from "@/components/charts/CustomPieChart";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { chartColors } from "@/constants";
 import GeographicExposureMap from "@/features/Investing/components/GeographicExposureMap";
 import { prepareSectorData, prepareIndustryData } from "@/features/Investing/utils";
 import { supabase } from "@/lib/supabase";
 import { Holding } from "@/types/holdingsTypes";
-import { Progress } from "@radix-ui/react-progress";
 import { useQuery } from "@tanstack/react-query";
-import { PieChartIcon } from "lucide-react";
 
 export default function AllocationTab() {
   const { data: holdings = [] } = useQuery({
@@ -23,33 +22,28 @@ export default function AllocationTab() {
       <div className="col-span-1">
         <CustomPieChart
           title="Sector"
+          prefix="$"
           data={prepareSectorData(holdings)}
           inputType="Absolute"
           outputType="Percentage"
           colors={chartColors}
         />
       </div>
-      <div className="col-span-2">
+      <div className="col-span-1">
         <CustomPieChart
           title="Industry"
+          prefix="$"
           data={prepareIndustryData(holdings)}
           inputType="Absolute"
           outputType="Percentage"
           colors={chartColors}
         />
       </div>
-      <div className="col-span-2">
-        <GeographicExposureMap />
-      </div>
       <div className="col-span-1">
+        <div className="flex flex-row items-center justify-between mb-2 h-8">
+          <h2 className="text-lg font-semibold text-gray-900">Geographic Exposure</h2>
+        </div>
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <PieChartIcon className="mr-2 h-5 w-5" />
-              Geographic Exposure
-            </CardTitle>
-            <CardDescription>Regional allocation</CardDescription>
-          </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm">United States</span>
@@ -73,6 +67,9 @@ export default function AllocationTab() {
             </div>
           </CardContent>
         </Card>
+      </div>
+      <div className="col-span-3">
+        <GeographicExposureMap />
       </div>
     </div>
   )

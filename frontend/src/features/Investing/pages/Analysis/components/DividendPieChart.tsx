@@ -18,7 +18,6 @@ export default function DividendPieChart() {
   });
   const data = React.useMemo(() => prepareDividendPieData(holdings), [holdings]);
 
-  // Custom tooltip for the pie chart
   const CustomTooltip: React.FC<any> = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const entry = payload[0];
@@ -59,53 +58,57 @@ export default function DividendPieChart() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Dividend Sources</CardTitle>
-        </CardHeader>
-        <CardContent className="h-64 flex items-center justify-center">
-          <div>Loading dividend data...</div>
-        </CardContent>
-      </Card>
+      <>
+        <div className="flex flex-row items-center justify-between mb-2 h-8">
+          <h2 className="text-lg font-semibold text-gray-900">Dividend Sources</h2>
+        </div>
+        <Card>
+          <CardContent className="h-72 flex items-center justify-center">
+            <div>Loading dividend data...</div>
+          </CardContent>
+        </Card>
+      </>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Dividend Sources</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-64">
-          {data.length === 0 ? (
-            <div className="h-full flex items-center justify-center text-muted-foreground">
-              No dividend data available
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="value"
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                  labelLine={false}
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend content={<CustomLegend />} />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <>
+      <div className="flex flex-row items-center justify-between mb-2 h-8">
+        <h2 className="text-lg font-semibold text-gray-900">Dividend Sources</h2>
+      </div>
+      <Card>
+        <CardContent>
+          <div className="h-72">
+            {data.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-muted-foreground">
+                No dividend data available
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    labelLine={false}
+                  >
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend content={<CustomLegend />} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 }

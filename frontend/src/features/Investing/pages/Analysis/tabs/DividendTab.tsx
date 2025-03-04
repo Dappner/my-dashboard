@@ -31,14 +31,13 @@ export default function DividendTab() {
         </div>
 
         <div className="col-span-1">
+          <div className="flex flex-row items-center justify-between mb-2 h-8">
+            <h2 className="text-lg font-semibold flex align-bottom text-gray-900">
+              <TrendingUpIcon className="mr-2 h-5 w-5" />
+              Dividend Analysis
+            </h2>
+          </div>
           <Card className="h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <TrendingUpIcon className="mr-2 h-5 w-5" />
-                Dividend Analysis
-              </CardTitle>
-              <CardDescription>Income projection</CardDescription>
-            </CardHeader>
             <CardContent>
               {isLoading ? (
                 <>
@@ -78,10 +77,10 @@ export default function DividendTab() {
           </Card>
         </div>
         <div className="col-span-1">
+          <div className="flex flex-row items-center justify-between mb-2 h-8">
+            <h2 className="text-lg font-semibold text-gray-900">Top Dividend Holdings</h2>
+          </div>
           <Card className="h-full">
-            <CardHeader className="flex flex-row justify-between">
-              <CardTitle>Top Dividend Holdings</CardTitle>
-            </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>

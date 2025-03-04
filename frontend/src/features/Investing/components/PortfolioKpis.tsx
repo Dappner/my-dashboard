@@ -104,7 +104,7 @@ export default function PortfolioKpis({ portfolio }: PortfolioKpisProps) {
 
   // Cash percentage
   const cashPercentage = portfolioValue > 0
-    ? (cashBalance / portfolioValue) * 100
+    ? (cashBalance / (cashBalance + portfolioValue)) * 100
     : 0;
 
   return (

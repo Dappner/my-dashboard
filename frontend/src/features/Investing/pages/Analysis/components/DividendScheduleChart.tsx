@@ -82,39 +82,42 @@ function DividendScheduleChart() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Dividend Schedule</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chartData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis
-                tickFormatter={(value) => `$${value.toFixed(0)}`}
-                width={45}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              {tickers.map((ticker) => (
-                <Bar
-                  key={ticker}
-                  dataKey={ticker!}
-                  stackId="a"
-                  fill={stockColors[ticker!]}
-                  name={ticker!}
+    <>
+      <div className="flex flex-row items-center justify-between mb-2 h-8">
+        <h2 className="text-lg font-semibold text-gray-900">Dividend Schedule</h2>
+      </div>
+      <Card>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis
+                  tickFormatter={(value) => `$${value.toFixed(0)}`}
+                  width={45}
                 />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>);
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                {tickers.map((ticker) => (
+                  <Bar
+                    key={ticker}
+                    dataKey={ticker!}
+                    stackId="a"
+                    fill={stockColors[ticker!]}
+                    name={ticker!}
+                  />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
 }
 
 export default DividendScheduleChart;
