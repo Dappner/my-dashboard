@@ -172,6 +172,7 @@ export type Database = {
           industry: string | null
           long_business_summary: string | null
           name: string | null
+          region: string | null
           sector: string | null
           symbol: string
           updated_at: string | null
@@ -187,6 +188,7 @@ export type Database = {
           industry?: string | null
           long_business_summary?: string | null
           name?: string | null
+          region?: string | null
           sector?: string | null
           symbol: string
           updated_at?: string | null
@@ -202,6 +204,7 @@ export type Database = {
           industry?: string | null
           long_business_summary?: string | null
           name?: string | null
+          region?: string | null
           sector?: string | null
           symbol?: string
           updated_at?: string | null
@@ -212,6 +215,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          is_dividend_reinvestment: boolean | null
           note_text: string | null
           price_per_share: number
           settlement_date: string | null
@@ -226,6 +230,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          is_dividend_reinvestment?: boolean | null
           note_text?: string | null
           price_per_share: number
           settlement_date?: string | null
@@ -240,6 +245,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          is_dividend_reinvestment?: boolean | null
           note_text?: string | null
           price_per_share?: number
           settlement_date?: string | null
