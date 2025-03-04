@@ -23,7 +23,7 @@ export default function HoldingsTable() {
   };
 
   return (
-    <div className="w-full border rounded-md">
+    <div className="w-full border rounded-md bg-white">
       {isLoading ? (
         <div className="text-center py-4 text-muted-foreground">Loading holdings...</div>
       ) : isError ? (

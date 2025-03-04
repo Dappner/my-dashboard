@@ -19,7 +19,7 @@ export default function TickerPage() {
 
   const { data: historicalPrices, isLoading: historicalPricesLoading } =
     useQuery({
-      queryKey: ["historicalPrices", ticker?.id], // Add ticker?.id to the query key
+      queryKey: ["historicalPrices", ticker?.id],
       queryFn: async () => {
         const { data } = await supabase
           .from("historical_prices")
@@ -40,7 +40,7 @@ export default function TickerPage() {
         <div className="min-w-0 flex-1">
           {tickerLoading ?
             (
-              <>Loading</>
+              <></>
             ) :
             (
               <>

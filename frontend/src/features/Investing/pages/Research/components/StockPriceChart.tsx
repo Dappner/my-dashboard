@@ -19,7 +19,7 @@ interface StockData {
 
 interface StockPriceChartProps {
   data: HistoricalPrice[];
-  holding: Holding;
+  holding?: Holding;
 }
 
 export default function StockPriceChart({ data, holding }: StockPriceChartProps) {
@@ -35,14 +35,13 @@ export default function StockPriceChart({ data, holding }: StockPriceChartProps)
   const formatYAxisTick = (value: number) => {
     return "$" + value.toFixed(2); // Format to 2 decimal places
   };
-  console.log(holding)
 
   return (
     <div className="w-full h-80">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={chartData}
-          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+          margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis

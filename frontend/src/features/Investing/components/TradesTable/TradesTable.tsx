@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
 import {
   Table,
@@ -10,28 +9,33 @@ import {
 } from "@/components/ui/table";
 import { tradesApi, tradesApiKeys } from '@/api/tradesApi';
 import { TradeView } from '@/types/tradeTypes';
-import { useTrades } from '../hooks/useTrades';
+import { useTrades } from '@/features/Investing/hooks/useTrades';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2 } from 'lucide-react';
-import TradesTableFilters, { TradesFilters } from './TradesTableFilters';
+import TradesTableFilters, { TradesFilters } from './components/TradesTableFilters';
 import { useMemo, useState } from 'react';
-import { cn } from '@/lib/utils'; // Assuming you have this utility for classNames
+import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { getTradeTypeStyles } from './utils';
 
 interface TradesTableProps {
   exchange?: string;
   symbol?: string;
-  onEditTrade: (trade: TradeView) => void;
+  onEditTrade?: (trade: TradeView) => void;
+  onAddTrade?: () => void;
   short?: boolean;
 }
 
-export default function TradesTable({ exchange, symbol, onEditTrade, short = false }: TradesTableProps) {
+export default function TradesTable({ exchange, symbol,
+  onEditTrade, onAddTrade,
+  short = false
+}: TradesTableProps) {
   const [filters, setTradeFilters] = useState<TradesFilters>({
     transaction_type: 'all',
     ticker: 'all',
   });
 
-  // Fetch all trades and handle short view client-side
   const { data: allTrades = [], isLoading, isError } = useQuery({
     queryKey: exchange ? tradesApiKeys.ticker(exchange, symbol!) : tradesApiKeys.all,
     queryFn: exchange
@@ -71,37 +75,14 @@ export default function TradesTable({ exchange, symbol, onEditTrade, short = fal
     }
   };
 
-  const getTradeTypeStyles = (type: string | undefined) => {
-    switch (type?.toLowerCase()) {
-      case 'buy':
-        return {
-          variant: 'default' as const,
-          className: 'bg-green-100 text-green-800 border-green-200'
-        };
-      case 'sell':
-        return {
-          variant: 'destructive' as const,
-          className: 'bg-red-100 text-red-800 border-red-200'
-        };
-      case 'dividend':
-        return {
-          variant: 'secondary' as const,
-          className: 'bg-blue-100 text-blue-800 border-blue-200'
-        };
-      default:
-        return {
-          variant: 'outline' as const,
-          className: 'bg-gray-100 text-gray-800'
-        };
-    }
-  };
 
   return (
-    <div className={cn("w-full", short ? "space-y-2" : "space-y-4")}>
+    <div className={cn("w-full ", short ? "space-y-2" : "space-y-4")}>
       {!short && (
         <TradesTableFilters
           filters={filters}
           setTradesFilters={setTradeFilters}
+          onAddTrade={onAddTrade!}
         />
       )}
       {isLoading ? (
@@ -113,7 +94,7 @@ export default function TradesTable({ exchange, symbol, onEditTrade, short = fal
           {short ? "No recent trades found" : "No trades found matching the filters"}
         </div>
       ) : (
-        <div className="border rounded-md">
+        <div className="bg-white border rounded-md">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
@@ -165,7 +146,7 @@ export default function TradesTable({ exchange, symbol, onEditTrade, short = fal
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => onEditTrade(trade)}
+                            onClick={() => onEditTrade!(trade)}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>

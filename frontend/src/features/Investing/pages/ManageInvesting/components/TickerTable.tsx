@@ -50,7 +50,7 @@ export default function TickerTable({
   }
 
   return (
-    <>
+    <div className="w-full border rounded-md bg-white">
       <Table>
         <TableHeader>
           <TableRow>
@@ -67,13 +67,16 @@ export default function TickerTable({
         <TableBody>
           {filteredTickers.map((ticker) => (
             <TableRow key={ticker.id}>
-              <TableCell className="font-medium cursor-pointer hover:underline" onClick={() => onSymbolClick(ticker)}>{ticker.symbol}</TableCell>
+              <TableCell className="font-bold cursor-pointer hover:underline" onClick={() => onSymbolClick(ticker)}>{ticker.symbol}</TableCell>
               <TableCell>{ticker.name || "-"}</TableCell>
               <TableCell>{ticker.exchange || "-"}</TableCell>
               <TableCell>{ticker.sector || "-"}</TableCell>
               <TableCell>{ticker.industry || "-"}</TableCell>
-              <TableCell>{ticker.dividend_amount || "-"}</TableCell>
-              <TableCell>{ticker.dividend_months?.map((val) => monthsShort[val]).join(",")}</TableCell>
+              <TableCell>${ticker.dividend_amount?.toFixed(2) || "-"}</TableCell>
+              <TableCell>{ticker.dividend_months?.length == 12 ? "Monthly"
+                :
+                ticker.dividend_months?.map((val) => monthsShort[val]).join(",")}
+              </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end space-x-2">
                   <Sheet
@@ -136,7 +139,7 @@ export default function TickerTable({
           ))}
         </TableBody>
       </Table>
-    </>
+    </div>
   );
 }
 

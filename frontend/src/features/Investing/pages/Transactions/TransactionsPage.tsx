@@ -1,12 +1,10 @@
-import { useAuthContext } from "@/contexts/AuthContext";
 import { TradeView } from "@/types/tradeTypes";
 import { useState } from "react";
-import TradesTable from "../../components/TradesTable";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { TradeForm } from "../../forms/TradeForm";
+import { TradeForm } from "@/features/Investing/forms/TradeForm";
+import TradesTable from "../../components/TradesTable/TradesTable";
 
 export default function TransactionsPage() {
-  const { user } = useAuthContext();
   const [isTradeSheetOpen, setIsTradeSheetOpen] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<TradeView | null>(null);
 
@@ -30,8 +28,7 @@ export default function TransactionsPage() {
   return (
     <>
       <div className="px-2">
-
-        <TradesTable onEditTrade={onEditTrade} />
+        <TradesTable onEditTrade={onEditTrade} onAddTrade={onAddTrade} />
       </div>
       <Sheet open={isTradeSheetOpen} onOpenChange={setIsTradeSheetOpen}>
         <SheetContent>
