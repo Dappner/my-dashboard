@@ -16,7 +16,7 @@ import {
 import {
   TickerForm,
   TickerFormValues,
-} from "@/features/Investing/forms/CreateTickerForm";
+} from "@/features/Investing/forms/TickerForm";
 import { useTicker } from "@/features/Investing/hooks/useTickers";
 import { InsertTicker, Ticker } from "@/types/tickerTypes";
 import { Loader2, PlusCircle } from "lucide-react";

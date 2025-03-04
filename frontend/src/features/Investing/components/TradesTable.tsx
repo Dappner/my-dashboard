@@ -12,7 +12,11 @@ import { tradesApi, tradesApiKeys } from '@/api/tradesApi';
 import { TradeView } from '@/types/tradeTypes';
 import { useTrades } from '../hooks/useTrades';
 import { Button } from '@/components/ui/button';
+import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2 } from 'lucide-react';
+import TradesTableFilters, { TradesFilters } from './TradesTableFilters';
+import { useMemo, useState } from 'react';
+import { cn } from '@/lib/utils'; // Assuming you have this utility for classNames
 
 interface TradesTableProps {
   exchange?: string;
@@ -20,85 +24,167 @@ interface TradesTableProps {
   onEditTrade: (trade: TradeView) => void;
   short?: boolean;
 }
-export default function TradesTable({ exchange, symbol, onEditTrade, short }: TradesTableProps) {
-  const { data: trades = [], isLoading, isError } = useQuery({
+
+export default function TradesTable({ exchange, symbol, onEditTrade, short = false }: TradesTableProps) {
+  const [filters, setTradeFilters] = useState<TradesFilters>({
+    transaction_type: 'all',
+    ticker: 'all',
+  });
+
+  // Fetch all trades and handle short view client-side
+  const { data: allTrades = [], isLoading, isError } = useQuery({
     queryKey: exchange ? tradesApiKeys.ticker(exchange, symbol!) : tradesApiKeys.all,
-    queryFn: exchange ? () => tradesApi.getTickerTrades(exchange!, symbol!, short ? 5 : undefined) : () => tradesApi.getTrades(short ? 5 : undefined),
+    queryFn: exchange
+      ? () => tradesApi.getTickerTrades(exchange!, symbol!)
+      : () => tradesApi.getTrades(),
+    staleTime: 60 * 1000,
   });
 
   const { deleteTrade } = useTrades();
 
-  const onDeleteTrade = (id: string) => {
+  // Handle short view and filtering in one go
+  const displayedTrades = useMemo(() => {
+    let result = allTrades;
+
+    result = result.filter((trade) => {
+      const transactionTypeMatch = filters.transaction_type === 'all' || !filters.transaction_type
+        ? true
+        : filters.transaction_type === trade.transaction_type;
+
+      const tickerMatch = filters.ticker === 'all' || !filters.ticker
+        ? true
+        : filters.ticker === trade.ticker_id;
+
+      return transactionTypeMatch && tickerMatch;
+    });
+
+    if (short) {
+      result = result.slice(0, 5);
+    }
+
+    return result;
+  }, [allTrades, filters, short]);
+
+  const handleDeleteTrade = (id: string) => {
     if (confirm("Are you sure you want to delete this trade?")) {
       deleteTrade(id);
     }
   };
 
+  const getTradeTypeStyles = (type: string | undefined) => {
+    switch (type?.toLowerCase()) {
+      case 'buy':
+        return {
+          variant: 'default' as const,
+          className: 'bg-green-100 text-green-800 border-green-200'
+        };
+      case 'sell':
+        return {
+          variant: 'destructive' as const,
+          className: 'bg-red-100 text-red-800 border-red-200'
+        };
+      case 'dividend':
+        return {
+          variant: 'secondary' as const,
+          className: 'bg-blue-100 text-blue-800 border-blue-200'
+        };
+      default:
+        return {
+          variant: 'outline' as const,
+          className: 'bg-gray-100 text-gray-800'
+        };
+    }
+  };
 
   return (
-    <div className="w-full">
+    <div className={cn("w-full", short ? "space-y-2" : "space-y-4")}>
+      {!short && (
+        <TradesTableFilters
+          filters={filters}
+          setTradesFilters={setTradeFilters}
+        />
+      )}
       {isLoading ? (
-        <div className="text-center py-4">Loading trades...</div>
+        <div className="text-center py-4 text-muted-foreground">Loading trades...</div>
       ) : isError ? (
-        <div className="text-center py-4">Error Loading Trades. Please Refresh the page.</div>
+        <div className="text-center py-4 text-destructive">Error loading trades. Please refresh the page.</div>
+      ) : displayedTrades.length === 0 ? (
+        <div className="text-center py-4 text-muted-foreground">
+          {short ? "No recent trades found" : "No trades found matching the filters"}
+        </div>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Type</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Ticker</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {(trades || []).length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center h-24">
-                  No trades found. Add your first trade.
-                </TableCell>
+        <div className="border rounded-md">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead>Type</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Ticker</TableHead>
+                <TableHead className="text-right">Quantity</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                {!short && <TableHead className="text-right">Actions</TableHead>}
               </TableRow>
-            ) : (
-              trades.map((trade) => (
-                <TableRow key={trade.id}>
-                  <TableCell className={trade.transaction_type === 'buy' ? 'text-green-600 ' : 'text-red-600'}>
-                    {trade.transaction_type?.toUpperCase()}
-                  </TableCell>
-                  <TableCell>
-                    {format(parseISO(trade.transaction_date!), "MMM dd, yyyy")}
-                  </TableCell>
-                  <TableCell>{trade.symbol}</TableCell>
-                  <TableCell className="text-right">{trade.shares!.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">${trade.price_per_share!.toFixed(2)}</TableCell>
-                  <TableCell className="text-right font-medium">
-                    ${trade.total_cost_basis?.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onEditTrade(trade)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDeleteTrade(trade.id!)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+            </TableHeader>
+            <TableBody>
+              {displayedTrades.map((trade) => {
+                const typeStyles = getTradeTypeStyles(trade.transaction_type as string);
 
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+                return (
+                  <TableRow key={trade.id}>
+                    <TableCell>
+                      <Badge
+                        variant={typeStyles.variant}
+                        className={cn(
+                          "font-medium",
+                          typeStyles.className,
+                          short && "text-xs"
+                        )}
+                      >
+                        {trade.transaction_type?.toUpperCase()}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className={short ? "text-sm" : ""}>
+                      {format(parseISO(trade.transaction_date!), "MMM dd, yyyy")}
+                    </TableCell>
+                    <TableCell className={short ? "text-sm" : ""}>
+                      {trade.symbol}
+                    </TableCell>
+                    <TableCell className={cn("text-right", short && "text-sm")}>
+                      {trade.shares!.toFixed(2)}
+                    </TableCell>
+                    <TableCell className={cn("text-right", short && "text-sm")}>
+                      ${trade.price_per_share!.toFixed(2)}
+                    </TableCell>
+                    <TableCell className={cn("text-right font-medium", short && "text-sm")}>
+                      ${trade.total_cost_basis?.toFixed(2)}
+                    </TableCell>
+                    {!short && (
+                      <TableCell className="text-right">
+                        <div className="flex justify-end space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onEditTrade(trade)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteTrade(trade.id!)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   );

@@ -19,7 +19,7 @@ export default function Layout() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className="min-h-screen bg-gray-50">
         <RouteBreadcrumbs />
         <main className="p-8 pt-0">
           <Outlet />

@@ -3,7 +3,6 @@ import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import TradesTable from "@/features/Investing/components/TradesTable";
 import { useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 import StockPriceChart from "../components/StockPriceChart";
 import { HistoricalPrice } from "@/types/historicalPricesTypes";
 
@@ -65,20 +64,13 @@ export default function OverviewTab({ exchange, tickerSymbol, historicalPrices }
           </CardContent >
         </Card >
 
-        <Card className="col-span-2">
-          <CardHeader className="flex flex-row justify-between">
-            <CardTitle>Transactions</CardTitle>
-            <Plus
-              className="text-blue-500 cursor-pointer hover:underline size-5"
-            />
-          </CardHeader>
-          <CardContent>
-            <TradesTable exchange={exchange} symbol={tickerSymbol} />
-          </CardContent>
-        </Card>
-
+        <div className="col-span-2">
+          <div className="flex items-center justify-between mb-2 h-8">
+            <h2 className="text-lg font-semibold text-gray-900">Recent Transactions</h2>
+          </div>
+          <TradesTable exchange={exchange} symbol={tickerSymbol} onEditTrade={() => { }} short />
+        </div>
       </div >
-
     </>
   )
 }

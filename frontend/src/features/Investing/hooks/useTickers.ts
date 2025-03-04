@@ -1,7 +1,7 @@
 import { tickersApiKeys, tickersApi } from "@/api/tickersApi";
 import { Ticker } from "@/types/tickerTypes";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner"; // Assuming you're using Sonner for notifications
+import { toast } from "sonner";
 
 interface UseTickerOptions {
   onAddSuccess?: () => void;

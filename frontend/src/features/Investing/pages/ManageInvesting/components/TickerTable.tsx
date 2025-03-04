@@ -17,7 +17,7 @@ import {
 import {
   TickerForm,
   TickerFormValues,
-} from "@/features/Investing/forms/CreateTickerForm";
+} from "@/features/Investing/forms/TickerForm";
 import { Ticker } from "@/types/tickerTypes";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
