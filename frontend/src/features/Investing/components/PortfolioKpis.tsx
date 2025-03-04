@@ -1,14 +1,11 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ArrowDown, ArrowUp, TrendingUp, DollarSign } from "lucide-react";
-import { Portfolio } from "@/types/portfolioTypes";
 import { Database } from "@/types/supabase";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { useAuthContext } from '@/contexts/AuthContext';
 
-interface PortfolioKpisProps {
-  portfolio?: Portfolio;
-}
 
 const KpiCard = ({
   title,
@@ -61,7 +58,7 @@ const KpiCard = ({
   </Card>
 );
 
-export default function PortfolioKpis({ portfolio }: PortfolioKpisProps) {
+export default function PortfolioKpis() {
   const { data: dailyMetrics, isLoading, isError } = useQuery({
     queryFn: async () => {
       const { data } = await supabase.from("portfolio_daily_metrics").select();
@@ -70,13 +67,22 @@ export default function PortfolioKpis({ portfolio }: PortfolioKpisProps) {
     queryKey: ["30Day"],
   });
 
+  const { user: authUser } = useAuthContext();
+  const { data: user } = useQuery({
+    queryFn: async () => {
+      const { data } = await supabase.from("users").select()
+        .eq("id", authUser!.id)
+        .single();
+      return data;
+    },
+    queryKey: ["user"],
+    enabled: !!authUser
+  });
+
   if (isLoading || isError || !dailyMetrics || dailyMetrics.length === 0) {
-    return (
-      <div className="grid grid-cols-3 gap-4">
-        {Array(3).fill(0).map((_, i) => (
-          <Card key={i} className="h-32 animate-pulse bg-gray-200" />
-        ))}
-      </div>
+    return Array(3).fill(0).map((_, i) => (
+      <Card key={i} className="h-32 animate-pulse bg-gray-200" />
+    )
     );
   }
 
@@ -87,7 +93,7 @@ export default function PortfolioKpis({ portfolio }: PortfolioKpisProps) {
   // Calculate key metrics with robust error handling
   const portfolioValue = currentMetrics.portfolio_value || 0;
   const portfolioCostBasis = currentMetrics.cost_basis || 0;
-  const cashBalance = portfolio?.cash || 0;
+  const cashBalance = user?.cash_balance || 0;
 
   // Calculate month change
   const previousPortfolioValue = previousMetrics.portfolio_value || portfolioValue;

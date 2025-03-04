@@ -60,8 +60,8 @@ export function useTickerData(exchange: string, tickerSymbol: string) {
         .from("yh_finance_daily")
         .select()
         .eq("ticker_id", ticker!.id)
-        .limit(1);
-      return data ? data[0] as YahooFinanceDaily : null;
+        .single();
+      return data as YahooFinanceDaily;
     },
     enabled: !!ticker?.id,
   });

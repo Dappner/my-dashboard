@@ -14,7 +14,7 @@ export default function YhFinanceStats({ yahooFinanceDaily, isLoading }: YhFinan
       <div className="flex flex-row items-center justify-between mb-2 h-8">
         <h2 className="text-lg font-semibold text-gray-900">YH Finance Stats</h2>
         <h2 className="text-base font-semibold text-gray-500">
-          {yahooFinanceDaily?.date ? format(new Date(yahooFinanceDaily.date), "MM/dd/yyyy") : 'N/A'}
+          {yahooFinanceDaily?.date ? format(new Date(yahooFinanceDaily.date + "T00:00:00"), "MM/dd/yyyy") : 'N/A'}
         </h2>
       </div>
       <Card>

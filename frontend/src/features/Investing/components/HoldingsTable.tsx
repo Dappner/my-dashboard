@@ -57,7 +57,7 @@ export default function HoldingsTable() {
                 <TableCell
                   className={holding.unrealized_gain_loss! >= 0 ? "text-green-600" : "text-red-600"}
                 >
-                  {holding.unrealized_gain_loss?.toFixed(2)}
+                  ${holding.unrealized_gain_loss?.toFixed(2)}
                 </TableCell>
               </TableRow>
             ))}

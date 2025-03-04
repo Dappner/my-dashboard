@@ -22,7 +22,6 @@ export default function HoldingsPanel({
   const [isExpanded, setIsExpanded] = useState(false);
   const { state } = useSidebar();
 
-  // If no holding data, return null
   if (!holding) return null;
 
   return (
@@ -55,23 +54,22 @@ export default function HoldingsPanel({
           {/* Core KPIs in Flex Row */}
           <div className="grid text-base grid-cols-4 gap-2 p-3">
             <div>
-              <p className="text-gray-500">Shares</p>
-              <p className="text-lg font-medium">{holding.shares?.toFixed(2) || '0'}</p>
+              <p className="text-gray-500">Position</p>
+              <p className="text-lg font-medium">{holding.shares?.toFixed(2) || '0'} (${holding.current_market_value?.toFixed(2) || '0.00'})</p>
             </div>
             <div>
-              <p className="text-gray-500">Avg Cost</p>
+              <p className="text-gray-500">Avg Price</p>
               <p className="text-lg font-medium">${holding.average_cost_basis?.toFixed(2) || '0.00'}</p>
             </div>
             <div>
-              <p className="text-gray-500">P/L</p>
+              <p className="text-gray-500">All Time</p>
               <p className={`text-lg font-medium ${(holding.unrealized_gain_loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                 }`}>
                 ${holding.unrealized_gain_loss?.toFixed(2) || '0.00'}
               </p>
             </div>
             <div>
-              <p className="text-gray-500">Value</p>
-              <p className="text-lg font-medium">${holding.current_market_value?.toFixed(2) || '0.00'}</p>
+              {/* This could be left empty or used for another metric if needed */}
             </div>
           </div>
 

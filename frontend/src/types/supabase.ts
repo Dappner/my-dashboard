@@ -69,45 +69,68 @@ export type Database = {
           },
         ]
       }
-      portfolio: {
+      holdings: {
         Row: {
-          cash: number
-          currency: string | null
+          average_cost_basis: number | null
           id: string
-          name: string | null
+          ticker_id: string
+          total_cost_basis: number
+          total_dividends_received: number
+          total_shares: number
+          updated_at: string
           user_id: string
         }
         Insert: {
-          cash: number
-          currency?: string | null
+          average_cost_basis?: number | null
           id?: string
-          name?: string | null
+          ticker_id: string
+          total_cost_basis?: number
+          total_dividends_received?: number
+          total_shares?: number
+          updated_at?: string
           user_id: string
         }
         Update: {
-          cash?: number
-          currency?: string | null
+          average_cost_basis?: number | null
           id?: string
-          name?: string | null
+          ticker_id?: string
+          total_cost_basis?: number
+          total_dividends_received?: number
+          total_shares?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "portfolio_user_id_fkey"
+            foreignKeyName: "holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "holdings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "current_holdings"
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "portfolio_user_id_fkey"
+            foreignKeyName: "holdings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "portfolio_performance"
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "portfolio_user_id_fkey"
+            foreignKeyName: "holdings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -156,6 +179,95 @@ export type Database = {
             columns: ["ticker_id"]
             isOneToOne: false
             referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suggested_trades: {
+        Row: {
+          created_at: string
+          id: string
+          is_dividend_reinvestment: boolean
+          price_per_share: number
+          shares: number
+          source_trade_id: string | null
+          ticker_id: string
+          transaction_date: string
+          transaction_type: Database["public"]["Enums"]["transaction_type_enum"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_dividend_reinvestment?: boolean
+          price_per_share: number
+          shares: number
+          source_trade_id?: string | null
+          ticker_id: string
+          transaction_date: string
+          transaction_type: Database["public"]["Enums"]["transaction_type_enum"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_dividend_reinvestment?: boolean
+          price_per_share?: number
+          shares?: number
+          source_trade_id?: string | null
+          ticker_id?: string
+          transaction_date?: string
+          transaction_type?: Database["public"]["Enums"]["transaction_type_enum"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggested_trades_source_trade_id_fkey"
+            columns: ["source_trade_id"]
+            isOneToOne: false
+            referencedRelation: "trades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suggested_trades_source_trade_id_fkey"
+            columns: ["source_trade_id"]
+            isOneToOne: false
+            referencedRelation: "trades_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suggested_trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "suggested_trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suggested_trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "suggested_trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_performance"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "suggested_trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -297,6 +409,7 @@ export type Database = {
       }
       users: {
         Row: {
+          cash_balance: number
           created_at: string | null
           email: string
           first_name: string | null
@@ -305,6 +418,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          cash_balance?: number
           created_at?: string | null
           email: string
           first_name?: string | null
@@ -313,6 +427,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          cash_balance?: number
           created_at?: string | null
           email?: string
           first_name?: string | null
@@ -324,50 +439,74 @@ export type Database = {
       }
       yh_finance_daily: {
         Row: {
+          average_analyst_rating: number | null
+          beta: number | null
           created_at: string | null
           date: string
           dividend_yield: number | null
+          eps_forward: number | null
+          eps_trailing_ttm: number | null
           fifty_day_average: number | null
           fifty_two_week_high: number | null
           fifty_two_week_low: number | null
           id: string
           market_cap: number | null
           nav_price: number | null
+          price_eps_current_year: number | null
+          profit_margins: number | null
+          regular_market_change_percent: number | null
+          regular_market_price: number | null
+          regular_market_volume: number | null
           ticker_id: string
           total_assets: number | null
-          trailing_pe: number | null
           two_hundred_day_average: number | null
           updated_at: string | null
         }
         Insert: {
+          average_analyst_rating?: number | null
+          beta?: number | null
           created_at?: string | null
           date: string
           dividend_yield?: number | null
+          eps_forward?: number | null
+          eps_trailing_ttm?: number | null
           fifty_day_average?: number | null
           fifty_two_week_high?: number | null
           fifty_two_week_low?: number | null
           id?: string
           market_cap?: number | null
           nav_price?: number | null
+          price_eps_current_year?: number | null
+          profit_margins?: number | null
+          regular_market_change_percent?: number | null
+          regular_market_price?: number | null
+          regular_market_volume?: number | null
           ticker_id: string
           total_assets?: number | null
-          trailing_pe?: number | null
           two_hundred_day_average?: number | null
           updated_at?: string | null
         }
         Update: {
+          average_analyst_rating?: number | null
+          beta?: number | null
           created_at?: string | null
           date?: string
           dividend_yield?: number | null
+          eps_forward?: number | null
+          eps_trailing_ttm?: number | null
           fifty_day_average?: number | null
           fifty_two_week_high?: number | null
           fifty_two_week_low?: number | null
           id?: string
           market_cap?: number | null
           nav_price?: number | null
+          price_eps_current_year?: number | null
+          profit_margins?: number | null
+          regular_market_change_percent?: number | null
+          regular_market_price?: number | null
+          regular_market_volume?: number | null
           ticker_id?: string
           total_assets?: number | null
-          trailing_pe?: number | null
           two_hundred_day_average?: number | null
           updated_at?: string | null
         }
@@ -375,14 +514,14 @@ export type Database = {
           {
             foreignKeyName: "yh_finance_daily_ticker_id_fkey"
             columns: ["ticker_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "current_holdings"
             referencedColumns: ["ticker_id"]
           },
           {
             foreignKeyName: "yh_finance_daily_ticker_id_fkey"
             columns: ["ticker_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -413,6 +552,9 @@ export type Database = {
           symbol: string | null
           ticker_id: string | null
           total_cost_basis: number | null
+          total_dividends_received: number | null
+          total_gain_loss: number | null
+          total_gain_loss_percent: number | null
           unrealized_gain_loss: number | null
           unrealized_gain_loss_percent: number | null
           user_id: string | null

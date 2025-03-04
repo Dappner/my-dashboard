@@ -9,7 +9,7 @@ export const holdingsApiKeys = {
 export const holdingsApi = {
 
   async getHoldings() {
-    const { data, error } = await supabase.from("current_holdings").select()
+    const { data, error } = await supabase.from("current_holdings").select().order("current_market_value", { ascending: false })
     if (error) throw error;
 
     return data as Holding[];

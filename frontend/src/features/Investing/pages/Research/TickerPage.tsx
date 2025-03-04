@@ -68,6 +68,7 @@ export default function TickerPage() {
           )}
         </TabsContent>
       </Tabs>
+
       {holding && (
         <HoldingsPanel
           holding={holding}

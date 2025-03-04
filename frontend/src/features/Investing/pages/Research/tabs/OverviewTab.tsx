@@ -15,6 +15,8 @@ export default function OverviewTab({ exchange, tickerSymbol }: OverviewTabProps
     tickerSymbol
   );
 
+  console.log(yhFinanceData)
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-3 xl:grid-cols-6 gap-4 animate-pulse">

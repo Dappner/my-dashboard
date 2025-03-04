@@ -5,23 +5,13 @@ import { useState } from "react";
 import { TradeView } from "@/types/tradeTypes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { TradeForm } from "./forms/TradeForm";
-import { useQuery } from "@tanstack/react-query";
-import { portfoliosApi, portfoliosApiKey } from "@/api/portfoliosApi";
-import { useAuthContext } from "@/contexts/AuthContext";
 import PortfolioKpis from "./components/PortfolioKpis";
 import { Button } from "@/components/ui/button";
 import TradesTable from "./components/TradesTable/TradesTable";
 
 export default function InvestingPage() {
-  const { user } = useAuthContext();
   const [isTradeSheetOpen, setIsTradeSheetOpen] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<TradeView | null>(null);
-
-  const { data: portfolio } = useQuery({
-    queryFn: () => portfoliosApi.fetchUserPortfolio(user!.id),
-    queryKey: portfoliosApiKey.all,
-    enabled: !!user
-  });
 
   const onEditTrade = (trade: TradeView) => {
     setSelectedTrade(trade);
@@ -41,7 +31,7 @@ export default function InvestingPage() {
   return (
     <div className="space-y-6 p-6">
       <div className="grid grid-cols-3 gap-4">
-        <PortfolioKpis portfolio={portfolio} />
+        <PortfolioKpis />
       </div>
 
       <PortfolioChart />
