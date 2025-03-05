@@ -332,10 +332,10 @@ export type Database = {
           id: string
           is_dividend_reinvestment: boolean | null
           note_text: string | null
-          price_per_share: number
+          price_per_share: number | null
           settlement_date: string | null
-          shares: number
-          ticker_id: string
+          shares: number | null
+          ticker_id: string | null
           transaction_date: string
           transaction_fee: number | null
           transaction_type: Database["public"]["Enums"]["transaction_type_enum"]
@@ -347,10 +347,10 @@ export type Database = {
           id?: string
           is_dividend_reinvestment?: boolean | null
           note_text?: string | null
-          price_per_share: number
+          price_per_share?: number | null
           settlement_date?: string | null
-          shares: number
-          ticker_id: string
+          shares?: number | null
+          ticker_id?: string | null
           transaction_date: string
           transaction_fee?: number | null
           transaction_type: Database["public"]["Enums"]["transaction_type_enum"]
@@ -362,10 +362,10 @@ export type Database = {
           id?: string
           is_dividend_reinvestment?: boolean | null
           note_text?: string | null
-          price_per_share?: number
+          price_per_share?: number | null
           settlement_date?: string | null
-          shares?: number
-          ticker_id?: string
+          shares?: number | null
+          ticker_id?: string | null
           transaction_date?: string
           transaction_fee?: number | null
           transaction_type?: Database["public"]["Enums"]["transaction_type_enum"]
@@ -677,7 +677,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      transaction_type_enum: "buy" | "sell" | "dividend"
+      transaction_type_enum:
+        | "buy"
+        | "sell"
+        | "dividend"
+        | "deposit"
+        | "withdrawal"
     }
     CompositeTypes: {
       [_ in never]: never

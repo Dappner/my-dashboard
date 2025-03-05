@@ -8,10 +8,19 @@ import { TradeForm } from "./forms/TradeForm";
 import PortfolioKpis from "./components/PortfolioKpis";
 import { Button } from "@/components/ui/button";
 import TradesTable from "./components/TradesTable/TradesTable";
+import CashTransactionForm from "./forms/CashTransactionForm";
+import { useCashTransaction } from "./hooks/useCashTransaction";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export default function InvestingPage() {
   const [isTradeSheetOpen, setIsTradeSheetOpen] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<TradeView | null>(null);
+  const { user } = useAuthContext();
+  const {
+    isDialogOpen,
+    openCashTransactionDialog,
+    closeCashTransactionDialog
+  } = useCashTransaction(user!.id);
 
   const onEditTrade = (trade: TradeView) => {
     setSelectedTrade(trade);
@@ -47,15 +56,27 @@ export default function InvestingPage() {
         <div className="col-span-2">
           <div className="flex items-center justify-between mb-2 h-8">
             <h2 className="text-lg font-semibold text-gray-900">Recent Transactions</h2>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onAddTrade}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Add Trade
-            </Button>
+            <div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={openCashTransactionDialog}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Transaction
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onAddTrade}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Trade
+              </Button>
+            </div>
           </div>
           <TradesTable onEditTrade={onEditTrade} short={true} />
         </div>
@@ -73,7 +94,7 @@ export default function InvestingPage() {
                 onClose={onClose}
                 defaultValues={{
                   ticker_id: selectedTrade.ticker_id!,
-                  transaction_type: selectedTrade.transaction_type!,
+                  transaction_type: selectedTrade.transaction_type! as any,
                   shares: selectedTrade.shares!,
                   price_per_share: selectedTrade.price_per_share!,
                   transaction_fee: selectedTrade.transaction_fee!,
@@ -87,6 +108,12 @@ export default function InvestingPage() {
           </div>
         </SheetContent>
       </Sheet>
-    </div>
+
+      <CashTransactionForm
+        userId={user!.id}
+        isOpen={isDialogOpen}
+        onClose={closeCashTransactionDialog}
+      />
+    </div >
   );
 }
