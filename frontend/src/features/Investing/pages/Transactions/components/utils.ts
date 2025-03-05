@@ -1,6 +1,6 @@
 import { TradeView } from "@/types/transactionsTypes";
-import { TransactionsFilters } from "./components/TransactionsFilters";
 import { parseISO } from "date-fns";
+import { TransactionsFilters } from "./TransactionsFilters";
 
 export function filterTrades(filters: TransactionsFilters, trades: TradeView[]) {
   return trades.filter((trade) => {

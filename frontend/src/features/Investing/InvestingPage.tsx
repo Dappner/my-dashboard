@@ -26,7 +26,7 @@ export default function InvestingPage() {
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-1">
           <div className="flex items-center justify-between mb-2 h-8">
-            <h2 className="text-lg font-semibold text-gray-900">Holdings</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Portfolio</h2>
           </div>
           <HoldingsTable />
         </div>

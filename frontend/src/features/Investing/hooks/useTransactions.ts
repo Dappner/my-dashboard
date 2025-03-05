@@ -14,7 +14,7 @@ interface UseTransactionsOptions {
 export const useTransactions = (options?: UseTransactionsOptions) => {
   const queryClient = useQueryClient();
 
-  const { data: transactions, isLoading, isError } = useQuery<TradeView[]>({
+  const { data: transactions, isLoading, isError, refetch } = useQuery<TradeView[]>({
     queryFn: () => transactionsApi.getTransactions(),
     queryKey: transactionsApiKeys.all,
   });
@@ -70,9 +70,10 @@ export const useTransactions = (options?: UseTransactionsOptions) => {
     transactions,
     isLoading,
     isError,
-    addTrade: addTransactionMutation.mutate,
-    updateTrade: updateTransactionMutation.mutate,
-    deleteTrade: deleteTransactionMutation.mutate,
+    refetch,
+    addTransaction: addTransactionMutation.mutate,
+    updateTransaction: updateTransactionMutation.mutate,
+    deleteTransaction: deleteTransactionMutation.mutate,
     isAdding: addTransactionMutation.isPending,
     isUpdating: updateTransactionMutation.isPending,
     isDeleting: deleteTransactionMutation.isPending,

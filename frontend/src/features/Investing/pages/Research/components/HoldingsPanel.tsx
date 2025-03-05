@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Holding } from '@/types/holdingsTypes';
 import { TradeView } from '@/types/transactionsTypes';
-import TransactionsTable from '../../Transactions/components/TransactionsTable';
+import { transactionsApiKeys, transactionsApi } from '@/api/tradesApi';
+import { useQuery } from '@tanstack/react-query';
+import TransactionTable from '@/features/Investing/components/TransactionTable';
 
 interface HoldingsPanelProps {
   holding: Holding;
@@ -21,6 +23,13 @@ export default function HoldingsPanel({
 }: HoldingsPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { state } = useSidebar();
+
+  const { data: transactions = [] } = useQuery({
+    queryKey: transactionsApiKeys.ticker(exchange, tickerSymbol!),
+    queryFn: async () => transactionsApi.getTickerTrades(exchange!, tickerSymbol!),
+    staleTime: 60 * 1000,
+    retry: 2,
+  });
 
   if (!holding) return null;
 
@@ -80,7 +89,7 @@ export default function HoldingsPanel({
               {tickerTrades?.length ? (
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Recent Transactions</h3>
-                  <TransactionsTable exchange={exchange} symbol={tickerSymbol} short />
+                  <TransactionTable transactions={transactions} />
                 </div>
               ) : (
                 <p className="text-gray-500 text-sm">No recent transactions</p>

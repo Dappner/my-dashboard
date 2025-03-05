@@ -56,7 +56,7 @@ export default function TransactionTable({
   actions = false
 }: TransactionTableProps) {
   return (
-    <>
+    <div className="bg-white border rounded-md shadow-sm overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50 hover:bg-muted/50">
@@ -133,6 +133,6 @@ export default function TransactionTable({
           })}
         </TableBody>
       </Table>
-    </>
+    </div>
   )
 }
