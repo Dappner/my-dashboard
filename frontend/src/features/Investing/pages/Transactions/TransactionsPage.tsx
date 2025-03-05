@@ -1,4 +1,4 @@
-import { TradeView } from "@/types/tradeTypes";
+import { TradeView } from "@/types/transactionsTypes";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { TradeForm } from "@/features/Investing/forms/TradeForm";
@@ -7,8 +7,6 @@ import TradesTable from "../../components/TradesTable/TradesTable";
 export default function TransactionsPage() {
   const [isTradeSheetOpen, setIsTradeSheetOpen] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<TradeView | null>(null);
-
-
 
   const onEditTrade = (trade: TradeView) => {
     setSelectedTrade(trade);

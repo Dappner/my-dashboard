@@ -7,9 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { tradesApi, tradesApiKeys } from '@/api/tradesApi';
-import { TradeView } from '@/types/tradeTypes';
-import { useTrades } from '@/features/Investing/hooks/useTrades';
+import { TradeView } from '@/types/transactionsTypes';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2 } from 'lucide-react';
@@ -18,6 +16,8 @@ import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { getTradeTypeStyles } from './utils';
+import { transactionsApi, transactionsApiKeys } from '@/api/tradesApi';
+import { useTransactions } from '../../hooks/useTransactions';
 
 interface TradesTableProps {
   exchange?: string;
@@ -37,14 +37,14 @@ export default function TradesTable({ exchange, symbol,
   });
 
   const { data: allTrades = [], isLoading, isError } = useQuery({
-    queryKey: exchange ? tradesApiKeys.ticker(exchange, symbol!) : tradesApiKeys.all,
+    queryKey: exchange ? transactionsApiKeys.ticker(exchange, symbol!) : transactionsApiKeys.all,
     queryFn: exchange
-      ? () => tradesApi.getTickerTrades(exchange!, symbol!)
-      : () => tradesApi.getTrades(),
+      ? () => transactionsApi.getTickerTrades(exchange!, symbol!)
+      : () => transactionsApi.getTransactions(),
     staleTime: 60 * 1000,
   });
 
-  const { deleteTrade } = useTrades();
+  const { deleteTrade } = useTransactions();
 
   // Handle short view and filtering in one go
   const displayedTrades = useMemo(() => {

@@ -1,16 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { tickersApi, tickersApiKeys } from "@/api/tickersApi";
 import { holdingsApi, holdingsApiKeys } from "@/api/holdingsApi";
-import { tradesApi, tradesApiKeys } from "@/api/tradesApi";
 import { supabase } from "@/lib/supabase";
 import { HistoricalPrice } from "@/types/historicalPricesTypes";
 import { YahooFinanceDaily } from "@/types/yahooFinanceDaily";
+import { transactionsApi, transactionsApiKeys } from "@/api/tradesApi";
+import { Ticker } from "@/types/tickerTypes";
+import { Holding } from "@/types/holdingsTypes";
+import { TradeView } from "@/types/transactionsTypes";
 
 interface TickerData {
-  ticker: any; // Replace with proper ticker type
+  ticker: Ticker;
   historicalPrices: HistoricalPrice[] | null;
-  holding: any; // Replace with proper holding type
-  tickerTrades: any[]; // Replace with proper trade type
+  holding: Holding;
+  tickerTrades: TradeView[];
   yhFinanceData: YahooFinanceDaily | null;
   isLoading: boolean;
   isError: boolean;
@@ -46,8 +49,8 @@ export function useTickerData(exchange: string, tickerSymbol: string) {
 
   // Trades Data
   const { data: tickerTrades = [], isLoading: tradesLoading } = useQuery({
-    queryKey: tradesApiKeys.ticker(exchange, tickerSymbol),
-    queryFn: () => tradesApi.getTickerTrades(exchange, tickerSymbol),
+    queryKey: transactionsApiKeys.ticker(exchange, tickerSymbol),
+    queryFn: () => transactionsApi.getTickerTrades(exchange, tickerSymbol),
     staleTime: 60 * 1000,
     enabled: !!exchange && !!tickerSymbol,
   });

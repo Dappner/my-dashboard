@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { HistoricalPrice } from "@/types/historicalPricesTypes";
 import { Holding } from "@/types/holdingsTypes";
-import { TradeView } from "@/types/tradeTypes";
+import { TradeView } from "@/types/transactionsTypes";
 import { format, parseISO } from "date-fns";
 import {
   LineChart,
@@ -36,7 +36,7 @@ export default function StockPriceChart({
   holding,
   tickerTrades = []
 }: StockPriceChartProps) {
-  // Prepare chart data with purchase information
+
   const chartData: StockData[] = data.map((item) => {
     // Find purchases on this date
     const transactions = tickerTrades.filter(
@@ -115,16 +115,16 @@ export default function StockPriceChart({
               name="Price"
             />
 
-            {/* Add vertical lines for purchase dates */}
-
+            {/* Vertical lines for purchase dates */}
             {tickerTrades
               .filter(trade => trade.transaction_type === 'buy' || trade.transaction_type === 'dividend')
               .map((trade, index) => (
                 <ReferenceLine
+                  strokeWidth={2}
                   key={index}
                   x={trade.transaction_date || undefined}
                   stroke={trade.transaction_type === 'buy' ? '#16a34a' : '#2563eb'}
-                  strokeDasharray="3 3"
+                  strokeDasharray="6 6"
                   label={{
                     // value: `${trade.transaction_type === 'buy' ? 'Buy' : 'Dividend'}: ${trade.shares} shares`,
                     // position: 'insideTopRight',
@@ -138,8 +138,9 @@ export default function StockPriceChart({
             {holding && holding.average_cost_basis && (
               <ReferenceLine
                 y={holding.average_cost_basis}
-                stroke="#16a34a"
-                strokeDasharray="3 3"
+                strokeWidth={2}
+                stroke="#000000"
+                strokeDasharray="6 6"
                 label={{
                   value: `Cost Basis: $${holding.average_cost_basis?.toFixed(2)}`,
                   position: 'insideBottomRight',

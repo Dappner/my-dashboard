@@ -15,7 +15,6 @@ export default function OverviewTab({ exchange, tickerSymbol }: OverviewTabProps
     tickerSymbol
   );
 
-  console.log(yhFinanceData)
 
   if (isLoading) {
     return (

@@ -2,7 +2,7 @@ import { Plus } from "lucide-react";
 import PortfolioChart from "./components/PortfolioChart";
 import HoldingsTable from "./components/HoldingsTable";
 import { useState } from "react";
-import { TradeView } from "@/types/tradeTypes";
+import { TradeView } from "@/types/transactionsTypes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { TradeForm } from "./forms/TradeForm";
 import PortfolioKpis from "./components/PortfolioKpis";

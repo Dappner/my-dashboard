@@ -1,6 +1,6 @@
 import { tickersApiKeys, tickersApi } from "@/api/tickersApi";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { TransactionType } from "@/types/tradeTypes";
+import { TransactionType } from "@/types/transactionsTypes";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";

@@ -77,6 +77,7 @@ export type Database = {
           total_cost_basis: number
           total_dividends_received: number
           total_shares: number
+          total_transaction_fees: number | null
           updated_at: string
           user_id: string
         }
@@ -87,6 +88,7 @@ export type Database = {
           total_cost_basis?: number
           total_dividends_received?: number
           total_shares?: number
+          total_transaction_fees?: number | null
           updated_at?: string
           user_id: string
         }
@@ -97,6 +99,7 @@ export type Database = {
           total_cost_basis?: number
           total_dividends_received?: number
           total_shares?: number
+          total_transaction_fees?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -225,14 +228,14 @@ export type Database = {
             foreignKeyName: "suggested_trades_source_trade_id_fkey"
             columns: ["source_trade_id"]
             isOneToOne: false
-            referencedRelation: "trades"
+            referencedRelation: "trades_view"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "suggested_trades_source_trade_id_fkey"
             columns: ["source_trade_id"]
             isOneToOne: false
-            referencedRelation: "trades_view"
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
           {
@@ -323,7 +326,7 @@ export type Database = {
         }
         Relationships: []
       }
-      trades: {
+      transactions: {
         Row: {
           created_at: string | null
           id: string
@@ -547,6 +550,7 @@ export type Database = {
           market_dividend_yield_percent: number | null
           name: string | null
           price_change_1d_percent: number | null
+          region: string | null
           sector: string | null
           shares: number | null
           symbol: string | null

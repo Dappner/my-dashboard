@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { TrendingUpIcon } from "lucide-react";
@@ -14,7 +14,6 @@ export default function DividendTab() {
     queryKey: holdingsApiKeys.all
   });
 
-  // Calculate dividend statistics
   const annualIncome = holdings ? calculateTotalAnnualDividend(holdings) : 0;
   const averageYield = holdings ? calculateAverageYield(holdings) : 0;
   const monthlyAverage = holdings ? calculateMonthlyAverage(holdings) : 0;

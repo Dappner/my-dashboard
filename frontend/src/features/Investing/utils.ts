@@ -217,3 +217,30 @@ export const prepareDividendChartData = (holdings?: Holding[]) => {
 
   return monthlyData;
 };
+
+
+export function calculateGeographicExposure(holdings: Holding[]) {
+  const regionExposure = holdings.reduce((acc, holding) => {
+    const marketValue = holding.current_market_value;
+
+    // Handle null or undefined region
+    const region = !holding.region ? 'Unknown' :
+      holding.region === 'US' ? 'United States' :
+        ['GB', 'DE', 'FR', 'IT', 'NL'].includes(holding.region) ? 'Europe' :
+          ['JP', 'CN', 'KR', 'TW', 'IN'].includes(holding.region) ? 'Asia' :
+            'Other';
+
+    acc[region] = (acc[region] || 0) + marketValue;
+    return acc;
+  }, {});
+
+  const totalMarketValue = Object.values(regionExposure).reduce((a, b) => a + b, 0);
+
+  return Object.entries(regionExposure)
+    .map(([region, value]) => ({
+      region,
+      value,
+      percentage: ((value / totalMarketValue) * 100).toFixed(2)
+    }))
+    .sort((a, b) => parseFloat(b.percentage) - parseFloat(a.percentage));
+}

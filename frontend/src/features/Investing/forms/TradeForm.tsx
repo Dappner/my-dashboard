@@ -1,5 +1,4 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form"; import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,10 +20,10 @@ import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
-import { tradesApiKeys } from "@/api/tradesApi";
-import { useTrades } from "../hooks/useTrades";
-import { InsertTrade, UpdateTrade } from "@/types/tradeTypes";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { InsertTransaction, UpdateTransaction } from "@/types/transactionsTypes";
+import { useTransactions } from "../hooks/useTransactions";
+import { transactionsApiKeys } from "@/api/tradesApi";
 
 export const tradeFormSchema = z.object({
   ticker_id: z.string({
@@ -79,18 +78,18 @@ export function TradeForm({
     isUpdating,
     isAdding,
     addTrade
-  } = useTrades(
+  } = useTransactions(
     {
       onAddSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: tradesApiKeys.all });
+        queryClient.invalidateQueries({ queryKey: transactionsApiKeys.all });
         onClose();
       },
       onUpdateSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: tradesApiKeys.all });
+        queryClient.invalidateQueries({ queryKey: transactionsApiKeys.all });
         onClose();
       },
       onError: () => {
-        queryClient.invalidateQueries({ queryKey: tradesApiKeys.all });
+        queryClient.invalidateQueries({ queryKey: transactionsApiKeys.all });
         onClose()
       }
     }
@@ -103,14 +102,14 @@ export function TradeForm({
 
   const onSubmit = (values: TradeFormValues) => {
     if (mode == "create") {
-      const insertData: InsertTrade = {
+      const insertData: InsertTransaction = {
         ...values,
         transaction_date: format(values["transaction_date"], "yyyy-MM-dd"),
         user_id: user!.id
       }
       addTrade(insertData);
     } else {
-      const updateData: UpdateTrade = {
+      const updateData: UpdateTransaction = {
         ...values,
         id: tradeId,
         transaction_date: format(values["transaction_date"], "yyyy-MM-dd")

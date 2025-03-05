@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import TradesTable from "@/features/Investing/components/TradesTable/TradesTable";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Holding } from '@/types/holdingsTypes';
-import { TradeView } from '@/types/tradeTypes';
+import { TradeView } from '@/types/transactionsTypes';
 
 interface HoldingsPanelProps {
   holding: Holding;
@@ -23,6 +23,8 @@ export default function HoldingsPanel({
   const { state } = useSidebar();
 
   if (!holding) return null;
+  console.log(holding)
+  console.log(holding.total_gain_loss)
 
   return (
     <div className={`
@@ -63,10 +65,11 @@ export default function HoldingsPanel({
             </div>
             <div>
               <p className="text-gray-500">All Time</p>
-              <p className={`text-lg font-medium ${(holding.unrealized_gain_loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+              <p className={`text-lg font-medium ${(holding.total_gain_loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                 }`}>
-                ${holding.unrealized_gain_loss?.toFixed(2) || '0.00'}
+                ${holding.total_gain_loss?.toFixed(2) || '0.00'}
               </p>
+              {/* TODO: Add Percent Change or Something */}
             </div>
             <div>
               {/* This could be left empty or used for another metric if needed */}

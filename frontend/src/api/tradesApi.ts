@@ -1,13 +1,13 @@
 import { supabase } from "@/lib/supabase"
-import { InsertTrade, TradeView, UpdateTrade } from "@/types/tradeTypes";
+import { InsertTransaction, TradeView, UpdateTransaction } from "@/types/transactionsTypes";
 
-export const tradesApiKeys = {
-  all: ['trades'] as const,
-  ticker: (exchange: string, symbol: string) => [...tradesApiKeys.all, exchange, symbol] as const,
+export const transactionsApiKeys = {
+  all: ['transactions'] as const,
+  ticker: (exchange: string, symbol: string) => [...transactionsApiKeys.all, exchange, symbol] as const,
 }
 
-export const tradesApi = {
-  async getTrades(limit?: number) {
+export const transactionsApi = {
+  async getTransactions(limit?: number) {
     const query = supabase.from("trades_view").select()
       .order("transaction_date", { ascending: false });
     if (limit) {
@@ -38,8 +38,8 @@ export const tradesApi = {
     return data as TradeView[];
   },
 
-  async addTrade(newTrade: InsertTrade) {
-    const { error } = await supabase.from("trades").insert(newTrade)
+  async addTransaction(newTrade: InsertTransaction) {
+    const { error } = await supabase.from("transactions").insert(newTrade)
 
     if (error) {
       console.log("BIG SHIT")
@@ -48,10 +48,10 @@ export const tradesApi = {
     return true;
   },
 
-  async updateTrade(updateTrade: UpdateTrade) {
+  async updateTransaction(updateTrade: UpdateTransaction) {
     const { id, ...trade_data } = updateTrade;
     const { data, error } = await supabase
-      .from("trades")
+      .from("transactions")
       .update({ ...trade_data, updated_at: new Date().toISOString() })
       .eq("id", id!)
       .select("*")
@@ -66,9 +66,9 @@ export const tradesApi = {
     return data;
   },
 
-  async deleteTrade(id: string): Promise<void> {
+  async deleteTransaction(id: string): Promise<void> {
     const { error } = await supabase
-      .from("trades")
+      .from("transactions")
       .delete()
       .eq("id", id);
 
