@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import TradesTable from "@/features/Investing/components/TradesTable/TradesTable";
+import TransactionsTable from "@/features/Investing/components/TransactionsTable";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Holding } from '@/types/holdingsTypes';
 import { TradeView } from '@/types/transactionsTypes';
@@ -23,8 +23,6 @@ export default function HoldingsPanel({
   const { state } = useSidebar();
 
   if (!holding) return null;
-  console.log(holding)
-  console.log(holding.total_gain_loss)
 
   return (
     <div className={`
@@ -82,7 +80,7 @@ export default function HoldingsPanel({
               {tickerTrades?.length ? (
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Recent Transactions</h3>
-                  <TradesTable exchange={exchange} symbol={tickerSymbol} short />
+                  <TransactionsTable exchange={exchange} symbol={tickerSymbol} short />
                 </div>
               ) : (
                 <p className="text-gray-500 text-sm">No recent transactions</p>

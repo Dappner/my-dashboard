@@ -58,7 +58,7 @@ export default function AllocationTab() {
           </CardContent>
         </Card>      </div>
       <div className="col-span-3">
-        <GeographicExposureMap />
+        {/* <GeographicExposureMap /> */}
       </div>
     </div>
   )

@@ -18,6 +18,8 @@ export default function HoldingsTable() {
     queryKey: holdingsApiKeys.all,
   });
 
+  console.log(holdings);
+
   const handleHoldingClick = (holding: Holding) => {
     navigate(`/investing/stock/${holding.exchange}/${holding.symbol}`);
   };

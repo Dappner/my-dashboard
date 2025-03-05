@@ -10,7 +10,9 @@ export default function TickerPage() {
   const { exchange, ticker: tickerSymbol } = useParams();
   if (!exchange || !tickerSymbol) return <>invalid</>
 
-  const { ticker, holding, tickerTrades, isLoading } = useTickerData(exchange, tickerSymbol);
+  const { ticker, holding, tickerTrades, isLoading, yhFinanceData } = useTickerData(exchange, tickerSymbol);
+
+  const latestPrice = yhFinanceData?.regular_market_price;
 
   const onClickEdgar = () => {
     window.open(`https://www.sec.gov/edgar/browse/?CIK=${ticker?.cik}&owner=exclude`, "_blank")
@@ -32,6 +34,7 @@ export default function TickerPage() {
             (
               <>
                 <h2 className="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{ticker?.name}</h2>
+                <h2 className="text-xl/7 font-semibold text-gray-700 sm:truncate sm:text-2xl sm:tracking-tight">${latestPrice}</h2>
                 <div className="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
                   <div className="mt-2 flex items-center text-sm text-gray-500">
                     <BriefcaseIcon aria-hidden="true" className="mr-1.5 size-5 shrink-0 text-gray-400" />
@@ -59,12 +62,26 @@ export default function TickerPage() {
           <TabsTrigger value="overview" className="cursor-pointer">
             Overview
           </TabsTrigger>
+          <TabsTrigger value="financials" className="cursor-pointer">
+            Financials
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
           {isLoading ? (
             <div className="text-center py-8 text-gray-500">Loading ticker data...</div>
           ) : (
             <OverviewTab tickerId={ticker?.id} exchange={exchange} tickerSymbol={tickerSymbol} />
+          )}
+        </TabsContent>
+        <TabsContent value="financials">
+          {isLoading ? (
+            <div className="text-center py-8 text-gray-500">Loading ticker data...</div>
+          ) : (
+            <>
+              <div className="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 py-36 text-center focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden">
+                <span className="mt-2 block text-base font-semibold text-gray-600">Under Development</span>
+              </div>
+            </>
           )}
         </TabsContent>
       </Tabs>

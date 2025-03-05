@@ -1,53 +1,36 @@
-import { TradeView } from "@/types/transactionsTypes";
-import { useState } from "react";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { TradeForm } from "@/features/Investing/forms/TradeForm";
-import TradesTable from "../../components/TradesTable/TradesTable";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { TransactionForm } from "@/features/Investing/forms/TransactionForm";
+import TransactionsTable from "../../components/TransactionsTable";
+import { useTransactionSheet } from "../../hooks/useTransactionSheet";
 
 export default function TransactionsPage() {
-  const [isTradeSheetOpen, setIsTradeSheetOpen] = useState(false);
-  const [selectedTrade, setSelectedTrade] = useState<TradeView | null>(null);
-
-  const onEditTrade = (trade: TradeView) => {
-    setSelectedTrade(trade);
-    setIsTradeSheetOpen(true);
-  };
-
-  const onAddTrade = () => {
-    setSelectedTrade(null);
-    setIsTradeSheetOpen(true);
-  };
-
-  const onClose = () => {
-    setSelectedTrade(null);
-    setIsTradeSheetOpen(false);
-  }
+  const { isTransactionSheetOpen, selectedTransaction, openEditTransaction, openAddTransaction, closeSheet } = useTransactionSheet();
 
   return (
     <>
       <div className="px-2">
-        <TradesTable onEditTrade={onEditTrade} onAddTrade={onAddTrade} />
+        <TransactionsTable onEditTransaction={openEditTransaction} onAddTransaction={openAddTransaction} />
       </div>
-      <Sheet open={isTradeSheetOpen} onOpenChange={setIsTradeSheetOpen}>
+      <Sheet open={isTransactionSheetOpen} onOpenChange={closeSheet}>
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Add New Transaction</SheetTitle>
-            <SheetDescription></SheetDescription>
           </SheetHeader>
           <div className="py-4">
-            {selectedTrade ? (
-              <TradeForm tradeId={selectedTrade.id!} onClose={onClose} defaultValues={
+            {selectedTransaction ? (
+              <TransactionForm tradeId={selectedTransaction.id!} onClose={closeSheet} defaultValues={
                 {
-                  ticker_id: selectedTrade.ticker_id!,
-                  transaction_type: selectedTrade.transaction_type!,
-                  shares: selectedTrade.shares!,
-                  price_per_share: selectedTrade.price_per_share!,
-                  transaction_fee: selectedTrade.transaction_fee!,
-                  transaction_date: new Date(selectedTrade.transaction_date + "T00:00:00"),
-                  note_text: selectedTrade.note_text || "",
+                  ticker_id: selectedTransaction.ticker_id!,
+                  transaction_type: selectedTransaction.transaction_type!,
+                  shares: selectedTransaction.shares!,
+                  price_per_share: selectedTransaction.price_per_share!,
+                  transaction_fee: selectedTransaction.transaction_fee!,
+                  transaction_date: new Date(selectedTransaction.transaction_date + "T00:00:00"),
+                  note_text: selectedTransaction.note_text || "",
+                  is_dividend_reinvestment: selectedTransaction.is_dividend_reinvestment!,
                 }} />
             ) : (
-              <TradeForm onClose={onClose} />
+              <TransactionForm onClose={closeSheet} />
             )}
           </div>
         </SheetContent>

@@ -24,6 +24,7 @@ export const useTransactions = (options?: UseTransactionsOptions) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: transactionsApiKeys.all });
       queryClient.invalidateQueries({ queryKey: holdingsApiKeys.all });
+      queryClient.invalidateQueries({ queryKey: "user" })
 
       toast.success("Transaction added successfully");
       options?.onAddSuccess?.();
@@ -39,6 +40,7 @@ export const useTransactions = (options?: UseTransactionsOptions) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: transactionsApiKeys.all });
       queryClient.invalidateQueries({ queryKey: holdingsApiKeys.all });
+      queryClient.invalidateQueries({ queryKey: "user" })
       toast.success("Transcation updated successfully");
       options?.onUpdateSuccess?.();
     },
@@ -53,7 +55,9 @@ export const useTransactions = (options?: UseTransactionsOptions) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: transactionsApiKeys.all });
       queryClient.invalidateQueries({ queryKey: holdingsApiKeys.all });
-      toast.success("Transcation deleted successfully");
+      queryClient.invalidateQueries({ queryKey: "user" })
+
+      toast.success("Transaction deleted successfully");
       options?.onDeleteSuccess?.();
     },
     onError: (error: Error) => {

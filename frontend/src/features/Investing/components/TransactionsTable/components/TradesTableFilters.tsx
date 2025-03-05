@@ -11,7 +11,7 @@ import { Plus } from "lucide-react";
 
 export type ExtendedTransactionType = TransactionType | 'all';
 
-export interface TradesFilters {
+export interface TransactionsFilters {
   transaction_type?: ExtendedTransactionType;
   ticker?: string | 'all';
 }
@@ -24,12 +24,12 @@ const filterSchema = z.object({
 type FilterFormValues = z.infer<typeof filterSchema>;
 
 interface TradesTableFiltersProps {
-  filters: TradesFilters;
-  setTradesFilters: (filters: TradesFilters) => void;
-  onAddTrade: () => void
+  filters: TransactionsFilters;
+  setTransactionsFilters: (filters: TransactionsFilters) => void;
+  onAddTransaction: () => void
 }
 
-export default function TradesTableFilters({ filters, setTradesFilters, onAddTrade }: TradesTableFiltersProps) {
+export default function TradesTableFilters({ filters, setTransactionsFilters, onAddTransaction }: TradesTableFiltersProps) {
   const form = useForm<FilterFormValues>({
     resolver: zodResolver(filterSchema),
     defaultValues: filters,
@@ -42,7 +42,7 @@ export default function TradesTableFilters({ filters, setTradesFilters, onAddTra
   });
 
   const onFilterChange = (data: FilterFormValues) => {
-    setTradesFilters(data);
+    setTransactionsFilters(data);
   };
 
   return (
@@ -133,7 +133,7 @@ export default function TradesTableFilters({ filters, setTradesFilters, onAddTra
             type="button"
             variant="outline"
             size="sm"
-            onClick={onAddTrade}
+            onClick={onAddTransaction}
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />

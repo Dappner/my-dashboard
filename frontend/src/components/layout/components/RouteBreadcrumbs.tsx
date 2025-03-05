@@ -14,6 +14,7 @@ type BreadcrumbRoute = {
 const routeMap: Record<string, BreadcrumbRoute> = {
   "/": { path: "/", label: "Home" },
 };
+
 export default function RouteBreadcrumbs() {
   const location = useLocation();
 

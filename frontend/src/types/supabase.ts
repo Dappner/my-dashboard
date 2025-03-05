@@ -620,6 +620,7 @@ export type Database = {
           gross_transaction_amount: number | null
           id: string | null
           industry: string | null
+          is_dividend_reinvestment: boolean | null
           note_text: string | null
           price_per_share: number | null
           realized_gain_loss: number | null

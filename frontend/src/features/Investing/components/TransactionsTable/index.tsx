@@ -12,7 +12,7 @@ import { TradeView } from '@/types/transactionsTypes';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2 } from 'lucide-react';
-import TradesTableFilters, { TradesFilters } from './components/TradesTableFilters';
+import TransactionsTableFilters, { TransactionsFilters } from './components/TradesTableFilters';
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -20,22 +20,22 @@ import { getTradeTypeStyles, getCashflowStyles } from './utils';
 import { transactionsApi, transactionsApiKeys } from '@/api/tradesApi';
 import { useTransactions } from '../../hooks/useTransactions';
 
-interface TradesTableProps {
+interface TransactionsTableProps {
   exchange?: string;
   symbol?: string;
-  onEditTrade?: (trade: TradeView) => void;
-  onAddTrade?: () => void;
+  onEditTransaction?: (trade: TradeView) => void;
+  onAddTransaction?: () => void;
   short?: boolean;
 }
 
-export default function TradesTable({
+export default function TransactionsTable({
   exchange,
   symbol,
-  onEditTrade,
-  onAddTrade,
+  onEditTransaction,
+  onAddTransaction,
   short = false
-}: TradesTableProps) {
-  const [filters, setTradeFilters] = useState<TradesFilters>({
+}: TransactionsTableProps) {
+  const [filters, setFilters] = useState<TransactionsFilters>({
     transaction_type: 'all',
     ticker: 'all',
   });
@@ -81,7 +81,7 @@ export default function TradesTable({
     }, 0);
   }, [displayedTrades]);
 
-  const handleDeleteTrade = (id: string) => {
+  const handleDeleteTransaction = (id: string) => {
     if (confirm("Are you sure you want to delete this trade?")) {
       deleteTrade(id);
     }
@@ -90,10 +90,10 @@ export default function TradesTable({
   return (
     <div className={cn("w-full", short ? "space-y-2" : "space-y-4")}>
       {!short && (
-        <TradesTableFilters
+        <TransactionsTableFilters
           filters={filters}
-          setTradesFilters={setTradeFilters}
-          onAddTrade={onAddTrade!}
+          setTransactionsFilters={setFilters}
+          onAddTransaction={onAddTransaction!}
         />
       )}
       {isLoading ? (
@@ -161,7 +161,7 @@ export default function TradesTable({
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => onEditTrade!(trade)}
+                            onClick={() => onEditTransaction!(trade)}
                             className="hover:bg-muted rounded-full"
                           >
                             <Pencil className="h-4 w-4 text-muted-foreground" />
@@ -169,7 +169,7 @@ export default function TradesTable({
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleDeleteTrade(trade.id!)}
+                            onClick={() => handleDeleteTransaction(trade.id!)}
                             className="hover:bg-muted rounded-full"
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />

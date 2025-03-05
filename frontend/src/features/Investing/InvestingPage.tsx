@@ -1,41 +1,16 @@
 import { Plus } from "lucide-react";
 import PortfolioChart from "./components/PortfolioChart";
 import HoldingsTable from "./components/HoldingsTable";
-import { useState } from "react";
-import { TradeView } from "@/types/transactionsTypes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { TradeForm } from "./forms/TradeForm";
 import PortfolioKpis from "./components/PortfolioKpis";
 import { Button } from "@/components/ui/button";
-import TradesTable from "./components/TradesTable/TradesTable";
-import CashTransactionForm from "./forms/CashTransactionForm";
-import { useCashTransaction } from "./hooks/useCashTransaction";
-import { useAuthContext } from "@/contexts/AuthContext";
+import { TransactionForm } from "./forms/TransactionForm";
+import TransactionsTable from "./components/TransactionsTable";
+import { Link } from "react-router";
+import { useTransactionSheet } from "./hooks/useTransactionSheet";
 
 export default function InvestingPage() {
-  const [isTradeSheetOpen, setIsTradeSheetOpen] = useState(false);
-  const [selectedTrade, setSelectedTrade] = useState<TradeView | null>(null);
-  const { user } = useAuthContext();
-  const {
-    isDialogOpen,
-    openCashTransactionDialog,
-    closeCashTransactionDialog
-  } = useCashTransaction(user!.id);
-
-  const onEditTrade = (trade: TradeView) => {
-    setSelectedTrade(trade);
-    setIsTradeSheetOpen(true);
-  };
-
-  const onAddTrade = () => {
-    setSelectedTrade(null);
-    setIsTradeSheetOpen(true);
-  };
-
-  const onClose = () => {
-    setSelectedTrade(null);
-    setIsTradeSheetOpen(false);
-  };
+  const { isTransactionSheetOpen, selectedTransaction, openEditTransaction, openAddTransaction, closeSheet } = useTransactionSheet();
 
   return (
     <div className="space-y-6 p-6">
@@ -55,65 +30,50 @@ export default function InvestingPage() {
 
         <div className="col-span-2">
           <div className="flex items-center justify-between mb-2 h-8">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Transactions</h2>
+            <Link
+              className="text-lg font-semibold text-gray-900 hover:underline hover:text-blue-400 cursor-pointer"
+              to="/investing/transactions">Recent Transactions</Link>
             <div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={openCashTransactionDialog}
+                onClick={openAddTransaction}
                 className="flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />
                 Add Transaction
               </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onAddTrade}
-                className="flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Add Trade
-              </Button>
             </div>
           </div>
-          <TradesTable onEditTrade={onEditTrade} short={true} />
+          <TransactionsTable onEditTransaction={openEditTransaction} short={true} />
         </div>
       </div>
 
-      <Sheet open={isTradeSheetOpen} onOpenChange={setIsTradeSheetOpen}>
+      <Sheet open={isTransactionSheetOpen} onOpenChange={closeSheet}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>{selectedTrade ? "Edit Transaction" : "Add New Transaction"}</SheetTitle>
+            <SheetTitle>Add New Transaction</SheetTitle>
           </SheetHeader>
           <div className="py-4">
-            {selectedTrade ? (
-              <TradeForm
-                tradeId={selectedTrade.id!}
-                onClose={onClose}
-                defaultValues={{
-                  ticker_id: selectedTrade.ticker_id!,
-                  transaction_type: selectedTrade.transaction_type! as any,
-                  shares: selectedTrade.shares!,
-                  price_per_share: selectedTrade.price_per_share!,
-                  transaction_fee: selectedTrade.transaction_fee!,
-                  transaction_date: new Date(selectedTrade.transaction_date + "T00:00:00"),
-                  note_text: selectedTrade.note_text || "",
-                }}
-              />
+            {selectedTransaction ? (
+              <TransactionForm tradeId={selectedTransaction.id!} onClose={closeSheet} defaultValues={
+                {
+                  ticker_id: selectedTransaction.ticker_id!,
+                  transaction_type: selectedTransaction.transaction_type!,
+                  shares: selectedTransaction.shares!,
+                  price_per_share: selectedTransaction.price_per_share!,
+                  transaction_fee: selectedTransaction.transaction_fee!,
+                  transaction_date: new Date(selectedTransaction.transaction_date + "T00:00:00"),
+                  note_text: selectedTransaction.note_text || "",
+                  is_dividend_reinvestment: selectedTransaction.is_dividend_reinvestment!,
+                }} />
             ) : (
-              <TradeForm onClose={onClose} />
+              <TransactionForm onClose={closeSheet} />
             )}
           </div>
         </SheetContent>
       </Sheet>
 
-      <CashTransactionForm
-        userId={user!.id}
-        isOpen={isDialogOpen}
-        onClose={closeCashTransactionDialog}
-      />
     </div >
   );
 }
