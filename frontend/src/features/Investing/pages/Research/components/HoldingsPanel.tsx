@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import TransactionsTable from "@/features/Investing/components/TransactionsTable";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Holding } from '@/types/holdingsTypes';
 import { TradeView } from '@/types/transactionsTypes';
+import TransactionsTable from '../../Transactions/components/TransactionsTable';
 
 interface HoldingsPanelProps {
   holding: Holding;

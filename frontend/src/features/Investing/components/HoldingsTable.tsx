@@ -1,4 +1,3 @@
-import { holdingsApi, holdingsApiKeys } from "@/api/holdingsApi";
 import {
   Table,
   TableBody,
@@ -8,17 +7,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Holding } from "@/types/holdingsTypes";
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
+import { useHoldings } from "../hooks/useHoldings";
 
 export default function HoldingsTable() {
   const navigate = useNavigate();
-  const { data: holdings, isLoading, isError } = useQuery({
-    queryFn: holdingsApi.getHoldings,
-    queryKey: holdingsApiKeys.all,
-  });
-
-  console.log(holdings);
+  const { holdings, isLoading, isError } = useHoldings();
 
   const handleHoldingClick = (holding: Holding) => {
     navigate(`/investing/stock/${holding.exchange}/${holding.symbol}`);

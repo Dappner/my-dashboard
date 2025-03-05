@@ -14,7 +14,7 @@ interface UseTransactionsOptions {
 export const useTransactions = (options?: UseTransactionsOptions) => {
   const queryClient = useQueryClient();
 
-  const { data: trades, isLoading, isError } = useQuery<TradeView[]>({
+  const { data: transactions, isLoading, isError } = useQuery<TradeView[]>({
     queryFn: () => transactionsApi.getTransactions(),
     queryKey: transactionsApiKeys.all,
   });
@@ -67,7 +67,7 @@ export const useTransactions = (options?: UseTransactionsOptions) => {
   });
 
   return {
-    trades,
+    transactions,
     isLoading,
     isError,
     addTrade: addTransactionMutation.mutate,

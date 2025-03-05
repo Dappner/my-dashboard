@@ -1,15 +1,32 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { TransactionForm } from "@/features/Investing/forms/TransactionForm";
-import TransactionsTable from "../../components/TransactionsTable";
 import { useTransactionSheet } from "../../hooks/useTransactionSheet";
+import TransactionKPIs from "./components/TransactionsKpis";
+import { useState } from "react";
+import TransactionsTable from "./components/TransactionsTable";
 
 export default function TransactionsPage() {
   const { isTransactionSheetOpen, selectedTransaction, openEditTransaction, openAddTransaction, closeSheet } = useTransactionSheet();
 
+  const [kpis, setKPIs] = useState({
+    netCashflow: 0,
+    totalTrades: 0,
+    netCash: 0,
+  });
+
   return (
-    <>
+    <div className='p-6'>
       <div className="px-2">
-        <TransactionsTable onEditTransaction={openEditTransaction} onAddTransaction={openAddTransaction} />
+        <TransactionKPIs
+          netCashflow={kpis.netCashflow}
+          totalTrades={kpis.totalTrades}
+          netCash={kpis.netCash}
+        />
+        <TransactionsTable
+          onEditTransaction={openEditTransaction}
+          onAddTransaction={openAddTransaction}
+          onKPIUpdate={setKPIs}
+        />
       </div>
       <Sheet open={isTransactionSheetOpen} onOpenChange={closeSheet}>
         <SheetContent>
@@ -35,7 +52,6 @@ export default function TransactionsPage() {
           </div>
         </SheetContent>
       </Sheet>
-
-    </>
+    </div>
   )
 }

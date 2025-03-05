@@ -5,13 +5,16 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import PortfolioKpis from "./components/PortfolioKpis";
 import { Button } from "@/components/ui/button";
 import { TransactionForm } from "./forms/TransactionForm";
-import TransactionsTable from "./components/TransactionsTable";
 import { Link } from "react-router";
 import { useTransactionSheet } from "./hooks/useTransactionSheet";
+import TransactionTable from "./components/TransactionTable";
+import { useTransactions } from "./hooks/useTransactions";
 
 export default function InvestingPage() {
-  const { isTransactionSheetOpen, selectedTransaction, openEditTransaction, openAddTransaction, closeSheet } = useTransactionSheet();
+  const { isTransactionSheetOpen, selectedTransaction, openAddTransaction, closeSheet } = useTransactionSheet();
+  const { transactions, isLoading: transactionsLoading } = useTransactions()
 
+  const recentTransactions = transactions?.slice(0, 5);
   return (
     <div className="space-y-6 p-6">
       <div className="grid grid-cols-3 gap-4">
@@ -45,7 +48,9 @@ export default function InvestingPage() {
               </Button>
             </div>
           </div>
-          <TransactionsTable onEditTransaction={openEditTransaction} short={true} />
+          {!transactionsLoading &&
+            <TransactionTable transactions={recentTransactions!} actions={false} />
+          }
         </div>
       </div>
 
