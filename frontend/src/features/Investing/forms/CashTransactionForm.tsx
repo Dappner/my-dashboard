@@ -23,12 +23,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTransactions } from '../hooks/useTransactions';
 import { format } from 'date-fns';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { CalendarIcon } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
 
-// Zod schema for validation
 const cashTransactionSchema = z.object({
-  transactionType: z.enum(['deposit', 'withdrawal']),
+  transactionType: z.enum(['deposit', 'withdraw']),
   amount: z.coerce.number().positive('Amount must be greater than 0').max(1000000, 'Amount too large'),
-  note: z.string().optional()
+  note: z.string().optional(),
+  transaction_date: z.date({
+    required_error: "Transaction date is required",
+  }),
+
 });
 
 interface CashTransactionFormProps {
@@ -49,22 +56,21 @@ export const CashTransactionForm: React.FC<CashTransactionFormProps> = ({
     defaultValues: {
       transactionType: 'deposit',
       amount: undefined,
-      note: ''
+      note: '',
+      transaction_date: new Date(),
     }
   });
 
   const handleSubmit = (data: z.infer<typeof cashTransactionSchema>) => {
-    // Prepare transaction data for your database
     const transactionData = {
       user_id: userId,
       transaction_type: data.transactionType,
-      shares: data.amount, // Using shares field for cash amount
-      price_per_share: 1, // Fixed at 1 for cash transactions
+      shares: data.amount,
+      price_per_share: 1,
       note_text: data.note,
-      transaction_date: format(new Date(), "yyyy-MM-dd"),
+      transaction_date: format(data.transaction_date, "yyyy-MM-dd"),
     };
 
-    // Use addTrade mutation from useTransactions
     addTrade(transactionData, {
       onSuccess: () => {
         form.reset();
@@ -147,6 +153,46 @@ export const CashTransactionForm: React.FC<CashTransactionFormProps> = ({
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="transaction_date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Transaction Date *</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
 
             <div className="flex justify-end space-x-2">
               <Button

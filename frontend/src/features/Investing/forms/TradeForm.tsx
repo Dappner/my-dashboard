@@ -29,7 +29,7 @@ export const tradeFormSchema = z.object({
   ticker_id: z.string({
     required_error: "Ticker is required",
   }),
-  transaction_type: z.enum(["buy", "sell", "dividend"], {
+  transaction_type: z.enum(["buy", "sell", "dividend", "withdraw", "deposit"], {
     required_error: "Transaction type is required",
   }),
   shares: z.coerce.number().positive("Shares must be a positive number"),
@@ -67,7 +67,6 @@ export function TradeForm({
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const mode = tradeId ? "update" : "create";
-  // Fetch tickers from the API
   const tickersQuery = useQuery({
     queryKey: tickersApiKeys.all,
     queryFn: tickersApi.getTickers,
@@ -183,6 +182,8 @@ export function TradeForm({
                     <SelectItem value="buy">Buy</SelectItem>
                     <SelectItem value="sell">Sell</SelectItem>
                     <SelectItem value="dividend">Dividend</SelectItem>
+                    <SelectItem value="withdraw">Withdraw</SelectItem>
+                    <SelectItem value="deposit">Deposit</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

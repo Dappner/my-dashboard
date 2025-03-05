@@ -616,10 +616,13 @@ export type Database = {
       trades_view: {
         Row: {
           exchange: string | null
+          formatted_transaction_fee: number | null
+          gross_transaction_amount: number | null
           id: string | null
           industry: string | null
           note_text: string | null
           price_per_share: number | null
+          realized_gain_loss: number | null
           sector: string | null
           settlement_date: string | null
           shares: number | null
@@ -627,6 +630,7 @@ export type Database = {
           ticker_id: string | null
           ticker_name: string | null
           total_cost_basis: number | null
+          transaction_category: string | null
           transaction_date: string | null
           transaction_fee: number | null
           transaction_type:
@@ -682,7 +686,7 @@ export type Database = {
         | "sell"
         | "dividend"
         | "deposit"
-        | "withdrawal"
+        | "withdraw"
     }
     CompositeTypes: {
       [_ in never]: never

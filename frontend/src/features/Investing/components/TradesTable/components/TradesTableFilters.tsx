@@ -17,7 +17,7 @@ export interface TradesFilters {
 }
 
 const filterSchema = z.object({
-  transaction_type: z.enum(["buy", "sell", "dividend", "all"]).optional(),
+  transaction_type: z.enum(["buy", "sell", "dividend", "all", "withdraw", "deposit"]).optional(),
   ticker: z.string().optional(),
 });
 
@@ -73,6 +73,8 @@ export default function TradesTableFilters({ filters, setTradesFilters, onAddTra
                     <SelectItem value="buy">Buy</SelectItem>
                     <SelectItem value="sell">Sell</SelectItem>
                     <SelectItem value="dividend">Dividend</SelectItem>
+                    <SelectItem value="withdraw">Withdraw</SelectItem>
+                    <SelectItem value="deposit">Deposit</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

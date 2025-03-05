@@ -6,6 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from "@/components/ui/table";
 import { TradeView } from '@/types/transactionsTypes';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ import TradesTableFilters, { TradesFilters } from './components/TradesTableFilte
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { getTradeTypeStyles } from './utils';
+import { getTradeTypeStyles, getCashflowStyles } from './utils';
 import { transactionsApi, transactionsApiKeys } from '@/api/tradesApi';
 import { useTransactions } from '../../hooks/useTransactions';
 
@@ -27,8 +28,11 @@ interface TradesTableProps {
   short?: boolean;
 }
 
-export default function TradesTable({ exchange, symbol,
-  onEditTrade, onAddTrade,
+export default function TradesTable({
+  exchange,
+  symbol,
+  onEditTrade,
+  onAddTrade,
   short = false
 }: TradesTableProps) {
   const [filters, setTradeFilters] = useState<TradesFilters>({
@@ -46,7 +50,6 @@ export default function TradesTable({ exchange, symbol,
 
   const { deleteTrade } = useTransactions();
 
-  // Handle short view and filtering in one go
   const displayedTrades = useMemo(() => {
     let result = allTrades;
 
@@ -69,15 +72,23 @@ export default function TradesTable({ exchange, symbol,
     return result;
   }, [allTrades, filters, short]);
 
+  const netCashflow = useMemo(() => {
+    return displayedTrades.reduce((sum, trade) => {
+      const amount = parseFloat(trade.total_cost_basis?.toFixed(2) || '0');
+      return trade.transaction_type === 'buy' || trade.transaction_type === 'withdraw'
+        ? sum - amount
+        : sum + amount;
+    }, 0);
+  }, [displayedTrades]);
+
   const handleDeleteTrade = (id: string) => {
     if (confirm("Are you sure you want to delete this trade?")) {
       deleteTrade(id);
     }
   };
 
-
   return (
-    <div className={cn("w-full ", short ? "space-y-2" : "space-y-4")}>
+    <div className={cn("w-full", short ? "space-y-2" : "space-y-4")}>
       {!short && (
         <TradesTableFilters
           filters={filters}
@@ -94,41 +105,45 @@ export default function TradesTable({ exchange, symbol,
           {short ? "No recent trades found" : "No trades found matching the filters"}
         </div>
       ) : (
-        <div className="bg-white border rounded-md">
+        <div className="bg-white border rounded-md shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead>Type</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Ticker</TableHead>
-                <TableHead className="text-right">Quantity</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                {!short && <TableHead className="text-right">Actions</TableHead>}
+              <TableRow className="bg-muted/50 hover:bg-muted/50">
+                <TableHead className="font-semibold text-muted-foreground">Type</TableHead>
+                <TableHead className="font-semibold text-muted-foreground">Date</TableHead>
+                <TableHead className="font-semibold text-muted-foreground">Ticker</TableHead>
+                <TableHead className="text-right font-semibold text-muted-foreground">Quantity</TableHead>
+                <TableHead className="text-right font-semibold text-muted-foreground">Price</TableHead>
+                <TableHead className="text-right font-semibold text-muted-foreground">Cashflow</TableHead>
+                {!short && <TableHead className="text-right font-semibold text-muted-foreground">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {displayedTrades.map((trade) => {
-                const typeStyles = getTradeTypeStyles(trade.transaction_type as string);
+                const typeStyles = getTradeTypeStyles(trade.transaction_type!);
+                const cashFlowStyles = getCashflowStyles(trade.transaction_type!);
 
                 return (
-                  <TableRow key={trade.id}>
+                  <TableRow
+                    key={trade.id}
+                    className="hover:bg-muted/20 transition-colors"
+                  >
                     <TableCell>
                       <Badge
                         variant={typeStyles.variant}
                         className={cn(
                           "font-medium",
                           typeStyles.className,
-                          short && "text-xs"
+                          short && "text-xs px-2"
                         )}
                       >
                         {trade.transaction_type?.toUpperCase()}
                       </Badge>
                     </TableCell>
-                    <TableCell className={short ? "text-sm" : ""}>
+                    <TableCell className={cn(short && "text-sm")}>
                       {format(parseISO(trade.transaction_date!), "MMM dd, yyyy")}
                     </TableCell>
-                    <TableCell className={short ? "text-sm" : ""}>
+                    <TableCell className={cn(short && "text-sm")}>
                       {trade.symbol}
                     </TableCell>
                     <TableCell className={cn("text-right", short && "text-sm")}>
@@ -137,7 +152,7 @@ export default function TradesTable({ exchange, symbol,
                     <TableCell className={cn("text-right", short && "text-sm")}>
                       ${trade.price_per_share!.toFixed(2)}
                     </TableCell>
-                    <TableCell className={cn("text-right font-medium", short && "text-sm")}>
+                    <TableCell className={cn("text-right font-medium", cashFlowStyles, short && "text-sm")}>
                       ${trade.total_cost_basis?.toFixed(2)}
                     </TableCell>
                     {!short && (
@@ -147,13 +162,15 @@ export default function TradesTable({ exchange, symbol,
                             variant="ghost"
                             size="icon"
                             onClick={() => onEditTrade!(trade)}
+                            className="hover:bg-muted rounded-full"
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="h-4 w-4 text-muted-foreground" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDeleteTrade(trade.id!)}
+                            className="hover:bg-muted rounded-full"
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
@@ -164,9 +181,29 @@ export default function TradesTable({ exchange, symbol,
                 );
               })}
             </TableBody>
+            {!short && (
+              <TableFooter className="bg-muted/30">
+                <TableRow>
+                  <TableCell colSpan={5} className="font-semibold">
+                    Net Cashflow
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right font-semibold",
+                      netCashflow >= 0 ? "text-green-700" : "text-red-600"
+                    )}
+                  >
+                    ${Math.abs(netCashflow).toFixed(2)}
+                    {netCashflow >= 0 ? " In" : " Out"}
+                  </TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableFooter>
+            )}
           </Table>
         </div>
       )}
     </div>
   );
 }
+

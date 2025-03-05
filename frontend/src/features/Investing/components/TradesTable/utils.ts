@@ -1,5 +1,7 @@
-export const getTradeTypeStyles = (type: string | undefined) => {
-  switch (type?.toLowerCase()) {
+import { TransactionType } from "@/types/transactionsTypes";
+
+export const getTradeTypeStyles = (type: TransactionType) => {
+  switch (type) {
     case 'buy':
       return {
         variant: 'default' as const,
@@ -23,3 +25,11 @@ export const getTradeTypeStyles = (type: string | undefined) => {
   }
 };
 
+
+export const getCashflowStyles = (type: TransactionType) => {
+  if (type === "buy" || type === "withdraw") {
+    return "text-red-600";
+  } else {
+    return "text-green-700";
+  }
+}
