@@ -6,12 +6,6 @@ import {
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 
-const user = {
-  name: "Nicklas Astorian",
-  email: "nickastorian@gmail.com",
-  avatar: "/avatars/shadcn.jpg",
-}
-
 export function AppSidebar() {
 
   return (
@@ -20,7 +14,7 @@ export function AppSidebar() {
         <NavMain />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar >
   )

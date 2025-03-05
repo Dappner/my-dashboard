@@ -13,25 +13,33 @@ import { useTransactions } from "./hooks/useTransactions";
 export default function InvestingPage() {
   const { isTransactionSheetOpen, selectedTransaction, openAddTransaction, closeSheet } = useTransactionSheet();
   const { transactions, isLoading: transactionsLoading } = useTransactions()
-
   const recentTransactions = transactions?.slice(0, 5);
+
   return (
     <div className="space-y-6 p-6">
       <div className="grid grid-cols-3 gap-4">
         <PortfolioKpis />
       </div>
 
-      <PortfolioChart />
-
       <div className="grid grid-cols-3 gap-4">
-        <div className="col-span-1">
+        <div className="col-span-2">
           <div className="flex items-center justify-between mb-2 h-8">
             <h2 className="text-lg font-semibold text-gray-900">Portfolio</h2>
           </div>
+          <PortfolioChart />
+        </div>
+        <div className="col-span-1">
+          <div className="flex items-center justify-between mb-2 h-8">
+            <h2 className="text-lg font-semibold text-gray-900">Holdings</h2>
+          </div>
           <HoldingsTable />
         </div>
+      </div>
 
-        <div className="col-span-2">
+      <div className="grid grid-cols-3 gap-4">
+        {/* <div className="col-span-1"> */}
+        {/* </div> */}
+        <div className="col-span-3">
           <div className="flex items-center justify-between mb-2 h-8">
             <Link
               className="text-lg font-semibold text-gray-900 hover:underline hover:text-blue-400 cursor-pointer"

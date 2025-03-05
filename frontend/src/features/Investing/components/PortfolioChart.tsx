@@ -1,61 +1,104 @@
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, Area, Legend } from "recharts";
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
-import { Database } from "@/types/supabase";
+import { usePortfolioDailyMetrics } from "../hooks/usePortfolioDailyMetrics";
 
+// Define the chart data type for type safety
+interface ChartDataPoint {
+  date: Date;
+  total_portfolio_value: number;
+  portfolio_value: number;
+  cash_balance: number;
+  cost_basis: number;
+}
+
+// Define chart configuration with proper typing
 const chartConfig = {
-  portfolioValue: {
-    label: "Portfolio Value",
-    color: "hsl(var(--chart-1))",
+  total_portfolio_value: {
+    label: "Total Portfolio Value",
+    color: "#2563eb", // Blue
   },
-  costBasis: {
+  portfolio_value: {
+    label: "Investment Value",
+    color: "#16a34a", // Green
+  },
+  cash_balance: {
+    label: "Cash Balance",
+    color: "#9333ea", // Purple
+  },
+  cost_basis: {
     label: "Cost Basis",
-    color: "hsl(var(--muted-foreground))",
+    color: "#6b7280", // Gray
   },
-} satisfies ChartConfig;
+} as const;
 
-export function PortfolioChart() {
-  const { data, isLoading, isError } = useQuery({
-    queryFn: async () => {
-      const { data } = await supabase.from("portfolio_daily_metrics").select();
-      return data as Database["public"]["Views"]["portfolio_daily_metrics"]["Row"][];
-    },
-    queryKey: ["30Day"],
-  });
+type PortfolioChartConfig = typeof chartConfig;
+
+export default function PortfolioChart() {
+  const { dailyMetrics, isLoading, isError } = usePortfolioDailyMetrics();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-[350px] bg-white rounded-lg shadow-sm border border-gray-100">
+      <div className="flex items-center justify-center h-80 bg-white rounded-lg shadow-sm border border-gray-100">
         <span className="text-muted-foreground">Loading chart...</span>
       </div>
     );
   }
 
-  if (isError) {
+  if (isError || !dailyMetrics) {
     return (
-      <div className="flex items-center justify-center h-[350px] bg-white rounded-lg shadow-sm border border-gray-100">
+      <div className="flex items-center justify-center h-80 bg-white rounded-lg shadow-sm border border-gray-100">
         <span className="text-destructive">Error loading chart</span>
       </div>
     );
   }
 
-  const chartData = data?.map((val) => ({
-    date: new Date(val.current_date!),
-    cost_basis: val.cost_basis,
-    portfolio_value: val.portfolio_value,
+  // Transform data and ensure all values are numbers
+  const chartData: ChartDataPoint[] = dailyMetrics.map((val) => ({
+    date: new Date(val.current_date || ''),
+    total_portfolio_value: Number(val.total_portfolio_value || 0),
+    portfolio_value: Number(val.portfolio_value || 0),
+    cash_balance: Number(val.cash_balance || 0),
+    cost_basis: Number(val.cost_basis || 0),
   }));
 
+  // Tooltip formatter with proper typing
+  const tooltipFormatter = (value, name) => {
+    const formattedValue = isNaN(value)
+      ? "$0.00"
+      : `$${value.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+
+    // Use type assertion to access the config safely
+    const keyName = name as keyof PortfolioChartConfig;
+    const label = chartConfig[keyName]?.label || name;
+
+    return [formattedValue, label];
+  };
+
+  // Label formatter for dates
+  const labelFormatter = (label: string | number | Date) => {
+    if (label instanceof Date) {
+      return format(label, "MMM d, yyyy");
+    }
+    if (typeof label === 'number') {
+      return format(new Date(label), "MMM d, yyyy");
+    }
+    return label || "N/A";
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Portfolio Performance</h2>
-      <ChartContainer config={chartConfig} className="min-h-[200px] max-h-[350px] w-full">
+    <div className="bg-white rounded-lg shadow-sm px-4 border border-gray-100">
+      <ChartContainer
+        config={chartConfig}
+        className="h-80 w-full"
+      >
         <LineChart
           accessibilityLayer
           data={chartData}
@@ -63,7 +106,7 @@ export function PortfolioChart() {
             left: 12,
             right: 12,
             top: 12,
-            bottom: 12,
+            bottom: 36, // Increased space for legend
           }}
         >
           <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -78,26 +121,56 @@ export function PortfolioChart() {
           />
           <ChartTooltip
             cursor={{ stroke: "#d1d5db", strokeDasharray: "3 3" }}
-            content={<ChartTooltipContent indicator="dot" hideLabel />}
+            content={
+              <ChartTooltipContent
+                formatter={tooltipFormatter}
+                labelFormatter={labelFormatter}
+                className="bg-white shadow-md rounded-md p-2 border border-gray-200"
+              />
+            }
+          />
+          <Legend
+            verticalAlign="bottom"
+            height={36}
+            formatter={(value) => {
+              const keyName = value as keyof PortfolioChartConfig;
+              return chartConfig[keyName]?.label || value;
+            }}
           />
           <Line
-            dataKey="cost_basis"
+            dataKey="total_portfolio_value"
             type="monotone"
+            stroke={chartConfig.total_portfolio_value.color}
             strokeWidth={2}
-            stroke="#6b7280" // Gray for cost basis
             dot={false}
+            activeDot={{ r: 4, strokeWidth: 1 }}
           />
           <Line
             dataKey="portfolio_value"
             type="monotone"
-            stroke="#2563eb" // Blue for portfolio value
+            stroke={chartConfig.portfolio_value.color}
             strokeWidth={2}
             dot={false}
+            activeDot={{ r: 4, strokeWidth: 1 }}
+          />
+          <Area
+            dataKey="cash_balance"
+            type="monotone"
+            stroke={chartConfig.cash_balance.color}
+            fill={chartConfig.cash_balance.color}
+            fillOpacity={0.2}
+            strokeWidth={2}
+          />
+          <Line
+            dataKey="cost_basis"
+            type="monotone"
+            stroke={chartConfig.cost_basis.color}
+            strokeWidth={2}
+            dot={false}
+            activeDot={{ r: 4, strokeWidth: 1 }}
           />
         </LineChart>
       </ChartContainer>
     </div>
   );
 }
-
-export default PortfolioChart;

@@ -5,14 +5,16 @@ import RouteBreadcrumbs from "./components/RouteBreadcrumbs"
 import { useAuthContext } from "@/contexts/AuthContext"
 import { Toaster } from "../ui/sonner"
 import LoadingSpinner from "./components/LoadingSpinner"
+import useUser from "@/hooks/useUser"
 
 export default function Layout() {
-  const { user, isLoading } = useAuthContext();
+  const { user: authUser, isLoading } = useAuthContext();
+  useUser();
   const location = useLocation();
 
   if (isLoading) return <LoadingSpinner />
 
-  if (!user) {
+  if (!authUser) {
     return < Navigate to="/login" state={{ from: location.pathname }} replace />
   }
 

@@ -567,10 +567,14 @@ export type Database = {
       }
       portfolio_daily_metrics: {
         Row: {
+          cash_balance: number | null
           cost_basis: number | null
           current_date: string | null
+          daily_return_percent: number | null
           dividend: boolean | null
           portfolio_value: number | null
+          previous_day_portfolio_value: number | null
+          total_portfolio_value: number | null
           user_id: string | null
         }
         Relationships: []
