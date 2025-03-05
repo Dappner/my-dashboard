@@ -97,7 +97,7 @@ export default function PortfolioChart() {
     <div className="bg-white rounded-lg shadow-sm px-4 border border-gray-100">
       <ChartContainer
         config={chartConfig}
-        className="h-80 w-full"
+        className="h-96 w-full"
       >
         <LineChart
           accessibilityLayer
@@ -106,7 +106,7 @@ export default function PortfolioChart() {
             left: 12,
             right: 12,
             top: 12,
-            bottom: 36, // Increased space for legend
+            bottom: 12,
           }}
         >
           <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e5e7eb" />

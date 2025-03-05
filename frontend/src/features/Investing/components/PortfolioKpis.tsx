@@ -41,6 +41,13 @@ export default function PortfolioKpis() {
         icon={DollarSign}
         percentOnly
       />
+      <KpiCard
+        title="Cash Balance"
+        value={`$${(user?.cash_balance || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+        percent={metrics.cashPercentage}
+        icon={DollarSign}
+        percentOnly
+      />
     </>
   );
 }

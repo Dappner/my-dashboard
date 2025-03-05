@@ -3,7 +3,6 @@ import CustomPieChart from "@/components/charts/CustomPieChart";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { chartColors } from "@/constants";
-import GeographicExposureMap from "@/features/Investing/components/GeographicExposureMap";
 import { prepareSectorData, prepareIndustryData, calculateGeographicExposure } from "@/features/Investing/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
