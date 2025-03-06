@@ -53,6 +53,20 @@ export const prepareIndustryData = (holdings: Holding[]) => {
     }))
     .sort((a, b) => b.value - a.value);
 };
+export const prepareAllocationData = (holdings: Holding[], cash_balance: number) => {
+  const equities = holdings.map((holding) => holding.current_market_value!).reduce((a, b) => a + b);
+
+  return [
+    {
+      label: "Equities",
+      value: equities
+    },
+    {
+      label: "Cash",
+      value: cash_balance
+    }
+  ];
+}
 
 // DIVIDEND UTILS
 /**

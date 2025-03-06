@@ -3,12 +3,12 @@ import HomePage from '@/features/Home/HomePage'
 import Layout from '@/components/layout/Layout'
 import InvestingPage from '@/features/Investing/InvestingPage'
 import LoginPage from '@/features/Auth/Login'
-import AnalysisPage from '@/features/Investing/pages/Analysis/AnalysisPage'
 import ResearchPage from '@/features/Investing/pages/Research/ResearchPage'
 import ManageInvestingPage from '@/features/Investing/pages/ManageInvesting/ManageInvestingPage'
 import TickerPage from '@/features/Investing/pages/Research/TickerPage'
 import SettingsPage from '@/features/Settings/SettingsPage'
 import TransactionsPage from './features/Investing/pages/Transactions/TransactionsPage'
+import HoldingsPage from './features/Investing/pages/Holdings/HoldingsPage'
 
 function App() {
 
@@ -20,7 +20,7 @@ function App() {
           <Route path="investing">
             <Route index element={<InvestingPage />} />
             <Route path="manage" element={<ManageInvestingPage />} />
-            <Route path="analysis" element={<AnalysisPage />} />
+            <Route path="holdings" element={<HoldingsPage />} />
             <Route path="transactions" element={<TransactionsPage />} />
             <Route path="research" >
               <Route index element={<ResearchPage />} />

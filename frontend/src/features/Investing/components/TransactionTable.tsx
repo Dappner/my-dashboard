@@ -41,7 +41,6 @@ export const getCashflowStyles = (type: TransactionType) => {
 }
 
 
-
 interface TransactionTableProps {
   transactions: TradeView[];
   onEditTransaction?: (trade: TradeView) => void;

@@ -12,8 +12,13 @@ export default function Layout() {
   useUser();
   const location = useLocation();
 
-  if (isLoading) return <LoadingSpinner />
-
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col mx-auto align-middle">
+        <LoadingSpinner />
+      </div>
+    )
+  }
   if (!authUser) {
     return < Navigate to="/login" state={{ from: location.pathname }} replace />
   }

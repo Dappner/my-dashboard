@@ -38,8 +38,8 @@ const navBarItems: NavBarItem[] = [
     icon: ChartNoAxesCombined,
     items: [
       {
-        title: "Analysis",
-        url: "/investing/analysis",
+        title: "Holdings",
+        url: "/investing/holdings",
       },
       {
         title: "Transactions",

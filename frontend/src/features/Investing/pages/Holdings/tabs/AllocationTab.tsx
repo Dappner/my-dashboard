@@ -1,18 +1,14 @@
-import { holdingsApi, holdingsApiKeys } from "@/api/holdingsApi";
 import CustomPieChart from "@/components/charts/CustomPieChart";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { chartColors } from "@/constants";
+import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 import { prepareSectorData, prepareIndustryData, calculateGeographicExposure } from "@/features/Investing/utils";
-import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 export default function AllocationTab() {
-  const { data: holdings = [] } = useQuery({
-    queryKey: holdingsApiKeys.all,
-    queryFn: holdingsApi.getHoldings
-  });
-
+  const { holdings, isLoading } = useHoldings();
+  if (!holdings) { return }
 
   const geographicExposure = useMemo(() => calculateGeographicExposure(holdings), [holdings]);
   return (

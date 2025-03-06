@@ -1,19 +1,18 @@
-import { supabase } from "@/lib/supabase";
-import { PortfolioDailyMetric } from "@/types/portfolioDailyMetricTypes";
+import { dailyMetricsApi, dailyMetricsApiKeys } from "@/api/dailyMetricsApi";
+import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import { useQuery } from "@tanstack/react-query";
 
-export function usePortfolioDailyMetrics() {
-  const { data: dailyMetrics, isLoading, isError } = useQuery({
-    queryFn: async () => {
-      const { data } = await supabase.from("portfolio_daily_metrics").select();
-      return data as PortfolioDailyMetric[];
-    },
-    queryKey: ["30Day"],
+export function usePortfolioDailyMetrics(timeframe: Timeframe) {
+  const { data: dailyMetrics, isLoading, error } = useQuery({
+    queryKey: dailyMetricsApiKeys.timeframe(timeframe),
+    queryFn: () => dailyMetricsApi.getDailyMetrics(timeframe),
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   return {
     dailyMetrics,
     isLoading,
-    isError
-  }
+    isError: !!error,
+    error: error instanceof Error ? error : undefined
+  };
 }
