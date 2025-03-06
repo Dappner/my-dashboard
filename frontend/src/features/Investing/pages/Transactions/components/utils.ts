@@ -2,8 +2,8 @@ import { TradeView } from "@/types/transactionsTypes";
 import { parseISO } from "date-fns";
 import { TransactionsFilters } from "./TransactionsFilters";
 
-export function filterTrades(filters: TransactionsFilters, trades: TradeView[]) {
-  return trades.filter((trade) => {
+export function filterTransactions(filters: TransactionsFilters, transactions?: TradeView[]) {
+  return transactions?.filter((trade) => {
     const transactionTypeMatch = filters.transaction_type === 'all' || !filters.transaction_type
       ? true
       : filters.transaction_type === trade.transaction_type;
