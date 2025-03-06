@@ -13,8 +13,8 @@ import { useTransactions } from "./hooks/useTransactions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import PortfolioInsightsWidget from "./components/PortfolioInsightsWidget";
+import { timeframes } from "@/constants";
 
-const timeframes: Timeframe[] = ["1W", "1M", "3M", "YTD", "1Y", "ALL"];
 
 export default function InvestingPage() {
   const { isTransactionSheetOpen, selectedTransaction, openAddTransaction, closeSheet } = useTransactionSheet();

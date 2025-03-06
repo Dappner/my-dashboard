@@ -2,6 +2,11 @@ import StockPriceChart from "../components/StockPriceChart";
 import YhFinanceStats from "../components/YhFinanceStats";
 import { useTickerData } from "../hooks/useTickerData";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTickerHistoricalPrices } from "../hooks/useTickerHistoricalPrices";
+import { Button } from "@/components/ui/button";
+import { timeframes } from "@/constants";
+import { useState } from "react";
+import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 
 interface OverviewTabProps {
   exchange: string;
@@ -10,13 +15,12 @@ interface OverviewTabProps {
 }
 
 export default function OverviewTab({ exchange, tickerSymbol }: OverviewTabProps) {
-  const { historicalPrices, holding, tickerTrades, yhFinanceData, isLoading } = useTickerData(
+  const { ticker, holding, tickerTrades, yhFinanceData, isLoading } = useTickerData(
     exchange,
     tickerSymbol
   );
-
-  console.log(historicalPrices);
-
+  const [timeframe, setTimeframe] = useState<Timeframe>("1M");
+  const { historicalPrices } = useTickerHistoricalPrices(ticker.id, timeframe);
 
   if (isLoading) {
     return (
@@ -33,11 +37,27 @@ export default function OverviewTab({ exchange, tickerSymbol }: OverviewTabProps
       <div className="grid grid-cols-3 xl:grid-cols-6 gap-4">
         <div className="col-span-2 xl:col-span-5">
           {historicalPrices ? (
-            <StockPriceChart
-              data={historicalPrices}
-              holding={holding || undefined}
-              tickerTrades={tickerTrades || undefined}
-            />
+            <div className="space-y-2">
+              <div className="flex justify-end">
+                <div className="flex space-x-2">
+                  {timeframes.map((period) => (
+                    <Button
+                      key={period}
+                      variant={timeframe === period ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setTimeframe(period)}
+                    >
+                      {period}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <StockPriceChart
+                data={historicalPrices}
+                holding={holding || undefined}
+                tickerTrades={tickerTrades || undefined}
+              />
+            </div>
           ) : (
             <Card className="h-64 flex items-center justify-center">
               <p className="text-gray-500">Historical price data coming soon</p>

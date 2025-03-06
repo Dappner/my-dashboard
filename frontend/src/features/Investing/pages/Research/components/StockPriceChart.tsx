@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { HistoricalPrice } from "@/types/historicalPricesTypes";
 import { Holding } from "@/types/holdingsTypes";
-import { TradeView } from "@/types/transactionsTypes";
+import { TradeView, TransactionType } from "@/types/transactionsTypes";
 import { format, parseISO } from "date-fns";
 import {
   LineChart,
@@ -18,7 +18,7 @@ interface StockData {
   date: string;
   close_price: number;
   transactions?: {
-    type: 'buy' | 'dividend' | 'sell';
+    type: TransactionType;
     shares: number;
     price_per_share: number;
     transaction_date: string;

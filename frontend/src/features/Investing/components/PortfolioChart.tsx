@@ -124,7 +124,7 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
     ? `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
     : `${value.toFixed(1)}%`;
 
-  const formatDateLabel = (label: unknown, payload?: any): string => {
+  const formatDateLabel = (payload?: any): string => {
     if (payload?.[0]?.payload?.date) {
       const date = payload[0].payload.date;
       return date instanceof Date && !isNaN(date.getTime())

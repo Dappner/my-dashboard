@@ -27,20 +27,6 @@ export function useTickerData(exchange: string, tickerSymbol: string) {
     enabled: !!exchange && !!tickerSymbol,
   });
 
-  // Historical Prices
-  const { data: historicalPrices, isLoading: historicalPricesLoading } = useQuery({
-    queryKey: ["historicalPrices", ticker?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("historical_prices")
-        .select()
-        .eq("ticker_id", ticker!.id)
-        .order("date", { ascending: true })
-      return data;
-    },
-    enabled: !!ticker?.id,
-  });
-
   // Holdings Data
   const { data: holding, isLoading: holdingsLoading } = useQuery({
     queryKey: holdingsApiKeys.ticker(exchange, tickerSymbol),
@@ -73,16 +59,14 @@ export function useTickerData(exchange: string, tickerSymbol: string) {
   // Consolidated loading and error states
   const isLoading =
     tickerLoading ||
-    historicalPricesLoading ||
     holdingsLoading ||
     tradesLoading ||
     yhFinanceLoading;
 
-  const isError = !isLoading && (!ticker || !historicalPrices || !holding || !tickerTrades || !yhFinanceData);
+  const isError = !isLoading && (!ticker || !holding || !tickerTrades || !yhFinanceData);
 
   return {
     ticker,
-    historicalPrices,
     holding,
     tickerTrades,
     yhFinanceData,
