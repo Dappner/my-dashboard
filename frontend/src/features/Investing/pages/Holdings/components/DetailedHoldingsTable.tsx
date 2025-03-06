@@ -6,17 +6,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 import { Holding } from "@/types/holdingsTypes";
 import { useNavigate } from "react-router";
-import { useHoldings } from "../hooks/useHoldings";
 
-export default function HoldingsTable() {
+export default function DetailedHoldingsTable() {
   const navigate = useNavigate();
   const { holdings, isLoading, isError } = useHoldings();
 
   const handleHoldingClick = (holding: Holding) => {
     navigate(`/investing/stock/${holding.exchange}/${holding.symbol}`);
   };
+  const portfolioValue = holdings?.map((holding) => holding.current_market_value!).reduce((a, b) => a + b);
+  if (!portfolioValue) return;
+
+  const getWeight = (holding: Holding) => {
+    if (portfolioValue == 0) {
+      return "N/A";
+    }
+    return ((holding.current_market_value! / portfolioValue) * 100).toFixed(2);
+  }
 
   return (
     <div className="bg-white border rounded-md shadow-sm overflow-x-auto">
@@ -31,9 +40,9 @@ export default function HoldingsTable() {
           <TableHeader>
             <TableRow className="bg-muted/50 border-b border-gray-200">
               <TableHead className="text-gray-600 font-semibold">Ticker</TableHead>
-              <TableHead className="text-gray-600 font-semibold">Shares</TableHead>
-              <TableHead className="text-right text-gray-600 font-semibold">Cost</TableHead>
+              <TableHead className="text-right text-gray-600 font-semibold">Shares</TableHead>
               <TableHead className="text-gray-600 font-semibold">Value</TableHead>
+              <TableHead className="text-gray-600 font-semibold">Weight</TableHead>
               <TableHead className="text-gray-600 font-semibold">Unr. P/L</TableHead>
             </TableRow>
           </TableHeader>
@@ -45,11 +54,11 @@ export default function HoldingsTable() {
                 onClick={() => handleHoldingClick(holding)}
               >
                 <TableCell className="font-medium text-gray-900">{holding.symbol}</TableCell>
-                <TableCell>{holding.shares?.toFixed(2)}</TableCell>
                 <TableCell className="text-right">
-                  ${(holding.average_cost_basis! * holding.shares!).toFixed(2)}
+                  ${holding.shares?.toFixed(2)}
                 </TableCell>
                 <TableCell>${holding.current_market_value?.toFixed(2)}</TableCell>
+                <TableCell>{getWeight(holding)}%</TableCell>
                 <TableCell
                   className={holding.unrealized_gain_loss! >= 0 ? "text-green-600" : "text-red-600"}
                 >

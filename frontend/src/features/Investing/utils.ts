@@ -66,6 +66,15 @@ export const prepareAllocationData = (holdings: Holding[], cash_balance: number)
       value: cash_balance
     }
   ];
+};
+
+export const prepareHoldingData = (holdings: Holding[]) => {
+  return holdings.map((holding) => {
+    return {
+      label: holding.symbol!,
+      value: holding.current_market_value!
+    }
+  })
 }
 
 // DIVIDEND UTILS

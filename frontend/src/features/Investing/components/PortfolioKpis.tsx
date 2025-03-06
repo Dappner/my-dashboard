@@ -56,13 +56,6 @@ export default function PortfolioKpis({ timeframe }: PortfolioKpisProps) {
         percentOnly
         additionalInfo="Current"
       />
-      <KpiCard
-        title="Volatility"
-        value={`${(metrics.volatility || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-        icon={DollarSign}
-        percentOnly
-        additionalInfo="Current"
-      />
     </>
   );
 }

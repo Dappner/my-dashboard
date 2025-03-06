@@ -37,7 +37,7 @@ export default function InvestingPage() {
       </div>
 
       {/* KPIs Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <PortfolioKpis timeframe={timeframe} />
       </div>
 
@@ -103,7 +103,7 @@ export default function InvestingPage() {
             <div className="flex flex-row items-center justify-between mb-2 h-8">
               <h2 className="text-lg font-semibold text-gray-900">Holdings</h2>
               <Link
-                to=""
+                to="/investing/holdings"
                 className="text-sm text-blue-600 flex items-center hover:underline"
               >
                 View All <ChevronRight className="h-4 w-4" />

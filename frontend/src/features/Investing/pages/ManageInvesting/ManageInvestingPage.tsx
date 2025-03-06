@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   CardDescription,
@@ -24,6 +23,18 @@ import { useState } from "react";
 import { toast } from "sonner";
 import TickerTable from "./components/TickerTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { TickerSelect } from "../../forms/FormControls";
+import useUser from "@/hooks/useUser";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+const trackingFormSchema = z.object({
+  ticker_id: z.string().min(1, "Please select a ticker"),
+});
+
+type TrackingFormValues = z.infer<typeof trackingFormSchema>;
 
 export default function ManageInvestingPage() {
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
@@ -49,6 +60,14 @@ export default function ManageInvestingPage() {
       toast.error(`An error occurred: ${error.message}`);
     },
   });
+  const { user, updateUser } = useUser();
+
+  const form = useForm<TrackingFormValues>({
+    resolver: zodResolver(trackingFormSchema),
+    defaultValues: {
+      ticker_id: user?.tracking_ticker_id || "",
+    },
+  });
 
   const handleSubmitTicker = (values: TickerFormValues) => {
     if (editingTicker) {
@@ -68,6 +87,19 @@ export default function ManageInvestingPage() {
     setEditingTicker(ticker);
   };
 
+  const onTrackingSubmit = async (data: TrackingFormValues) => {
+    try {
+      console.log("ATTEMPT")
+      updateUser({
+        id: user!.id,
+        tracking_ticker_id: data.ticker_id,
+      });
+      toast.success("Tracking ticker updated successfully");
+    } catch (error) {
+      toast.error("Failed to update tracking ticker");
+      console.error("Error updating tracking ticker:", error);
+    }
+  };
   const handleCloseEditSheet = () => {
     setEditingTicker(null);
   };
@@ -89,6 +121,7 @@ export default function ManageInvestingPage() {
       <Tabs defaultValue="tickers">
         <TabsList >
           <TabsTrigger value="tickers" className="cursor-pointer">Tickers</TabsTrigger>
+          <TabsTrigger value="tracking" className="cursor-pointer">Tracking</TabsTrigger>
         </TabsList>
         <TabsContent value="tickers">
 
@@ -168,6 +201,47 @@ export default function ManageInvestingPage() {
               )}
             </div>
           )}
+        </TabsContent>
+        <TabsContent value="tracking">
+          <div className="space-y-4 max-w-md">
+            <div>
+              <CardTitle className="text-xl">Configure Tracking Ticker</CardTitle>
+              <CardDescription>
+                Select a ticker to use as your primary tracking index
+              </CardDescription>
+            </div>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onTrackingSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="ticker_id"
+                  render={({ field }) => (
+                    <FormItem >
+                      <FormLabel>Tracking Ticker</FormLabel>
+                      <FormControl>
+                        <TickerSelect
+                          field={field}
+                          isLoading={isLoading}
+                          tickers={tickers}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            form.handleSubmit(onTrackingSubmit)();
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
+                  Save Changes
+                </Button>
+              </form>
+            </Form>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

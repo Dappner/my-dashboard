@@ -64,6 +64,13 @@ export type Database = {
             foreignKeyName: "historical_prices_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "historical_prices_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -115,6 +122,13 @@ export type Database = {
             foreignKeyName: "holdings_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -130,6 +144,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "portfolio_performance"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "holdings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "running_cash_balances"
             referencedColumns: ["user_id"]
           },
           {
@@ -175,6 +196,13 @@ export type Database = {
             columns: ["ticker_id"]
             isOneToOne: false
             referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "stock_notes_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
             referencedColumns: ["ticker_id"]
           },
           {
@@ -249,6 +277,13 @@ export type Database = {
             foreignKeyName: "suggested_trades_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "suggested_trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -264,6 +299,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "portfolio_performance"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "suggested_trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "running_cash_balances"
             referencedColumns: ["user_id"]
           },
           {
@@ -384,6 +426,13 @@ export type Database = {
             foreignKeyName: "trades_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -405,6 +454,13 @@ export type Database = {
             foreignKeyName: "trades_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "running_cash_balances"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -418,6 +474,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          tracking_ticker_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -427,6 +484,7 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
+          tracking_ticker_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -436,9 +494,32 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          tracking_ticker_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_tracking_ticker_id_fkey"
+            columns: ["tracking_ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "users_tracking_ticker_id_fkey"
+            columns: ["tracking_ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "users_tracking_ticker_id_fkey"
+            columns: ["tracking_ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       yh_finance_daily: {
         Row: {
@@ -525,6 +606,13 @@ export type Database = {
             foreignKeyName: "yh_finance_daily_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: true
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "yh_finance_daily_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: true
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -564,6 +652,176 @@ export type Database = {
           user_id: string | null
         }
         Relationships: []
+      }
+      daily_cash_flows: {
+        Row: {
+          cash_flow: number | null
+          transaction_date: string | null
+          transaction_type:
+            | Database["public"]["Enums"]["transaction_type_enum"]
+            | null
+          user_id: string | null
+        }
+        Insert: {
+          cash_flow?: never
+          transaction_date?: string | null
+          transaction_type?:
+            | Database["public"]["Enums"]["transaction_type_enum"]
+            | null
+          user_id?: string | null
+        }
+        Update: {
+          cash_flow?: never
+          transaction_date?: string | null
+          transaction_type?:
+            | Database["public"]["Enums"]["transaction_type_enum"]
+            | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_performance"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "running_cash_balances"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_cost_basis: {
+        Row: {
+          cost_basis: number | null
+          date_day: string | null
+          has_dividend: boolean | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_performance"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "running_cash_balances"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_portfolio_values: {
+        Row: {
+          date_day: string | null
+          portfolio_value: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_performance"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "running_cash_balances"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_positions: {
+        Row: {
+          date_day: string | null
+          shares: number | null
+          symbol: string | null
+          ticker_id: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_performance"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "running_cash_balances"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       portfolio_daily_metrics: {
         Row: {
@@ -612,10 +870,25 @@ export type Database = {
             foreignKeyName: "trades_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
         ]
+      }
+      running_cash_balances: {
+        Row: {
+          cash_balance: number | null
+          date_day: string | null
+          user_id: string | null
+        }
+        Relationships: []
       }
       trades_view: {
         Row: {
@@ -655,6 +928,13 @@ export type Database = {
             foreignKeyName: "trades_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -676,10 +956,23 @@ export type Database = {
             foreignKeyName: "trades_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "running_cash_balances"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
+      }
+      trading_dates: {
+        Row: {
+          date_day: string | null
+        }
+        Relationships: []
       }
     }
     Functions: {

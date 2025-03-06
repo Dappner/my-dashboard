@@ -23,6 +23,14 @@ export const tickersApi = {
 
     return data as Ticker;
   },
+  async getTickerById(tickerId: string) {
+    const { data, error } = await supabase.from("tickers").select()
+      .eq("id", tickerId)
+      .single();
+    if (error) throw error;
+
+    return data as Ticker;
+  },
 
   async addTicker(newTicker: InsertTicker): Promise<Ticker> {
     const { data, error } = await supabase

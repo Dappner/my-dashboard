@@ -15,6 +15,8 @@ export default function OverviewTab({ exchange, tickerSymbol }: OverviewTabProps
     tickerSymbol
   );
 
+  console.log(historicalPrices);
+
 
   if (isLoading) {
     return (

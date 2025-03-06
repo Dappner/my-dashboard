@@ -34,7 +34,8 @@ export function useTickerData(exchange: string, tickerSymbol: string) {
       const { data } = await supabase
         .from("historical_prices")
         .select()
-        .eq("ticker_id", ticker!.id);
+        .eq("ticker_id", ticker!.id)
+        .order("date", { ascending: true })
       return data;
     },
     enabled: !!ticker?.id,

@@ -1,22 +1,26 @@
+import { userApi, userApiKeys } from "@/api/usersApi";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { supabase } from "@/lib/supabase";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function useUser() {
+  const queryClient = useQueryClient();
   const { user: authUser } = useAuthContext();
   const { data: user, isLoading } = useQuery({
-    queryFn: async () => {
-      const { data } = await supabase.from("users").select()
-        .eq("id", authUser!.id)
-        .single();
-      return data;
-    },
-    queryKey: ["user"],
+    queryFn: () => userApi.getUser(authUser!.id),
+    queryKey: userApiKeys.all,
     enabled: !!authUser
   });
 
+  const updateUserMutation = useMutation({
+    mutationFn: userApi.updateUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userApiKeys.all })
+    }
+  })
+
   return {
     user,
+    updateUser: updateUserMutation.mutate,
     isLoading
   }
 }

@@ -85,7 +85,8 @@ export function TransactionForm({
     queryFn: tickersApi.getTickers,
   });
 
-  const { updateTrade, isUpdating, isAdding, addTrade } = useTransactions({
+  const { updateTransaction, isUpdating, isAdding, addTransaction
+  } = useTransactions({
     onAddSuccess: () => {
       onClose();
     },
@@ -116,9 +117,9 @@ export function TransactionForm({
     const cleanedData = cleanEmptyStrings(formattedData);
 
     if (mode === "create") {
-      addTrade(cleanedData as InsertTransaction);
+      addTransaction(cleanedData as InsertTransaction);
     } else {
-      updateTrade({ ...cleanedData, id: tradeId } as UpdateTransaction);
+      updateTransaction({ ...cleanedData, id: tradeId } as UpdateTransaction);
     }
   };
 
