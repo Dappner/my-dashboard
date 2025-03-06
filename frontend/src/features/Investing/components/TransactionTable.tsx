@@ -36,7 +36,7 @@ export const getCashflowStyles = (type: TransactionType) => {
   if (type === "buy" || type === "withdraw") {
     return "text-red-600";
   } else {
-    return "text-green-700";
+    return "";
   }
 }
 
@@ -47,6 +47,7 @@ interface TransactionTableProps {
   onEditTransaction?: (trade: TradeView) => void;
   onDeleteTransaction?: (id: string) => void;
   actions?: boolean;
+  isGlobal?: boolean;
 }
 
 export default function TransactionTable({
@@ -54,7 +55,9 @@ export default function TransactionTable({
   isLoading,
   onEditTransaction,
   onDeleteTransaction,
-  actions = false
+  actions = false,
+  isGlobal = true,
+
 }: TransactionTableProps) {
   if (isLoading) {
     return (
@@ -72,7 +75,9 @@ export default function TransactionTable({
           <TableRow className="bg-muted/50 hover:bg-muted/50">
             <TableHead className="font-semibold text-muted-foreground">Type</TableHead>
             <TableHead className="font-semibold text-muted-foreground">Date</TableHead>
-            <TableHead className="font-semibold text-muted-foreground">Ticker</TableHead>
+            {isGlobal &&
+              <TableHead className="font-semibold text-muted-foreground">Ticker</TableHead>
+            }
             <TableHead className="text-right font-semibold text-muted-foreground">Quantity</TableHead>
             <TableHead className="text-right font-semibold text-muted-foreground">Price</TableHead>
             <TableHead className="text-right font-semibold text-muted-foreground">Cashflow</TableHead>
@@ -104,9 +109,11 @@ export default function TransactionTable({
                 <TableCell className={cn(!actions && "text-sm")}>
                   {format(parseISO(trade.transaction_date!), "MMM dd, yyyy")}
                 </TableCell>
-                <TableCell className={cn(!actions && "text-sm")}>
-                  {trade.symbol}
-                </TableCell>
+                {isGlobal &&
+                  <TableCell className={cn(!actions && "text-sm")}>
+                    {trade.symbol}
+                  </TableCell>
+                }
                 <TableCell className={cn("text-right", !actions && "text-sm")}>
                   {trade.shares!.toFixed(2)}
                 </TableCell>

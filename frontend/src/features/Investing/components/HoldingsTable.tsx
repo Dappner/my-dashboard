@@ -32,9 +32,9 @@ export default function HoldingsTable() {
             <TableRow className="bg-muted/50 border-b border-gray-200">
               <TableHead className="text-gray-600 font-semibold">Ticker</TableHead>
               <TableHead className="text-gray-600 font-semibold">Shares</TableHead>
-              <TableHead className="text-right text-gray-600 font-semibold">Cost</TableHead>
               <TableHead className="text-gray-600 font-semibold">Value</TableHead>
               <TableHead className="text-gray-600 font-semibold">Unr. P/L</TableHead>
+              <TableHead className="text-gray-600 font-semibold">%</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -46,15 +46,19 @@ export default function HoldingsTable() {
               >
                 <TableCell className="font-medium text-gray-900">{holding.symbol}</TableCell>
                 <TableCell>{holding.shares?.toFixed(2)}</TableCell>
-                <TableCell className="text-right">
-                  ${(holding.average_cost_basis! * holding.shares!).toFixed(2)}
-                </TableCell>
                 <TableCell>${holding.current_market_value?.toFixed(2)}</TableCell>
                 <TableCell
                   className={holding.unrealized_gain_loss! >= 0 ? "text-green-600" : "text-red-600"}
                 >
                   ${holding.unrealized_gain_loss?.toFixed(2)}
                 </TableCell>
+                <TableCell
+                  className={holding.unrealized_gain_loss_percent! >= 0 ? "text-green-600" : "text-red-600"}
+                >
+                  {holding.unrealized_gain_loss_percent?.toFixed(2)}%
+                </TableCell>
+
+
               </TableRow>
             ))}
           </TableBody>

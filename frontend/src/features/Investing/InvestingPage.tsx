@@ -25,7 +25,7 @@ export default function InvestingPage() {
   const [chartType, setChartType] = useState<"absolute" | "percentual">("absolute");
 
   return (
-    <div className="mx-auto space-y-6 p-6">
+    <div className="mx-auto space-y-6 p-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Investment Dashboard</h1>
         <Button
@@ -114,7 +114,7 @@ export default function InvestingPage() {
             <div className="flex flex-row items-center justify-between mb-2 h-8">
               <h2 className="text-lg font-semibold text-gray-900">Insights</h2>
             </div>
-            <PortfolioInsightsWidget />
+            <PortfolioInsightsWidget timeframe={timeframe} />
           </div>
           <div>
             <TickerEvents

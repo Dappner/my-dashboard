@@ -1,6 +1,28 @@
 import { PortfolioDailyMetric, Timeframe } from "@/types/portfolioDailyMetricTypes";
+import { TradeView } from "@/types/transactionsTypes"; // Assuming this is the type for transactions
 
-export const calculatePortfolioMetrics = (dailyMetrics: PortfolioDailyMetric[], timeframe: Timeframe) => {
+interface PortfolioMetrics {
+  totalPortfolioValue: number;
+  investmentValue: number;
+  cashBalance: number;
+  timeframeChange: number;
+  timeframeChangePercent: number;
+  timeframeReturn: number;
+  timeframeReturnPercent: number;
+  cashPercentage: number;
+  investmentGrowth: number;
+  investmentGrowthPercent: number;
+  volatility: number;
+  ytdDividends?: number; // New KPI
+  dividendYield?: number; // New KPI
+}
+
+export const calculatePortfolioMetrics = (
+  dailyMetrics: PortfolioDailyMetric[],
+  timeframe: Timeframe,
+  transactions?: TradeView[], // Optional transactions for dividends
+  holdings?: any[] // Optional holdings for dividend yield
+): PortfolioMetrics => {
   if (!dailyMetrics?.length) {
     return {
       totalPortfolioValue: 0,
@@ -40,13 +62,11 @@ export const calculatePortfolioMetrics = (dailyMetrics: PortfolioDailyMetric[], 
   let timeframeReturn: number;
   let timeframeReturnPercent: number;
   if (timeframe === "ALL") {
-    // For "ALL," use current portfolio value minus initial cost basis
     timeframeReturn = investmentValue - portfolioCostBasis;
     timeframeReturnPercent = portfolioCostBasis > 0
       ? (timeframeReturn / portfolioCostBasis) * 100
       : 0;
   } else {
-    // For other timeframes, use change in portfolio_value
     timeframeReturn = investmentValue - previousInvestmentValue;
     timeframeReturnPercent = previousInvestmentValue > 0
       ? (timeframeReturn / previousInvestmentValue) * 100
@@ -65,8 +85,19 @@ export const calculatePortfolioMetrics = (dailyMetrics: PortfolioDailyMetric[], 
     ? (investmentGrowth / previousInvestmentValue) * 100
     : 0;
 
-  // Volatility (standard deviation of daily investment returns)
+  // Volatility
   const volatility = calculateVolatility(dailyMetrics);
+
+  // YTD Dividends (requires transactions)
+  const currentYear = new Date().getFullYear();
+  const ytdDividends = transactions
+    ?.filter((t) => t.transaction_type === "dividend" && new Date(t.transaction_date!).getFullYear() === currentYear)
+    ?.reduce((sum, t) => sum + (t.gross_transaction_amount || 0), 0) || 0;
+
+  // Dividend Yield (portfolio-wide average, requires holdings)
+  const dividendYield = holdings?.length
+    ? holdings.reduce((sum, h) => sum + (h.market_dividend_yield_percent || 0), 0) / holdings.length
+    : 0;
 
   return {
     totalPortfolioValue,
@@ -80,6 +111,8 @@ export const calculatePortfolioMetrics = (dailyMetrics: PortfolioDailyMetric[], 
     investmentGrowth,
     investmentGrowthPercent,
     volatility,
+    ytdDividends,
+    dividendYield,
   };
 };
 

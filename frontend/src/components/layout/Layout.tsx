@@ -9,15 +9,14 @@ import useUser from "@/hooks/useUser"
 
 export default function Layout() {
   const { user: authUser, isLoading } = useAuthContext();
-  useUser();
+  const { isLoading: userLoading } = useUser();
   const location = useLocation();
 
-  if (isLoading) {
+  if (isLoading || userLoading) {
     return (
-      <div className="min-h-screen flex flex-col mx-auto align-middle">
+      <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
-      </div>
-    )
+      </div>)
   }
   if (!authUser) {
     return < Navigate to="/login" state={{ from: location.pathname }} replace />

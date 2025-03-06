@@ -109,7 +109,7 @@ export default function HoldingsPanel({
             <div className="p-3 space-y-4 border-t">
               <div>
                 <h3 className="text-lg font-semibold mb-2">Recent Transactions</h3>
-                <TransactionTable isLoading={transactionsLoading} transactions={transactions} />
+                <TransactionTable isGlobal={false} isLoading={transactionsLoading} transactions={transactions} />
               </div>
             </div>
           )}
