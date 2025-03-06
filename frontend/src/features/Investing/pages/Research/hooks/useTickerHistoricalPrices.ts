@@ -6,7 +6,8 @@ export function useTickerHistoricalPrices(tickerId: string, timeframe: Timeframe
 
   const { data: historicalPrices, isLoading: historicalPricesLoading } = useQuery({
     queryKey: tickerPricesApiKeys.timeframe(tickerId, timeframe),
-    queryFn: async () => tickerPricesApi.getTickerHistoricalPrices(tickerId, timeframe)
+    queryFn: async () => tickerPricesApi.getTickerHistoricalPrices(tickerId, timeframe),
+    enabled: !!tickerId
   });
 
 

@@ -35,11 +35,7 @@ export default function TickerPage() {
           }
         </TabsList>
         <TabsContent value="overview">
-          {isLoading ? (
-            <div className="text-center py-8 text-gray-500">Loading ticker data...</div>
-          ) : (
-            <OverviewTab tickerId={ticker?.id} exchange={exchange} tickerSymbol={tickerSymbol} />
-          )}
+          <OverviewTab exchange={exchange} tickerSymbol={tickerSymbol} />
         </TabsContent>
         <TabsContent value="financials">
           {isLoading ? (

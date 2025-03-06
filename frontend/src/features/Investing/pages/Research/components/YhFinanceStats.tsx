@@ -1,5 +1,5 @@
-import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatLargeNumber } from "@/lib/formatting";
 import { YahooFinanceDaily } from "@/types/yahooFinanceDaily"
 import { format } from "date-fns";
@@ -10,52 +10,50 @@ interface YhFinanceStatsProps {
 }
 
 export default function YhFinanceStats({ yahooFinanceDaily, isLoading }: YhFinanceStatsProps) {
+  const statsConfig = [
+    { label: "52-Week Low", value: yahooFinanceDaily?.fifty_two_week_low?.toFixed(2), prefix: "$" },
+    { label: "52-Week High", value: yahooFinanceDaily?.fifty_two_week_high?.toFixed(2), prefix: "$" },
+    { label: "Div Yield", value: yahooFinanceDaily?.dividend_yield?.toFixed(2), suffix: "%" },
+    { label: "50-Day Avg", value: yahooFinanceDaily?.fifty_day_average?.toFixed(2), prefix: "$" },
+    { label: "200-Day Avg", value: yahooFinanceDaily?.two_hundred_day_average?.toFixed(2), prefix: "$" },
+    { label: "NAV Price", value: yahooFinanceDaily?.nav_price?.toFixed(2), prefix: "$" },
+    { label: "Trailing P/E", value: yahooFinanceDaily?.trailing_pe?.toFixed(2) },
+    { label: "Total Assets", value: formatLargeNumber(yahooFinanceDaily?.total_assets) },
+  ];
+
   return (
     <>
       <div className="flex flex-row items-center justify-between mb-2 h-8">
         <h2 className="text-lg font-semibold text-gray-900">YH Finance Stats</h2>
-        <h2 className="text-base font-semibold text-gray-500">
-          {yahooFinanceDaily?.date ? format(new Date(yahooFinanceDaily.date + "T00:00:00"), "MM/dd/yyyy") : 'N/A'}
-        </h2>
+        {isLoading ? (
+          <Skeleton className="h-5 w-24" />
+        ) : (
+          <h2 className="text-base font-semibold text-gray-500">
+            {yahooFinanceDaily?.date ? format(new Date(yahooFinanceDaily.date + "T00:00:00"), "MM/dd/yyyy") : 'N/A'}
+          </h2>
+        )}
       </div>
       <Card>
-        <CardContent>
+        <CardContent className="py-4">
           {isLoading ? (
-            <LoadingSpinner />
+            <div className="space-y-3">
+              {Array(8).fill(0).map((_, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm">52-Week Low</span>
-                <span className="font-medium">${yahooFinanceDaily?.fifty_two_week_low?.toFixed(2) || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">52-Week High</span>
-                <span className="font-medium">${yahooFinanceDaily?.fifty_two_week_high?.toFixed(2) || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Div Yield</span>
-                <span className="font-medium">{yahooFinanceDaily?.dividend_yield?.toFixed(2) || 'N/A'}%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">50-Day Avg</span>
-                <span className="font-medium">${yahooFinanceDaily?.fifty_day_average?.toFixed(2) || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">200-Day Avg</span>
-                <span className="font-medium">${yahooFinanceDaily?.two_hundred_day_average?.toFixed(2) || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">NAV Price</span>
-                <span className="font-medium">${yahooFinanceDaily?.nav_price?.toFixed(2) || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Trailing P/E</span>
-                <span className="font-medium">{yahooFinanceDaily?.trailing_pe?.toFixed(2) || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Total Assets</span>
-                <span className="font-medium">{formatLargeNumber(yahooFinanceDaily?.total_assets)}</span>
-              </div>
+              {statsConfig.map((stat, index) => (
+                <div key={index} className="flex justify-between">
+                  <span className="text-sm">{stat.label}</span>
+                  <span className="font-medium">
+                    {stat.prefix || ""}{stat.value || 'N/A'}{stat.suffix || ""}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>

@@ -152,7 +152,6 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
   };
 
   const chartData = getChartData();
-  console.log(dailyMetrics);
   const yDomain = getYDomain(chartData);
 
   return (

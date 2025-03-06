@@ -7,31 +7,33 @@ import { TradeView } from '@/types/transactionsTypes';
 import { transactionsApiKeys, transactionsApi } from '@/api/tradesApi';
 import { useQuery } from '@tanstack/react-query';
 import TransactionTable from '@/features/Investing/components/TransactionTable';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface HoldingsPanelProps {
   holding: Holding;
   tickerTrades: TradeView[] | null;
   exchange: string;
   tickerSymbol: string;
+  isLoading?: boolean;
 }
 
 export default function HoldingsPanel({
   holding,
-  tickerTrades,
   exchange,
-  tickerSymbol
+  tickerSymbol,
+  isLoading = false
 }: HoldingsPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { state } = useSidebar();
 
-  const { data: transactions = [] } = useQuery({
+  const { data: transactions = [], isLoading: transactionsLoading } = useQuery({
     queryKey: transactionsApiKeys.ticker(exchange, tickerSymbol!),
     queryFn: async () => transactionsApi.getTickerTrades(exchange!, tickerSymbol!),
     staleTime: 60 * 1000,
     retry: 2,
   });
 
-  if (!holding) return null;
+  if (!holding && !isLoading) return null;
 
   return (
     <div className={`
@@ -62,42 +64,57 @@ export default function HoldingsPanel({
 
           {/* Core KPIs in Flex Row */}
           <div className="grid text-base grid-cols-4 gap-2 p-3">
-            <div>
-              <p className="text-gray-500">Position</p>
-              <p className="text-lg font-medium">{holding.shares?.toFixed(2) || '0'} (${holding.current_market_value?.toFixed(2) || '0.00'})</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Avg Price</p>
-              <p className="text-lg font-medium">${holding.average_cost_basis?.toFixed(2) || '0.00'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">All Time</p>
-              <p className={`text-lg font-medium ${(holding.total_gain_loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                ${holding.total_gain_loss?.toFixed(2) || '0.00'}
-              </p>
-              {/* TODO: Add Percent Change or Something */}
-            </div>
-            <div>
-              {/* This could be left empty or used for another metric if needed */}
-            </div>
+            {isLoading ? (
+              // Loading state for KPIs
+              <>
+                <div>
+                  <p className="text-gray-500">Position</p>
+                  <Skeleton className="h-6 w-24 mt-1" />
+                </div>
+                <div>
+                  <p className="text-gray-500">Avg Price</p>
+                  <Skeleton className="h-6 w-20 mt-1" />
+                </div>
+                <div>
+                  <p className="text-gray-500">All Time</p>
+                  <Skeleton className="h-6 w-24 mt-1" />
+                </div>
+                <div />
+              </>
+            ) : (
+              // Normal data display
+              <>
+                <div>
+                  <p className="text-gray-500">Position</p>
+                  <p className="text-lg font-medium">{holding.shares?.toFixed(2) || '0'} (${holding.current_market_value?.toFixed(2) || '0.00'})</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Avg Price</p>
+                  <p className="text-lg font-medium">${holding.average_cost_basis?.toFixed(2) || '0.00'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">All Time</p>
+                  <p className={`text-lg font-medium ${(holding.total_gain_loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                    ${holding.total_gain_loss?.toFixed(2) || '0.00'}
+                  </p>
+                </div>
+                <div />
+              </>
+            )}
           </div>
 
           {/* Expanded Content */}
           {isExpanded && (
             <div className="p-3 space-y-4 border-t">
-              {tickerTrades?.length ? (
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Recent Transactions</h3>
-                  <TransactionTable transactions={transactions} />
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">No recent transactions</p>
-              )}
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Recent Transactions</h3>
+                <TransactionTable isLoading={transactionsLoading} transactions={transactions} />
+              </div>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </div >
   );
 }

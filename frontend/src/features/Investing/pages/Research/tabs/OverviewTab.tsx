@@ -13,17 +13,16 @@ import TickerEvents from "@/features/Investing/components/TickerEvents";
 interface OverviewTabProps {
   exchange: string;
   tickerSymbol: string;
-  tickerId?: string;
 }
 
-export default function OverviewTab({ exchange, tickerSymbol, tickerId }: OverviewTabProps) {
+export default function OverviewTab({ exchange, tickerSymbol }: OverviewTabProps) {
   const { ticker, holding, tickerTrades, yhFinanceData, isLoading } = useTickerData(
     exchange,
     tickerSymbol
   );
   const [timeframe, setTimeframe] = useState<Timeframe>("1M");
-  const { historicalPrices } = useTickerHistoricalPrices(ticker.id, timeframe);
-  const { events, isLoading: eventsLoading, isError: eventsError, error: eventsErrorMsg } = useCalendarEvents(3, ticker?.id || tickerId);
+  const { historicalPrices } = useTickerHistoricalPrices(ticker?.id, timeframe);
+  const { events, isLoading: eventsLoading, isError: eventsError, error: eventsErrorMsg } = useCalendarEvents(3, ticker?.id);
 
 
   if (isLoading) {

@@ -1,5 +1,6 @@
 import { BriefcaseIcon, MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Ticker } from "@/types/tickerTypes";
 
 interface TickerHeaderProps {
@@ -18,11 +19,18 @@ export default function TickerHeader({ ticker, latestPrice, isLoading }: TickerH
     <div className="lg:flex lg:items-center lg:justify-between">
       <div className="min-w-0 flex-1">
         {isLoading ? (
-          <div className="space-y-4 animate-pulse">
-            <div className="h-8 w-1/3 bg-gray-200 rounded" />
-            <div className="flex space-x-6">
-              <div className="h-5 w-1/4 bg-gray-200 rounded" />
-              <div className="h-5 w-1/4 bg-gray-200 rounded" />
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-6 w-1/4" />
+            <div className="flex space-x-6 mt-2">
+              <div className="flex items-center">
+                <Skeleton className="h-5 w-5 mr-1.5" />
+                <Skeleton className="h-5 w-24" />
+              </div>
+              <div className="flex items-center">
+                <Skeleton className="h-5 w-5 mr-1.5" />
+                <Skeleton className="h-5 w-32" />
+              </div>
             </div>
           </div>
         ) : (
@@ -63,7 +71,7 @@ export default function TickerHeader({ ticker, latestPrice, isLoading }: TickerH
       </div>
       <div className="flex gap-4 mt-4 lg:mt-0">
         {isLoading ? (
-          <div className="h-10 w-20 bg-gray-200 rounded animate-pulse" />
+          <Skeleton className="h-10 w-20" />
         ) : (
           ticker?.cik && <Button onClick={onClickEdgar}>Edgar</Button>
         )}

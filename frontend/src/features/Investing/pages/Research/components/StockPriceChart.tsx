@@ -13,6 +13,7 @@ import {
   YAxis,
   ReferenceLine,
 } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StockData {
   date: string;
@@ -29,13 +30,48 @@ interface StockPriceChartProps {
   data: HistoricalPrice[];
   holding?: Holding;
   tickerTrades?: TradeView[];
+  isLoading?: boolean;
 }
 
 export default function StockPriceChart({
   data,
   holding,
-  tickerTrades = []
+  tickerTrades = [],
+  isLoading = false
 }: StockPriceChartProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <div className="w-full h-80 p-4">
+          <div className="flex items-center justify-between mb-4">
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-4 w-1/6" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-64 w-full rounded-md" />
+            <div className="flex justify-between pt-2">
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-12" />
+            </div>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  // Early return if we have no data
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <div className="w-full h-80 flex items-center justify-center">
+          <p className="text-gray-500">No price data available</p>
+        </div>
+      </Card>
+    );
+  }
 
   const chartData: StockData[] = data.map((item) => {
     // Find purchases on this date

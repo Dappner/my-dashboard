@@ -9,7 +9,7 @@ export function useCalendarEvents(limit: number = 5, tickerId?: string) {
   });
 
   return {
-    events: events || [],
+    events: events,
     isLoading,
     isError,
     error: isError ? (error instanceof Error ? error.message : "Unknown error") : null,

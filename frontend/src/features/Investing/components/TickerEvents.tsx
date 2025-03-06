@@ -4,7 +4,7 @@ import { CalendarEventsView } from "@/types/calendarEventsTypes";
 import { formatDate } from "@/lib/formatting";
 
 interface TickerEventsProps {
-  events: CalendarEventsView[];
+  events?: CalendarEventsView[];
   isLoading: boolean;
   isError: boolean;
   error: string | null;
@@ -30,13 +30,13 @@ export default function TickerEvents({
             <p className="text-sm text-gray-500">Loading events...</p>
           ) : isError ? (
             <p className="text-sm text-red-500">{error || "Failed to load events"}</p>
-          ) : events.length === 0 ? (
+          ) : events!.length === 0 ? (
             <p className="text-sm text-gray-500">
               {tickerSymbol ? `No upcoming events for ${tickerSymbol}` : "No upcoming events"}
             </p>
           ) : (
             <div className="space-y-4">
-              {events.map((event) => (
+              {events!.map((event) => (
                 <div key={event.id} className="flex items-start space-x-3">
                   <div
                     className={`p-2 rounded ${event.event_type === "earnings" ? "bg-purple-100" : "bg-blue-100"
