@@ -9,6 +9,165 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      fund_asset_classes: {
+        Row: {
+          asset_class: string
+          created_at: string | null
+          date: string
+          id: string
+          ticker_id: string
+          updated_at: string | null
+          weight: number
+        }
+        Insert: {
+          asset_class: string
+          created_at?: string | null
+          date: string
+          id?: string
+          ticker_id: string
+          updated_at?: string | null
+          weight: number
+        }
+        Update: {
+          asset_class?: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          ticker_id?: string
+          updated_at?: string | null
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fund_asset_classes_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_asset_classes_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_asset_classes_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fund_sector_weightings: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          sector_name: string
+          ticker_id: string
+          updated_at: string | null
+          weight: number
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          sector_name: string
+          ticker_id: string
+          updated_at?: string | null
+          weight: number
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          sector_name?: string
+          ticker_id?: string
+          updated_at?: string | null
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fund_sector_weightings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_sector_weightings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_sector_weightings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fund_top_holdings: {
+        Row: {
+          created_at: string | null
+          date: string
+          holding_name: string | null
+          holding_symbol: string
+          id: string
+          ticker_id: string
+          updated_at: string | null
+          weight: number
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          holding_name?: string | null
+          holding_symbol: string
+          id?: string
+          ticker_id: string
+          updated_at?: string | null
+          weight: number
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          holding_name?: string | null
+          holding_symbol?: string
+          id?: string
+          ticker_id?: string
+          updated_at?: string | null
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fund_top_holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_top_holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_top_holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       historical_prices: {
         Row: {
           close_price: number
@@ -329,6 +488,7 @@ export type Database = {
           industry: string | null
           long_business_summary: string | null
           name: string | null
+          quote_type: string
           region: string | null
           sector: string | null
           symbol: string
@@ -345,6 +505,7 @@ export type Database = {
           industry?: string | null
           long_business_summary?: string | null
           name?: string | null
+          quote_type?: string
           region?: string | null
           sector?: string | null
           symbol: string
@@ -361,6 +522,7 @@ export type Database = {
           industry?: string | null
           long_business_summary?: string | null
           name?: string | null
+          quote_type?: string
           region?: string | null
           sector?: string | null
           symbol?: string
@@ -525,6 +687,7 @@ export type Database = {
         Row: {
           average_analyst_rating: number | null
           beta: number | null
+          beta3year: number | null
           created_at: string | null
           date: string
           dividend_yield: number | null
@@ -533,22 +696,35 @@ export type Database = {
           fifty_day_average: number | null
           fifty_two_week_high: number | null
           fifty_two_week_low: number | null
+          five_year_average_return: number | null
+          fund_family: string | null
+          fund_inception_date: string | null
           id: string
+          legal_type: string | null
           market_cap: number | null
           nav_price: number | null
+          net_expense_ratio: number | null
           price_eps_current_year: number | null
           profit_margins: number | null
           regular_market_change_percent: number | null
           regular_market_price: number | null
           regular_market_volume: number | null
+          shares_outstanding: number | null
+          three_year_average_return: number | null
           ticker_id: string
           total_assets: number | null
+          trailing_pe: number | null
+          trailing_three_month_nav_returns: number | null
+          trailing_three_month_returns: number | null
           two_hundred_day_average: number | null
           updated_at: string | null
+          yield: number | null
+          ytd_return: number | null
         }
         Insert: {
           average_analyst_rating?: number | null
           beta?: number | null
+          beta3year?: number | null
           created_at?: string | null
           date: string
           dividend_yield?: number | null
@@ -557,22 +733,35 @@ export type Database = {
           fifty_day_average?: number | null
           fifty_two_week_high?: number | null
           fifty_two_week_low?: number | null
+          five_year_average_return?: number | null
+          fund_family?: string | null
+          fund_inception_date?: string | null
           id?: string
+          legal_type?: string | null
           market_cap?: number | null
           nav_price?: number | null
+          net_expense_ratio?: number | null
           price_eps_current_year?: number | null
           profit_margins?: number | null
           regular_market_change_percent?: number | null
           regular_market_price?: number | null
           regular_market_volume?: number | null
+          shares_outstanding?: number | null
+          three_year_average_return?: number | null
           ticker_id: string
           total_assets?: number | null
+          trailing_pe?: number | null
+          trailing_three_month_nav_returns?: number | null
+          trailing_three_month_returns?: number | null
           two_hundred_day_average?: number | null
           updated_at?: string | null
+          yield?: number | null
+          ytd_return?: number | null
         }
         Update: {
           average_analyst_rating?: number | null
           beta?: number | null
+          beta3year?: number | null
           created_at?: string | null
           date?: string
           dividend_yield?: number | null
@@ -581,18 +770,30 @@ export type Database = {
           fifty_day_average?: number | null
           fifty_two_week_high?: number | null
           fifty_two_week_low?: number | null
+          five_year_average_return?: number | null
+          fund_family?: string | null
+          fund_inception_date?: string | null
           id?: string
+          legal_type?: string | null
           market_cap?: number | null
           nav_price?: number | null
+          net_expense_ratio?: number | null
           price_eps_current_year?: number | null
           profit_margins?: number | null
           regular_market_change_percent?: number | null
           regular_market_price?: number | null
           regular_market_volume?: number | null
+          shares_outstanding?: number | null
+          three_year_average_return?: number | null
           ticker_id?: string
           total_assets?: number | null
+          trailing_pe?: number | null
+          trailing_three_month_nav_returns?: number | null
+          trailing_three_month_returns?: number | null
           two_hundred_day_average?: number | null
           updated_at?: string | null
+          yield?: number | null
+          ytd_return?: number | null
         }
         Relationships: [
           {

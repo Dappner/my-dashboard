@@ -5,6 +5,7 @@ import OverviewTab from "./tabs/OverviewTab";
 import { Button } from "@/components/ui/button";
 import { useTickerData } from "./hooks/useTickerData";
 import HoldingsPanel from "./components/HoldingsPanel";
+import FundTab from "./tabs/FundTab";
 
 export default function TickerPage() {
   const { exchange, ticker: tickerSymbol } = useParams();
@@ -65,6 +66,7 @@ export default function TickerPage() {
           <TabsTrigger value="financials" className="cursor-pointer">
             Financials
           </TabsTrigger>
+          <TabsTrigger value="fund" className="cursor-pointer">Fund Stats</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
           {isLoading ? (
@@ -83,6 +85,9 @@ export default function TickerPage() {
               </div>
             </>
           )}
+        </TabsContent>
+        <TabsContent value="fund">
+          <FundTab tickerId={ticker?.id} exchange={exchange} tickerSymbol={tickerSymbol} />
         </TabsContent>
       </Tabs>
 

@@ -34,7 +34,7 @@ export default function OverviewTab() {
         </div>
         <div className="col-span-1">
           <CustomPieChart
-            title="Allocation"
+            title="Asset Class"
             prefix="$"
             data={prepareAllocationData(holdings, user!.cash_balance)}
             inputType="Absolute"
