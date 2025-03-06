@@ -9,6 +9,76 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      calendar_events: {
+        Row: {
+          created_at: string | null
+          date: string | null
+          earnings_average: number | null
+          earnings_dates: string[] | null
+          earnings_high: number | null
+          earnings_low: number | null
+          event_type: string
+          id: string
+          revenue_average: number | null
+          revenue_high: number | null
+          revenue_low: number | null
+          ticker_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string | null
+          earnings_average?: number | null
+          earnings_dates?: string[] | null
+          earnings_high?: number | null
+          earnings_low?: number | null
+          event_type: string
+          id?: string
+          revenue_average?: number | null
+          revenue_high?: number | null
+          revenue_low?: number | null
+          ticker_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string | null
+          earnings_average?: number | null
+          earnings_dates?: string[] | null
+          earnings_high?: number | null
+          earnings_low?: number | null
+          event_type?: string
+          id?: string
+          revenue_average?: number | null
+          revenue_high?: number | null
+          revenue_low?: number | null
+          ticker_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fund_asset_classes: {
         Row: {
           asset_class: string
@@ -821,6 +891,48 @@ export type Database = {
       }
     }
     Views: {
+      calendar_events_with_tickers: {
+        Row: {
+          created_at: string | null
+          date: string | null
+          earnings_average: number | null
+          earnings_dates: string[] | null
+          earnings_high: number | null
+          earnings_low: number | null
+          event_type: string | null
+          id: string | null
+          revenue_average: number | null
+          revenue_high: number | null
+          revenue_low: number | null
+          ticker_exchange: string | null
+          ticker_id: string | null
+          ticker_symbol: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       current_holdings: {
         Row: {
           annual_dividend_amount: number | null

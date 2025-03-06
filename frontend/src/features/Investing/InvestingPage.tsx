@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, ArrowUpRight, Calendar, ChevronRight } from "lucide-react";
+import { Plus, ChevronRight } from "lucide-react";
 import PortfolioChart from "./components/PortfolioChart";
 import HoldingsTable from "./components/HoldingsTable";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -10,15 +10,16 @@ import { Link } from "react-router";
 import { useTransactionSheet } from "./hooks/useTransactionSheet";
 import TransactionTable from "./components/TransactionTable";
 import { useTransactions } from "./hooks/useTransactions";
-import { Card, CardContent } from "@/components/ui/card";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import PortfolioInsightsWidget from "./components/PortfolioInsightsWidget";
 import { timeframes } from "@/constants";
-
+import { useCalendarEvents } from "./hooks/useCalendarEvents";
+import TickerEvents from "./components/TickerEvents";
 
 export default function InvestingPage() {
   const { isTransactionSheetOpen, selectedTransaction, openAddTransaction, closeSheet } = useTransactionSheet();
   const { transactions, isLoading: transactionsLoading } = useTransactions();
+  const { events, isLoading: eventsLoading, isError: eventsError, error: eventsErrorMsg } = useCalendarEvents(3);
   const recentTransactions = transactions?.slice(0, 5);
   const [timeframe, setTimeframe] = useState<Timeframe>("1M");
   const [chartType, setChartType] = useState<"absolute" | "percentual">("absolute");
@@ -90,9 +91,7 @@ export default function InvestingPage() {
                 View All <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
-            {!transactionsLoading && !!transactions && (
-              <TransactionTable transactions={recentTransactions!} actions={false} />
-            )}
+            <TransactionTable transactions={recentTransactions!} isLoading={transactionsLoading} actions={false} />
           </section>
 
         </div>
@@ -118,37 +117,15 @@ export default function InvestingPage() {
             <PortfolioInsightsWidget />
           </div>
           <div>
-            <div className="flex flex-row items-center justify-between mb-2 h-8">
-              <h2 className="text-lg font-semibold text-gray-900">Upcoming Events</h2>
-            </div>
-            <Card>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="bg-blue-100 p-2 rounded">
-                      <Calendar className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Dividend Payment</p>
-                      <p className="text-sm text-gray-500">Mar 15 • $32.50</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="bg-purple-100 p-2 rounded">
-                      <ArrowUpRight className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Earnings Report</p>
-                      <p className="text-sm text-gray-500">Mar 22 • AAPL</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <TickerEvents
+              events={events}
+              isLoading={eventsLoading}
+              isError={eventsError}
+              error={eventsErrorMsg}
+            />
           </div>
         </div>
       </div>
-
       <Sheet open={isTransactionSheetOpen} onOpenChange={closeSheet}>
         <SheetContent>
           <SheetHeader>

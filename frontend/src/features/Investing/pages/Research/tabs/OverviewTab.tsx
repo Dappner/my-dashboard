@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { timeframes } from "@/constants";
 import { useState } from "react";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
+import { useCalendarEvents } from "@/features/Investing/hooks/useCalendarEvents";
+import TickerEvents from "@/features/Investing/components/TickerEvents";
 
 interface OverviewTabProps {
   exchange: string;
@@ -14,13 +16,15 @@ interface OverviewTabProps {
   tickerId?: string;
 }
 
-export default function OverviewTab({ exchange, tickerSymbol }: OverviewTabProps) {
+export default function OverviewTab({ exchange, tickerSymbol, tickerId }: OverviewTabProps) {
   const { ticker, holding, tickerTrades, yhFinanceData, isLoading } = useTickerData(
     exchange,
     tickerSymbol
   );
   const [timeframe, setTimeframe] = useState<Timeframe>("1M");
   const { historicalPrices } = useTickerHistoricalPrices(ticker.id, timeframe);
+  const { events, isLoading: eventsLoading, isError: eventsError, error: eventsErrorMsg } = useCalendarEvents(3, ticker?.id || tickerId);
+
 
   if (isLoading) {
     return (
@@ -67,12 +71,22 @@ export default function OverviewTab({ exchange, tickerSymbol }: OverviewTabProps
         <div className="col-span-1">
           <YhFinanceStats yahooFinanceDaily={yhFinanceData} isLoading={isLoading} />
         </div>
-        <div className="col-span-3 xl:col-span-6">
+        {/* Additional Research Content */}
+        <div className="col-span-2 xl:col-span-4">
           <Card>
             <CardContent className="pt-6">
               <p className="text-gray-500">Additional research content coming soon...</p>
             </CardContent>
           </Card>
+        </div>
+        <div className="col-span-1 xl:col-span-2">
+          <TickerEvents
+            events={events}
+            tickerSymbol={tickerSymbol}
+            isLoading={eventsLoading}
+            isError={eventsError}
+            error={eventsErrorMsg}
+          />
         </div>
       </div>
     </div>

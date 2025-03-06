@@ -43,6 +43,7 @@ export const getCashflowStyles = (type: TransactionType) => {
 
 interface TransactionTableProps {
   transactions: TradeView[];
+  isLoading: boolean;
   onEditTransaction?: (trade: TradeView) => void;
   onDeleteTransaction?: (id: string) => void;
   actions?: boolean;
@@ -50,10 +51,20 @@ interface TransactionTableProps {
 
 export default function TransactionTable({
   transactions,
+  isLoading,
   onEditTransaction,
   onDeleteTransaction,
   actions = false
 }: TransactionTableProps) {
+  if (isLoading) {
+    return (
+      <div className="bg-white flex justify-center align-middle h-64 border rounded-md shadow-sm overflow-x-auto">
+        <h3>Loading Transactions</h3>
+      </div>
+    )
+  }
+
+
   return (
     <div className="bg-white border rounded-md shadow-sm overflow-x-auto">
       <Table>

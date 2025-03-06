@@ -1,5 +1,6 @@
 import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatLargeNumber } from "@/lib/formatting";
 import { YahooFinanceDaily } from "@/types/yahooFinanceDaily"
 import { format } from "date-fns";
 
@@ -53,7 +54,7 @@ export default function YhFinanceStats({ yahooFinanceDaily, isLoading }: YhFinan
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Total Assets</span>
-                <span className="font-medium">${yahooFinanceDaily?.total_assets?.toLocaleString() || 'N/A'}</span>
+                <span className="font-medium">{formatLargeNumber(yahooFinanceDaily?.total_assets)}</span>
               </div>
             </div>
           )}

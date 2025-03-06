@@ -8,6 +8,12 @@ import { useQuery } from "@tanstack/react-query";
 import useUser from "@/hooks/useUser";
 import { supabase } from "@/lib/supabase";
 
+// Utility function to extract date
+function extractDate(dateString: string): Date {
+  const datePart = dateString.split("T")[0]; // Extracts "2025-02-07"
+  return new Date(datePart); // Creates a Date object for "2025-02-07" at 00:00:00 local time
+}
+
 interface ChartDataPoint {
   date: Date;
   totalPortfolio?: number;
@@ -72,18 +78,25 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
   if (isLoading || (type === "percentual" && historicalPricesLoading)) return <LoadingState />;
   if (isError || !dailyMetrics?.length || (type === "percentual" && !historicalPrices)) return <ErrorState />;
 
-  const getChartData = (): ChartDataPoint[] => {
-    const baselinePortfolio = dailyMetrics[0].portfolio_value || 1;
-    const baselineIndex = historicalPrices?.[0]?.close_price || 1;
+  // Create a map from date string to close_price for accurate matching
+  const historicalPricesMap = new Map(
+    historicalPrices?.map((hp) => [hp.date.split("T")[0], hp.close_price]) || []
+  );
 
-    return dailyMetrics.map((val, index) => {
+  const getChartData = (): ChartDataPoint[] => {
+    const firstDateString = dailyMetrics[0].current_date.split("T")[0];
+    const baselinePortfolio = Number(dailyMetrics[0].portfolio_value) || 1;
+    const baselineIndex = historicalPricesMap.get(firstDateString) || 1;
+
+    return dailyMetrics.map((val) => {
+      const dateString = val.current_date.split("T")[0];
+      const date = extractDate(val.current_date);
+
       const totalValue = Number(val.total_portfolio_value || 0);
       const portfolioValue = Number(val.portfolio_value || 0);
       const cashValue = Number(val.cash_balance || 0);
       const costValue = Number(val.cost_basis || 0);
-      const indexValue = historicalPrices?.[index]?.close_price || baselineIndex;
-
-      const date = val.current_date ? new Date(val.current_date) : new Date();
+      const indexValue = historicalPricesMap.get(dateString) || baselineIndex;
 
       return type === "percentual"
         ? {
@@ -124,7 +137,7 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
     ? `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
     : `${value.toFixed(1)}%`;
 
-  const formatDateLabel = (payload?: any): string => {
+  const formatDateLabel = (test, payload?: any): string => {
     if (payload?.[0]?.payload?.date) {
       const date = payload[0].payload.date;
       return date instanceof Date && !isNaN(date.getTime())
@@ -133,11 +146,13 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
     }
     return "Invalid Date";
   };
+
   const toggleLineVisibility = (dataKey: string) => {
     setVisibleLines((prev) => ({ ...prev, [dataKey]: !prev[dataKey as keyof VisibleLines] }));
   };
 
   const chartData = getChartData();
+  console.log(dailyMetrics);
   const yDomain = getYDomain(chartData);
 
   return (

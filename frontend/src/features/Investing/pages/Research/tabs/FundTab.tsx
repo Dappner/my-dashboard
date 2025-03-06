@@ -1,34 +1,11 @@
-import { supabase } from "@/lib/supabase";
-import { useQuery } from "@tanstack/react-query";
 import { useTickerData } from "../hooks/useTickerData";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ResponsiveContainer, Pie, Cell, Tooltip, XAxis, YAxis, Bar, Legend, PieChart, BarChart } from "recharts";
+import { ResponsiveContainer, Pie, Cell, Tooltip, XAxis, YAxis, Bar, PieChart, BarChart } from "recharts";
 import { chartColors } from "@/constants";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFundsData } from "@/features/Investing/hooks/useFundsData";
+import { formatLargeNumber, formatPercent } from "@/lib/formatting";
 
-// Define strong types for our data structures
-interface TopHolding {
-  id: string;
-  ticker_id: string;
-  holding_symbol: string;
-  holding_name: string;
-  weight: number;
-}
-
-interface SectorWeighting {
-  id: string;
-  ticker_id: string;
-  sector_name: string;
-  weight: number;
-}
-
-interface AssetClass {
-  id: string;
-  ticker_id: string;
-  asset_class: string;
-  weight: number;
-}
 
 interface FundTabProps {
   exchange: string;
@@ -37,55 +14,9 @@ interface FundTabProps {
 }
 
 export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabProps) {
-  const { isLoading: tickerDataLoading, yhFinanceData } = useTickerData(exchange, tickerSymbol);
+  const { yhFinanceData } = useTickerData(exchange, tickerSymbol);
 
-  // Only fetch data if tickerId is provided
-  const { data: topHoldings, isLoading: holdingsLoading } = useQuery<TopHolding[]>({
-    queryFn: async () => {
-      if (!tickerId) return [];
-      const { data, error } = await supabase
-        .from("fund_top_holdings")
-        .select()
-        .eq("ticker_id", tickerId);
-
-      if (error) throw new Error(error.message);
-      return data || [];
-    },
-    queryKey: ["fundHoldings", tickerId],
-    enabled: !!tickerId
-  });
-
-  const { data: sectorWeightings, isLoading: sectorsLoading } = useQuery<SectorWeighting[]>({
-    queryFn: async () => {
-      if (!tickerId) return [];
-      const { data, error } = await supabase
-        .from("fund_sector_weightings")
-        .select()
-        .eq("ticker_id", tickerId);
-
-      if (error) throw new Error(error.message);
-      return data || [];
-    },
-    queryKey: ["sectorWeightings", tickerId],
-    enabled: !!tickerId
-  });
-
-  const { data: assetClasses, isLoading: assetClassesLoading } = useQuery<AssetClass[]>({
-    queryFn: async () => {
-      if (!tickerId) return [];
-      const { data, error } = await supabase
-        .from("fund_asset_classes")
-        .select()
-        .eq("ticker_id", tickerId);
-
-      if (error) throw new Error(error.message);
-      return data || [];
-    },
-    queryKey: ["fundAssetClasses", tickerId],
-    enabled: !!tickerId
-  });
-
-  const isLoading = tickerDataLoading || holdingsLoading || sectorsLoading || assetClassesLoading;
+  const { isLoading, topHoldings, sectorWeightings, assetClasses } = useFundsData(tickerId)
 
   // Format helpers
   const formatDate = (dateString: string): string => {
@@ -96,16 +27,6 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
       day: 'numeric'
     }).format(date);
   };
-
-  const formatLargeNumber = (number: number | null): string => {
-    if (!number) return "N/A";
-    if (number >= 1e12) return `$${(number / 1e12).toFixed(2)}T`;
-    if (number >= 1e9) return `$${(number / 1e9).toFixed(2)}B`;
-    if (number >= 1e6) return `$${(number / 1e6).toFixed(2)}M`;
-    return `$${number.toLocaleString()}`;
-  };
-
-  const formatPercent = (value: number): string => `${value.toFixed(2)}%`;
 
   // Loading state
   if (isLoading) {
@@ -151,114 +72,112 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
   }
 
   return (
-    <div className="space-y-6 p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 space-y-6 gap-6">
         {/* Fund Overview */}
-        <Card className="h-full">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold">Fund Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <DataRow label="Fund Family" value={yhFinanceData.fund_family} />
-              <DataRow
-                label="Inception Date"
-                value={formatDate(yhFinanceData.fund_inception_date)}
-              />
-              <DataRow label="Legal Type" value={yhFinanceData.legal_type} />
-              <DataRow
-                label="Net Asset Value"
-                value={`$${yhFinanceData.nav_price.toFixed(2)}`}
-              />
-              <DataRow
-                label="Market Price"
-                value={`$${yhFinanceData.regular_market_price.toFixed(2)}`}
-              />
-              <DataRow
-                label="YTD Return"
-                value={formatPercent(yhFinanceData.ytd_return)}
-              />
-              <DataRow
-                label="Expense Ratio"
-                value={formatPercent(yhFinanceData.net_expense_ratio)}
-              />
-              <DataRow
-                label="Market Cap"
-                value={formatLargeNumber(yhFinanceData.market_cap)}
-              />
-              <DataRow
-                label="Dividend Yield"
-                value={formatPercent(yhFinanceData.dividend_yield)}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <div>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Fund Overview</h2>
+          </div>
 
+          <Card className="h-full">
+            <CardContent>
+              <div className="space-y-3">
+                <DataRow label="Fund Family" value={yhFinanceData.fund_family} />
+                <DataRow
+                  label="Inception Date"
+                  value={formatDate(yhFinanceData.fund_inception_date || '')}
+                />
+                <DataRow label="Legal Type" value={yhFinanceData.legal_type} />
+                <DataRow
+                  label="Net Asset Value"
+                  value={`$${yhFinanceData.nav_price?.toFixed(2)}`}
+                />
+                <DataRow
+                  label="Market Price"
+                  value={`$${yhFinanceData.regular_market_price?.toFixed(2)}`}
+                />
+                <DataRow
+                  label="YTD Return"
+                  value={formatPercent(yhFinanceData.ytd_return)}
+                />
+                <DataRow
+                  label="Expense Ratio"
+                  value={formatPercent(yhFinanceData.net_expense_ratio)}
+                />
+                <DataRow
+                  label="Market Cap"
+                  value={formatLargeNumber(yhFinanceData.market_cap)}
+                />
+                <DataRow
+                  label="Dividend Yield"
+                  value={formatPercent(yhFinanceData.dividend_yield)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
         {/* Asset Allocation */}
-        <Card className="h-full">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold">Asset Allocation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={assetClasses}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={true}
-                    label={({ name, percent }) =>
-                      `${name} (${(percent * 100).toFixed(1)}%)`
-                    }
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="weight"
-                    nameKey="asset_class"
-                  >
-                    {assetClasses.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={chartColors[index % chartColors.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: number) => [`${value.toFixed(2)}%`, 'Weight']}
-                    labelFormatter={(name) => name}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 grid grid-cols-1 gap-1">
-              {assetClasses.map((item, i) => (
-                <div key={i} className="flex justify-between items-center text-sm">
-                  <span className="flex items-center">
-                    <span
-                      className="w-3 h-3 mr-2 inline-block rounded-sm"
-                      style={{ backgroundColor: chartColors[i % chartColors.length] }}
+        <div>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Asset Allocation</h2>
+          </div>
+
+          <Card className="h-full">
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={assetClasses}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={true}
+                      label={({ name, percent }) =>
+                        `${name} (${(percent * 100).toFixed(1)}%)`
+                      }
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="weight"
+                      nameKey="asset_class"
+                    >
+                      {assetClasses.map((_entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={chartColors[index % chartColors.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number) => [`${value.toFixed(2)}%`, 'Weight']}
+                      labelFormatter={(name) => name}
                     />
-                    {item.asset_class}
-                  </span>
-                  <span className="font-medium">{item.weight.toFixed(2)}%</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="top-holdings" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger value="top-holdings">Top Holdings</TabsTrigger>
-          <TabsTrigger value="sector-weightings">Sector Weightings</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="top-holdings">
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4 grid grid-cols-1 gap-1">
+                {assetClasses.map((item, i) => (
+                  <div key={i} className="flex justify-between items-center text-sm">
+                    <span className="flex items-center">
+                      <span
+                        className="w-3 h-3 mr-2 inline-block rounded-sm"
+                        style={{ backgroundColor: chartColors[i % chartColors.length] }}
+                      />
+                      {item.asset_class}
+                    </span>
+                    <span className="font-medium">{item.weight.toFixed(2)}%</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        {/* Top Holdings */}
+        <div>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Top Holdings</h2>
+          </div>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold">Top 10 Holdings</CardTitle>
-            </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -303,7 +222,7 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
                       formatter={(value: number) => [`${value.toFixed(2)}%`, 'Weight']}
                     />
                     <Bar dataKey="weight" fill="#8884d8">
-                      {topHoldings.map((entry, index) => (
+                      {topHoldings.map((_entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={chartColors[index % chartColors.length]}
@@ -315,13 +234,13 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="sector-weightings">
+        </div>
+        {/* Sector Weightings  */}
+        <div>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Sector Weightings</h2>
+          </div>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold">Sector Weightings</CardTitle>
-            </CardHeader>
             <CardContent>
               <div className="h-64 mb-8">
                 <ResponsiveContainer width="100%" height="100%">
@@ -339,7 +258,7 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
                         percent > 0.05 ? `${formatSectorName(sector_name)} (${(percent * 100).toFixed(1)}%)` : ''
                       }
                     >
-                      {sectorWeightings.map((entry, index) => (
+                      {sectorWeightings.map((_entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={chartColors[index % chartColors.length]}
@@ -380,11 +299,11 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
 
-      <div className="text-xs text-gray-500 mt-6 italic">
-        Data as of: {new Date().toLocaleDateString()}. Past performance is not indicative of future results.
+        <div className="text-xs text-gray-500 mt-6 italic">
+          Data as of: {new Date().toLocaleDateString()}. Past performance is not indicative of future results.
+        </div>
       </div>
     </div>
   );
