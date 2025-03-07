@@ -3,12 +3,11 @@ import YhFinanceStats from "../components/YhFinanceStats";
 import { useTickerData } from "../hooks/useTickerData";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTickerHistoricalPrices } from "../hooks/useTickerHistoricalPrices";
-import { Button } from "@/components/ui/button";
-import { timeframes } from "@/constants";
 import { useState } from "react";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import { useCalendarEvents } from "@/features/Investing/hooks/useCalendarEvents";
 import TickerEvents from "@/features/Investing/components/TickerEvents";
+import TimeframeControls from "@/components/controls/TimeFrameControls";
 
 interface OverviewTabProps {
   exchange: string;
@@ -42,18 +41,7 @@ export default function OverviewTab({ exchange, tickerSymbol }: OverviewTabProps
           {historicalPrices ? (
             <div className="space-y-2">
               <div className="flex justify-end">
-                <div className="flex space-x-2">
-                  {timeframes.map((period) => (
-                    <Button
-                      key={period}
-                      variant={timeframe === period ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setTimeframe(period)}
-                    >
-                      {period}
-                    </Button>
-                  ))}
-                </div>
+                <TimeframeControls timeframe={timeframe} onTimeframeChange={setTimeframe} />
               </div>
               <StockPriceChart
                 data={historicalPrices}
