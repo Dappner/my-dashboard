@@ -1,21 +1,15 @@
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { TransactionForm } from "@/features/Investing/forms/TransactionForm";
-import { useTransactionSheet } from "../../hooks/useTransactionSheet";
-import TransactionKPIs from "./components/TransactionsKpis";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
+import TransactionTable from "../../components/TransactionTable";
 import { useTransactions } from "../../hooks/useTransactions";
+import { useTransactionSheet } from "../../hooks/useTransactionSheet";
+import { TransactionSheet } from "../../sheets/TransactionSheet";
+import PaginationControls from "./components/PaginationControls";
 import TransactionsFilters, {
   TransactionsFilters as TFilters,
 } from "./components/TransactionsFilters";
-import { cn } from "@/lib/utils";
-import TransactionTable from "../../components/TransactionTable";
-import PaginationControls from "./components/PaginationControls";
-import { Button } from "@/components/ui/button";
+import TransactionKPIs from "./components/TransactionsKpis";
 import { filterTransactions } from "./components/utils";
 
 export default function TransactionsPage() {
@@ -27,8 +21,7 @@ export default function TransactionsPage() {
     openAddTransaction,
     closeSheet,
   } = useTransactionSheet();
-  const { transactions, isLoading, isError, refetch, deleteTransaction } =
-    useTransactions();
+  const { transactions, isLoading, isError, refetch, deleteTransaction } = useTransactions();
 
   const [filters, setFilters] = useState<TFilters>({
     transaction_type: "all",
@@ -116,6 +109,7 @@ export default function TransactionsPage() {
             <>
               <TransactionTable
                 transactions={paginatedTrades!}
+                isLoading={isLoading}
                 actions
                 onEditTransaction={openEditTransaction}
                 onDeleteTransaction={onDeleteTransaction}
@@ -132,36 +126,11 @@ export default function TransactionsPage() {
           )}
         </div>
       </div>
-      <Sheet open={isTransactionSheetOpen} onOpenChange={closeSheet}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Add New Transaction</SheetTitle>
-          </SheetHeader>
-          <div className="py-4">
-            {selectedTransaction ? (
-              <TransactionForm
-                tradeId={selectedTransaction.id!}
-                onClose={closeSheet}
-                defaultValues={{
-                  ticker_id: selectedTransaction.ticker_id!,
-                  transaction_type: selectedTransaction.transaction_type!,
-                  shares: selectedTransaction.shares!,
-                  price_per_share: selectedTransaction.price_per_share!,
-                  transaction_fee: selectedTransaction.transaction_fee!,
-                  transaction_date: new Date(
-                    selectedTransaction.transaction_date + "T00:00:00",
-                  ),
-                  note_text: selectedTransaction.note_text || "",
-                  is_dividend_reinvestment:
-                    selectedTransaction.is_dividend_reinvestment!,
-                }}
-              />
-            ) : (
-              <TransactionForm onClose={closeSheet} />
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
+      <TransactionSheet
+        isOpen={isTransactionSheetOpen}
+        onClose={closeSheet}
+        transaction={selectedTransaction}
+      />
     </div>
   );
 }

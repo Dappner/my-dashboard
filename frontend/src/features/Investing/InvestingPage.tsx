@@ -1,19 +1,19 @@
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import PortfolioChart from "./components/PortfolioChart";
-import HoldingsTable from "./components/HoldingsTable";
-import PortfolioKpis from "./components/PortfolioKpis";
-import { Button } from "@/components/ui/button";
-import { useTransactionSheet } from "./hooks/useTransactionSheet";
-import TransactionTable from "./components/TransactionTable";
-import { useTransactions } from "./hooks/useTransactions";
-import { Timeframe } from "@/types/portfolioDailyMetricTypes";
-import PortfolioInsightsWidget from "./components/PortfolioInsightsWidget";
-import { useCalendarEvents } from "./hooks/useCalendarEvents";
-import TickerEvents from "./components/TickerEvents";
 import TimeframeControls from "@/components/controls/TimeFrameControls";
-import ChartTypeControls from "./components/ChartTypeControls";
 import SectionHeader from "@/components/customs/SectionHeader";
+import { Button } from "@/components/ui/button";
+import { Timeframe } from "@/types/portfolioDailyMetricTypes";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import ChartTypeControls from "./components/ChartTypeControls";
+import HoldingsTable from "./components/HoldingsTable";
+import PortfolioChart from "./components/PortfolioChart";
+import PortfolioInsightsWidget from "./components/PortfolioInsightsWidget";
+import PortfolioKpis from "./components/PortfolioKpis";
+import TickerEvents from "./components/TickerEvents";
+import TransactionTable from "./components/TransactionTable";
+import { useCalendarEvents } from "./hooks/useCalendarEvents";
+import { useTransactions } from "./hooks/useTransactions";
+import { useTransactionSheet } from "./hooks/useTransactionSheet";
 import { TransactionSheet } from "./sheets/TransactionSheet";
 
 export default function InvestingPage() {

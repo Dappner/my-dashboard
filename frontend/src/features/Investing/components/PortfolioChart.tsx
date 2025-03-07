@@ -4,11 +4,9 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { format } from "date-fns";
 import { usePortfolioDailyMetrics } from "../hooks/usePortfolioDailyMetrics";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
-import { useQuery } from "@tanstack/react-query";
 import useUser from "@/hooks/useUser";
-import { supabase } from "@/lib/supabase";
+import { useTickerHistoricalPrices } from "../pages/Research/hooks/useTickerHistoricalPrices";
 
-// Utility function to extract date
 function extractDate(dateString: string): Date {
   const datePart = dateString.split("T")[0]; // Extracts "2025-02-07"
   return new Date(datePart); // Creates a Date object for "2025-02-07" at 00:00:00 local time
@@ -17,11 +15,12 @@ function extractDate(dateString: string): Date {
 interface ChartDataPoint {
   date: Date;
   totalPortfolio?: number;
-  portfolio: number;
+  portfolio?: number;
   cash?: number;
   costBasis?: number;
   indexFund?: number;
 }
+
 
 type ChartConfig = typeof chartConfig;
 type VisibleLines = Record<keyof ChartConfig, boolean>;
@@ -62,21 +61,18 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
     indexFund: true,
   });
 
-  const { data: historicalPrices, isLoading: historicalPricesLoading } = useQuery({
-    queryKey: ["historicalPrices", user?.tracking_ticker_id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("historical_prices")
-        .select()
-        .eq("ticker_id", user?.tracking_ticker_id!)
-        .order("date", { ascending: true });
-      return data;
-    },
-    enabled: !!user?.tracking_ticker_id,
-  });
+  const { historicalPrices, historicalPricesLoading } = useTickerHistoricalPrices(user?.tracking_ticker_id || '', timeframe);
 
-  if (isLoading || (type === "percentual" && historicalPricesLoading)) return <LoadingState />;
-  if (isError || !dailyMetrics?.length || (type === "percentual" && !historicalPrices)) return <ErrorState />;
+  if (isLoading || historicalPricesLoading) return <LoadingState />;
+  if (isError || !dailyMetrics?.length || (type === "percentual" && (!historicalPrices || !historicalPrices.length))) {
+    console.warn('Chart data issue:', {
+      isError,
+      dailyMetricsLength: dailyMetrics?.length,
+      historicalPricesLength: historicalPrices?.length,
+      ticker: user?.tracking_ticker_id
+    });
+    return <ErrorState />;
+  }
 
   // Create a map from date string to close_price for accurate matching
   const historicalPricesMap = new Map(
@@ -84,45 +80,101 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
   );
 
   const getChartData = (): ChartDataPoint[] => {
-    const firstDateString = dailyMetrics[0].current_date.split("T")[0];
-    const baselinePortfolio = Number(dailyMetrics[0].portfolio_value) || 1;
-    const baselineIndex = historicalPricesMap.get(firstDateString) || 1;
+    // Sort dailyMetrics by date to ensure we get the earliest date first
+    const sortedMetrics = [...dailyMetrics].sort((a, b) =>
+      new Date(a.current_date).getTime() - new Date(b.current_date).getTime()
+    );
+    const firstDateString = sortedMetrics[0].current_date.split("T")[0];
 
-    return dailyMetrics.map((val) => {
-      const dateString = val.current_date.split("T")[0];
+    // Ensure we have valid baseline values
+    const baselinePortfolio = Number(sortedMetrics[0].portfolio_value) || 1;
+
+    // Find the earliest available index price that matches or precedes our first date
+    const sortedHistoricalPrices = historicalPrices
+      ? [...historicalPrices].sort((a, b) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime()
+      )
+      : [];
+
+    // Find the first valid baseline index price
+    const firstValidIndexPrice = sortedHistoricalPrices.find(hp => {
+      const hpDate = hp.date.split("T")[0];
+      return new Date(hpDate) <= new Date(firstDateString);
+    });
+
+    const baselineIndex = firstValidIndexPrice
+      ? Number(firstValidIndexPrice.close_price)
+      : sortedHistoricalPrices[0]?.close_price || 1;
+
+    console.log({
+      firstDateString,
+      baselinePortfolio,
+      baselineIndex,
+      historicalPricesLength: historicalPrices?.length,
+      firstHistoricalDate: sortedHistoricalPrices[0]?.date
+    });
+
+    return sortedMetrics.map((val) => {
+      const dateString = val.current_date?.split("T")[0];
       const date = extractDate(val.current_date);
 
-      const totalValue = Number(val.total_portfolio_value || 0);
-      const portfolioValue = Number(val.portfolio_value || 0);
-      const cashValue = Number(val.cash_balance || 0);
-      const costValue = Number(val.cost_basis || 0);
-      const indexValue = historicalPricesMap.get(dateString) || baselineIndex;
+      const totalValue = Number(val.total_portfolio_value) || 0;
+      const portfolioValue = Number(val.portfolio_value) || 0;
+      const cashValue = Number(val.cash_balance) || 0;
+      const costValue = Number(val.cost_basis) || 0;
+      const indexValue = historicalPricesMap.get(dateString) ?? baselineIndex;
 
-      return type === "percentual"
-        ? {
+      if (type === "percentual") {
+        const portfolioPercent = baselinePortfolio !== 0
+          ? ((portfolioValue - baselinePortfolio) / baselinePortfolio) * 100
+          : 0;
+        const indexPercent = baselineIndex !== 0
+          ? ((indexValue - baselineIndex) / baselineIndex) * 100
+          : 0;
+
+        return {
           date,
-          portfolio: ((portfolioValue - baselinePortfolio) / baselinePortfolio) * 100,
-          indexFund: ((indexValue - baselineIndex) / baselineIndex) * 100,
-        }
-        : {
-          date,
-          totalPortfolio: totalValue,
-          portfolio: portfolioValue,
-          cash: cashValue,
-          costBasis: costValue,
+          portfolio: Number.isFinite(portfolioPercent) ? portfolioPercent : 0,
+          indexFund: Number.isFinite(indexPercent) ? indexPercent : 0,
         };
+      }
+
+      return {
+        date,
+        totalPortfolio: totalValue,
+        portfolio: portfolioValue,
+        cash: cashValue,
+        costBasis: costValue,
+      };
     });
   };
 
   const getYDomain = (data: ChartDataPoint[]) => {
-    const yValues = type === "percentual"
-      ? data.flatMap((d) => [d.portfolio, d.indexFund || 0])
-      : data.flatMap((d) => [d.totalPortfolio || 0, d.portfolio, d.cash || 0, d.costBasis || 0]);
+    if (type === "percentual") {
+      const yValues = data.flatMap((d) => [
+        d.portfolio || 0,
+        d.indexFund || 0
+      ]).filter(val => Number.isFinite(val));
+
+      if (yValues.length === 0) return [-100, 100];
+
+      const minY = Math.min(...yValues);
+      const maxY = Math.max(...yValues);
+      const padding = Math.max((maxY - minY) * 0.1, 5); // Minimum padding of 5%
+      return [minY - padding, maxY + padding];
+    }
+
+    const yValues = data.flatMap((d) => [
+      d.totalPortfolio || 0,
+      d.portfolio || 0,
+      d.cash || 0,
+      d.costBasis || 0
+    ]).filter(val => Number.isFinite(val));
 
     const minY = Math.min(...yValues);
     const maxY = Math.max(...yValues);
     const padding = (maxY - minY) * 0.1;
-    return type === "absolute" ? [Math.max(0, minY - padding), maxY + padding] : ["auto", "auto"];
+    return [Math.max(0, minY - padding), maxY + padding];
   };
 
   const formatTooltipValue = (value: number, name: string) => {
