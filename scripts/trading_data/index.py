@@ -13,8 +13,6 @@ handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)
 logger.addHandler(handler)
 
 # Supabase configuration
-SUPABASE_URL = "https://wwzyziohidsxmjfkoowh.supabase.co"
-SUPABASE_KEY = "[REDACTED_JWT]"
 
 
 def get_supabase_client():
