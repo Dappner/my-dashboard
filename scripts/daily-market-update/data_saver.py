@@ -1,6 +1,9 @@
 import logging
 from datetime import datetime, date
+from typing import Optional, Dict
+
 import pandas as pd
+from models import PriceData, TickerInfo, FinanceData, CalendarEvent
 
 logger = logging.getLogger(__name__)
 
@@ -9,7 +12,7 @@ class DataSaver:
     def __init__(self, supabase_client):
         self.supabase = supabase_client
 
-    def get_last_update_date(self, ticker_id, table_name):
+    def get_last_update_date(self, ticker_id: str, table_name: str) -> Optional[date]:
         try:
             response = (
                 self.supabase.table(table_name)
@@ -39,36 +42,37 @@ class DataSaver:
             )
             return None
 
-    def should_update(self, last_update_date, threshold_days=1):
+    def should_update(
+        self, last_update_date: Optional[date], threshold_days: int = 1
+    ) -> bool:
         if not last_update_date:
             return True
         return (date.today() - last_update_date).days >= threshold_days
 
-    def save_price_data(self, ticker_id, symbol, data):
+    def save_price_data(self, ticker_id: str, symbol: str, data: pd.DataFrame) -> int:
         if data is None or data.empty:
             logger.debug(f"No price data for {symbol}")
             return 0
+
         price_data_list = [
-            {
-                "ticker_id": ticker_id,
-                "date": index.strftime("%Y-%m-%d"),
-                "open_price": float(row["Open"]) if not pd.isna(row["Open"]) else None,
-                "high_price": float(row["High"]) if not pd.isna(row["High"]) else None,
-                "low_price": float(row["Low"]) if not pd.isna(row["Low"]) else None,
-                "close_price": float(row["Close"])
-                if not pd.isna(row["Close"])
-                else None,
-                "dividends": float(row["Dividends"])
+            PriceData(
+                ticker_id=ticker_id,
+                date=index,
+                open_price=float(row["Open"]) if not pd.isna(row["Open"]) else None,
+                high_price=float(row["High"]) if not pd.isna(row["High"]) else None,
+                low_price=float(row["Low"]) if not pd.isna(row["Low"]) else None,
+                close_price=float(row["Close"]) if not pd.isna(row["Close"]) else None,
+                dividends=float(row["Dividends"])
                 if not pd.isna(row["Dividends"])
                 else None,
-                "stock_splits": float(row["Stock Splits"])
+                stock_splits=float(row["Stock Splits"])
                 if not pd.isna(row["Stock Splits"])
                 else None,
-                "volume": int(row["Volume"]) if not pd.isna(row["Volume"]) else None,
-                "updated_at": datetime.now().isoformat(),
-            }
+                volume=int(row["Volume"]) if not pd.isna(row["Volume"]) else None,
+            ).dict(exclude_none=True)
             for index, row in data.iterrows()
         ]
+
         if not price_data_list:
             return 0
         try:
@@ -83,23 +87,27 @@ class DataSaver:
             logger.error(f"Failed to save price data for {symbol}: {e}")
             return 0
 
-    def update_ticker_info(self, ticker_id, symbol, info):
-        # Same logic as your `update_ticker_info` function
+    def update_ticker_info(
+        self, ticker_id: str, symbol: str, info: Dict, backfill: bool = False
+    ) -> bool:
         if not info:
             return False
-        update_data = {
-            "long_business_summary": info.get("longBusinessSummary"),
-            "category": info.get("category"),
-            "region": info.get("region"),
-            "quote_type": info.get("quoteType", "EQUITY"),
-            "updated_at": datetime.now().isoformat(),
-            "backfill": False,  # Set backfill to false after processing
-        }
-        update_data = {k: v for k, v in update_data.items() if v is not None}
-        if not update_data:
+
+        ticker_info = TickerInfo(
+            long_business_summary=info.get("longBusinessSummary"),
+            category=info.get("category"),
+            region=info.get("region"),
+            quote_type=info.get("quoteType", "EQUITY"),
+            backfill=backfill,
+            industry=info.get("industryKey") if backfill else None,
+            sector=info.get("sectorKey") if backfill else None,
+            dividend_amount=info.get("lastDividendValue") if backfill else None,
+        ).dict(exclude_none=True)
+
+        if not ticker_info:
             return False
         try:
-            self.supabase.table("tickers").update(update_data).eq(
+            self.supabase.table("tickers").update(ticker_info).eq(
                 "id", ticker_id
             ).execute()
             logger.info(f"Updated tickers table for {symbol}")
@@ -115,72 +123,37 @@ class DataSaver:
             return False
         today = date.today().strftime("%Y-%m-%d")
         quote_type = info.get("quoteType", "EQUITY")
-        finance_data = {
-            "ticker_id": ticker_id,
-            "date": today,
-            "regular_market_price": info.get("regularMarketPrice")
-            if quote_type in ["EQUITY", "ETF"]
-            else None,
-            "regular_market_change_percent": info.get("regularMarketChangePercent")
-            if quote_type in ["EQUITY", "ETF"]
-            else None,
-            "market_cap": info.get("marketCap")
-            if quote_type in ["EQUITY", "ETF"]
-            else None,
-            "dividend_yield": info.get("dividendYield"),
-            "fifty_two_week_low": info.get("fiftyTwoWeekLow")
-            if quote_type in ["EQUITY", "ETF"]
-            else None,
-            "fifty_two_week_high": info.get("fiftyTwoWeekHigh")
-            if quote_type in ["EQUITY", "ETF"]
-            else None,
-            "fifty_day_average": info.get("fiftyDayAverage")
-            if quote_type in ["EQUITY", "ETF"]
-            else None,
-            "two_hundred_day_average": info.get("twoHundredDayAverage")
-            if quote_type in ["EQUITY", "ETF"]
-            else None,
-            "trailing_pe": info.get("trailingPE") if quote_type == "EQUITY" else None,
-            "total_assets": info.get("totalAssets")
-            if quote_type in ["MUTUALFUND", "ETF"]
-            else None,
-            "nav_price": info.get("navPrice")
-            if quote_type in ["MUTUALFUND", "ETF"]
-            else None,
-            "yield": info.get("yield") if quote_type in ["MUTUALFUND", "ETF"] else None,
-            "ytd_return": info.get("ytdReturn"),
-            "beta3year": info.get("beta"),
-            "fund_family": info.get("fundFamily")
-            if quote_type in ["MUTUALFUND", "ETF"]
-            else None,
-            "fund_inception_date": datetime.fromtimestamp(
-                info.get("fundInceptionDate")
-            ).strftime("%Y-%m-%d")
-            if info.get("fundInceptionDate")
-            else None,
-            "legal_type": info.get("legalType")
-            if quote_type in ["MUTUALFUND", "ETF"]
-            else None,
-            "three_year_average_return": info.get("threeYearAverageReturn")
-            if quote_type in ["MUTUALFUND", "ETF"]
-            else None,
-            "five_year_average_return": info.get("fiveYearAverageReturn")
-            if quote_type in ["MUTUALFUND", "ETF"]
-            else None,
-            "net_expense_ratio": info.get("netExpenseRatio")
-            if quote_type in ["MUTUALFUND", "ETF"]
-            else None,
-            "shares_outstanding": info.get("sharesOutstanding")
-            if quote_type in ["EQUITY", "ETF"]
-            else None,
-            "trailing_three_month_returns": info.get("trailingThreeMonthReturns")
-            if quote_type in ["MUTUALFUND", "ETF"]
-            else None,
-            "trailing_three_month_nav_returns": info.get("trailingThreeMonthNavReturns")
-            if quote_type in ["MUTUALFUND", "ETF"]
-            else None,
-            "updated_at": datetime.now().isoformat(),
-        }
+        finance_data = FinanceData(
+            ticker_id=ticker_id,
+            regular_market_price=info.get("regularMarketPrice") if quote_type in ["EQUITY", "ETF"] else None,
+            regular_market_change_percent=info.get("regularMarketChangePercent") if quote_type in ["EQUITY",
+                                                                                                   "ETF"] else None,
+            market_cap=info.get("marketCap") if quote_type in ["EQUITY", "ETF"] else None,
+            dividend_yield=info.get("dividendYield"),
+            fifty_two_week_low=info.get("fiftyTwoWeekLow") if quote_type in ["EQUITY", "ETF"] else None,
+            fifty_two_week_high=info.get("fiftyTwoWeekHigh") if quote_type in ["EQUITY", "ETF"] else None,
+            fifty_day_average=info.get("fiftyDayAverage") if quote_type in ["EQUITY", "ETF"] else None,
+            two_hundred_day_average=info.get("twoHundredDayAverage") if quote_type in ["EQUITY", "ETF"] else None,
+            trailing_pe=info.get("trailingPE") if quote_type == "EQUITY" else None,
+            total_assets=info.get("totalAssets") if quote_type in ["MUTUALFUND", "ETF"] else None,
+            nav_price=info.get("navPrice") if quote_type in ["MUTUALFUND", "ETF"] else None,
+            yield_=info.get("yield") if quote_type in ["MUTUALFUND", "ETF"] else None,
+            ytd_return=info.get("ytdReturn"),
+            beta3year=info.get("beta"),
+            fund_family=info.get("fundFamily") if quote_type in ["MUTUALFUND", "ETF"] else None,
+            fund_inception_date=datetime.fromtimestamp(info.get("fundInceptionDate")).strftime("%Y-%m-%d")
+            if info.get("fundInceptionDate") else None,
+            legal_type=info.get("legalType") if quote_type in ["MUTUALFUND", "ETF"] else None,
+            three_year_average_return=info.get("threeYearAverageReturn") if quote_type in ["MUTUALFUND",
+                                                                                           "ETF"] else None,
+            five_year_average_return=info.get("fiveYearAverageReturn") if quote_type in ["MUTUALFUND", "ETF"] else None,
+            net_expense_ratio=info.get("netExpenseRatio") if quote_type in ["MUTUALFUND", "ETF"] else None,
+            shares_outstanding=info.get("sharesOutstanding") if quote_type in ["EQUITY", "ETF"] else None,
+            trailing_three_month_returns=info.get("trailingThreeMonthReturns") if quote_type in ["MUTUALFUND",
+                                                                                                 "ETF"] else None,
+            trailing_three_month_nav_returns=info.get("trailingThreeMonthNavReturns") if quote_type in ["MUTUALFUND",
+                                                                                                        "ETF"] else None,
+        ).dict(exclude_none=True)
 
         finance_data = {k: v for k, v in finance_data.items() if v is not None}
         if len(finance_data) <= 3:  # Only ticker_id, date, and updated_at
@@ -190,7 +163,7 @@ class DataSaver:
         try:
             self.supabase.table("yh_finance_daily").upsert(
                 [finance_data],
-                on_conflict=["ticker_id"],  # Overwrite based on ticker_id alone
+                on_conflict=["ticker_id"],
             ).execute()
             logger.info(f"Updated yh_finance_daily table for {symbol}")
             return True
@@ -214,113 +187,46 @@ class DataSaver:
         # Handle Dividend Date
         if "Dividend Date" in calendar and calendar["Dividend Date"]:
             events_data.append(
-                {
-                    "ticker_id": str(ticker_id),  # Ensure UUID is a string
-                    "date": calendar["Dividend Date"].strftime("%Y-%m-%d"),
-                    "event_type": "dividend",
-                    "created_at": datetime.now().isoformat(),
-                    "updated_at": datetime.now().isoformat(),
-                }
+                CalendarEvent(
+                    ticker_id=str(ticker_id),
+                    date=calendar["Dividend Date"].strftime("%Y-%m-%d"),
+                    event_type="dividend",
+                ).dict(exclude_none=True)
             )
 
-        # Handle Ex-Dividend Date
         if "Ex-Dividend Date" in calendar and calendar["Ex-Dividend Date"]:
             events_data.append(
-                {
-                    "ticker_id": str(ticker_id),  # Ensure UUID is a string
-                    "date": calendar["Ex-Dividend Date"].strftime("%Y-%m-%d"),
-                    "event_type": "ex_dividend",
-                    "created_at": datetime.now().isoformat(),
-                    "updated_at": datetime.now().isoformat(),
-                }
+                CalendarEvent(
+                    ticker_id=str(ticker_id),
+                    date=calendar["Ex-Dividend Date"].strftime("%Y-%m-%d"),
+                    event_type="ex_dividend",
+                ).dict(exclude_none=True)
             )
 
-        # Handle Earnings Date and Estimates
         if "Earnings Date" in calendar and calendar["Earnings Date"]:
             earnings_dates = calendar["Earnings Date"]
             if isinstance(earnings_dates, list) and earnings_dates:
-                earnings_dates_str = [
-                    d.strftime("%Y-%m-%d") for d in earnings_dates if d
-                ]
+                earnings_dates_str = [d.strftime("%Y-%m-%d") for d in earnings_dates if d]
                 if earnings_dates_str:
-                    earnings_event = {
-                        "ticker_id": str(ticker_id),  # Ensure UUID is a string
-                        "event_type": "earnings",
-                        "earnings_dates": earnings_dates_str,
-                        "created_at": datetime.now().isoformat(),
-                        "updated_at": datetime.now().isoformat(),
-                    }
-                    # Add optional earnings and revenue estimates only if they are valid
-                    if (
-                        "Earnings High" in calendar
-                        and calendar["Earnings High"] is not None
-                    ):
-                        try:
-                            earnings_event["earnings_high"] = float(
-                                calendar["Earnings High"]
-                            )
-                        except (ValueError, TypeError) as e:
-                            logger.warning(
-                                f"Invalid Earnings High for {symbol}: {calendar['Earnings High']} - {e}"
-                            )
-                    if (
-                        "Earnings Low" in calendar
-                        and calendar["Earnings Low"] is not None
-                    ):
-                        try:
-                            earnings_event["earnings_low"] = float(
-                                calendar["Earnings Low"]
-                            )
-                        except (ValueError, TypeError) as e:
-                            logger.warning(
-                                f"Invalid Earnings Low for {symbol}: {calendar['Earnings Low']} - {e}"
-                            )
-                    if (
-                        "Earnings Average" in calendar
-                        and calendar["Earnings Average"] is not None
-                    ):
-                        try:
-                            earnings_event["earnings_average"] = float(
-                                calendar["Earnings Average"]
-                            )
-                        except (ValueError, TypeError) as e:
-                            logger.warning(
-                                f"Invalid Earnings Average for {symbol}: {calendar['Earnings Average']} - {e}"
-                            )
-                    if (
-                        "Revenue High" in calendar
-                        and calendar["Revenue High"] is not None
-                    ):
-                        try:
-                            earnings_event["revenue_high"] = int(
-                                calendar["Revenue High"]
-                            )
-                        except (ValueError, TypeError) as e:
-                            logger.warning(
-                                f"Invalid Revenue High for {symbol}: {calendar['Revenue High']} - {e}"
-                            )
-                    if (
-                        "Revenue Low" in calendar
-                        and calendar["Revenue Low"] is not None
-                    ):
-                        try:
-                            earnings_event["revenue_low"] = int(calendar["Revenue Low"])
-                        except (ValueError, TypeError) as e:
-                            logger.warning(
-                                f"Invalid Revenue Low for {symbol}: {calendar['Revenue Low']} - {e}"
-                            )
-                    if (
-                        "Revenue Average" in calendar
-                        and calendar["Revenue Average"] is not None
-                    ):
-                        try:
-                            earnings_event["revenue_average"] = int(
-                                calendar["Revenue Average"]
-                            )
-                        except (ValueError, TypeError) as e:
-                            logger.warning(
-                                f"Invalid Revenue Average for {symbol}: {calendar['Revenue Average']} - {e}"
-                            )
+                    earnings_event = CalendarEvent(
+                        ticker_id=str(ticker_id),
+                        date=earnings_dates_str[0],  # Use first date as primary
+                        event_type="earnings",
+                        earnings_dates=earnings_dates_str,
+                        earnings_high=float(calendar["Earnings High"]) if "Earnings High" in calendar and calendar[
+                            "Earnings High"] is not None else None,
+                        earnings_low=float(calendar["Earnings Low"]) if "Earnings Low" in calendar and calendar[
+                            "Earnings Low"] is not None else None,
+                        earnings_average=float(calendar["Earnings Average"]) if "Earnings Average" in calendar and
+                                                                                calendar[
+                                                                                    "Earnings Average"] is not None else None,
+                        revenue_high=int(calendar["Revenue High"]) if "Revenue High" in calendar and calendar[
+                            "Revenue High"] is not None else None,
+                        revenue_low=int(calendar["Revenue Low"]) if "Revenue Low" in calendar and calendar[
+                            "Revenue Low"] is not None else None,
+                        revenue_average=int(calendar["Revenue Average"]) if "Revenue Average" in calendar and calendar[
+                            "Revenue Average"] is not None else None,
+                    ).dict(exclude_none=True)
                     events_data.append(earnings_event)
 
         if not events_data:

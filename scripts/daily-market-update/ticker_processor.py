@@ -51,7 +51,9 @@ class TickerProcessor:
             if (
                 backfill or self.data_saver.should_update(last_finance_update)
             ) and info:
-                if self.data_saver.update_ticker_info(ticker_id, symbol, info):
+                if self.data_saver.update_ticker_info(
+                    ticker_id, symbol, info, backfill
+                ):
                     updates.add("tickers")
                 if self.data_saver.save_finance_data(ticker_id, symbol, info):
                     updates.add("yh_finance_daily")

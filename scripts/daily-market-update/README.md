@@ -113,6 +113,12 @@ To remove the deployment:
 serverless remove --aws-profile my-dashboard
 ```
 
+To test locally:
+
+```bash
+serverless invoke local -f processTickerData
+```
+
 ## Environment Variables
 
 The function uses the following environment variables, sourced from AWS SSM:
@@ -193,11 +199,3 @@ daily-market-update/
 - **DST Issues**: Schedules may overlap briefly during DST transitions; this is benign unless precision is critical.
 - **Timeout Errors**: Increase `timeout` in `serverless.yml` (currently 300 seconds) if processing many tickers.
 - **Logs**: Enable debug logging by setting `logger.setLevel(logging.DEBUG)` in `lambda_handler.py` temporarily.
-
-## Contributing
-
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/new-feature`).
-3. Commit changes (`git commit -m "Add new feature"`).
-4. Push to the branch (`git push origin feature/new-feature`).
-5. Open a pull request.
