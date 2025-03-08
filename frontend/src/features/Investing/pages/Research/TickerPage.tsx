@@ -10,7 +10,7 @@ export default function TickerPage() {
   const { exchange, ticker: tickerSymbol } = useParams();
   if (!exchange || !tickerSymbol) return <>invalid</>
 
-  const { ticker, holding, tickerTrades, isLoading, yhFinanceData } = useTickerData(exchange, tickerSymbol);
+  const { ticker, holding, tickerTrades, yhFinanceData, isLoading } = useTickerData(exchange, tickerSymbol);
 
   const latestPrice = yhFinanceData?.regular_market_price;
 

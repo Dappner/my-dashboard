@@ -97,6 +97,9 @@ export default function HoldingsPanel({
                   <p className={`text-lg font-medium ${(holding.total_gain_loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
                     ${holding.total_gain_loss?.toFixed(2) || '0.00'}
+                    <span className="ml-1 text-base">
+                      ({holding.total_gain_loss_percent?.toFixed(2) || '0.00'}%)
+                    </span>
                   </p>
                 </div>
                 <div />

@@ -1,0 +1,52 @@
+service: daily-market-update
+org: dappner
+app: daily-market-update
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: us-east-1
+  profile: my-dashboard # Add this line
+  environment:
+    SUPABASE_URL: ${ssm:/daily-market-update/supabase-url}
+    SUPABASE_KEY: ${ssm:/daily-market-update/supabase-key}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+          Resource: "arn:aws:ssm:${aws:region}:${aws:accountId}:parameter/daily-market-update/*"
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+
+functions:
+  processTickerData:
+    handler: lambda_handler.lambda_handler
+    events:
+      # 5:30 PM ET (after NYSE close)
+      - schedule:
+          # 5:30 PM EDT = 21:30 UTC (March to November)
+          rate: cron(30 21 ? * MON-SAT *)
+          enabled: true
+      - schedule:
+          # 5:30 PM EST = 22:30 UTC (November to March)
+          rate: cron(30 22 ? * MON-SAT *)
+          enabled: true
+      # Midnight Eastern Time
+      - schedule:
+          # 12:00 AM EDT = 04:00 UTC (March to November)
+          rate: cron(0 4 ? * MON-SUN *)
+          enabled: true
+      - schedule:
+          # 12:00 AM EST = 05:00 UTC (November to March)
+          rate: cron(0 5 ? * MON-SUN *)
+          enabled: true
+    timeout: 300 # 5 minutes, adjust based on expected runtime
+    memorySize: 512

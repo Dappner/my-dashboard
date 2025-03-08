@@ -74,6 +74,13 @@ export type Database = {
             foreignKeyName: "calendar_events_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -120,6 +127,13 @@ export type Database = {
             columns: ["ticker_id"]
             isOneToOne: false
             referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_asset_classes_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
           {
@@ -178,6 +192,13 @@ export type Database = {
             foreignKeyName: "fund_sector_weightings_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_sector_weightings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -227,6 +248,13 @@ export type Database = {
             columns: ["ticker_id"]
             isOneToOne: false
             referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_top_holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
           {
@@ -300,6 +328,13 @@ export type Database = {
             foreignKeyName: "historical_prices_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "historical_prices_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -352,6 +387,13 @@ export type Database = {
             columns: ["ticker_id"]
             isOneToOne: false
             referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
           {
@@ -438,6 +480,13 @@ export type Database = {
             foreignKeyName: "stock_notes_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "stock_notes_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -513,6 +562,13 @@ export type Database = {
             foreignKeyName: "suggested_trades_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "suggested_trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -548,6 +604,7 @@ export type Database = {
       }
       tickers: {
         Row: {
+          backfill: boolean
           category: string | null
           cik: string | null
           created_at: string | null
@@ -565,6 +622,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          backfill?: boolean
           category?: string | null
           cik?: string | null
           created_at?: string | null
@@ -582,6 +640,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          backfill?: boolean
           category?: string | null
           cik?: string | null
           created_at?: string | null
@@ -665,6 +724,13 @@ export type Database = {
             foreignKeyName: "trades_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -742,6 +808,13 @@ export type Database = {
             columns: ["tracking_ticker_id"]
             isOneToOne: false
             referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "users_tracking_ticker_id_fkey"
+            columns: ["tracking_ticker_id"]
+            isOneToOne: false
+            referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
           {
@@ -884,6 +957,13 @@ export type Database = {
             foreignKeyName: "yh_finance_daily_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: true
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "yh_finance_daily_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: true
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -922,6 +1002,13 @@ export type Database = {
             columns: ["ticker_id"]
             isOneToOne: false
             referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
           {
@@ -1190,6 +1277,13 @@ export type Database = {
             foreignKeyName: "trades_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "tickers"
             referencedColumns: ["id"]
           },
@@ -1200,6 +1294,40 @@ export type Database = {
           cash_balance: number | null
           date_day: string | null
           user_id: string | null
+        }
+        Relationships: []
+      }
+      ticker_daily_view: {
+        Row: {
+          beta: number | null
+          category: string | null
+          created_at: string | null
+          date: string | null
+          dividend_amount: number | null
+          dividend_months: number[] | null
+          dividend_yield: number | null
+          eps_forward: number | null
+          eps_trailing_ttm: number | null
+          exchange: string | null
+          fifty_day_average: number | null
+          fifty_two_week_high: number | null
+          fifty_two_week_low: number | null
+          industry: string | null
+          market_cap: number | null
+          name: string | null
+          profit_margins: number | null
+          quote_type: string | null
+          region: string | null
+          regular_market_change_percent: number | null
+          regular_market_price: number | null
+          regular_market_volume: number | null
+          sector: string | null
+          symbol: string | null
+          ticker_id: string | null
+          trailing_pe: number | null
+          two_hundred_day_average: number | null
+          updated_at: string | null
+          ytd_return: number | null
         }
         Relationships: []
       }
@@ -1242,6 +1370,13 @@ export type Database = {
             columns: ["ticker_id"]
             isOneToOne: false
             referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
           {

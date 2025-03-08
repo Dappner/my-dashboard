@@ -1,1 +1,84 @@
-frontend/.env
+# Frontend
+
+# Node modules
+/frontend/node_modules
+/scripts/daily-market-update/node_modules
+
+# Production Build
+/frontend/dist
+
+# pnpm
+/frontend/pnpm-lock.yaml
+/scripts/daily-market-update/pnpm-lock.yaml
+.pnpm
+
+#  Typescript compiled js files
+/frontend/**/*.js
+
+#  Supabase config
+/frontend/supabase/config.toml
+
+# Environment variables
+/frontend/.env
+/frontend/.env.*
+!.env.example
+
+# testing
+/frontend/coverage
+
+# Logs
+/frontend/**/*.log
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/.pnpm-debug.log*
+
+# Editor related
+/frontend/.idea
+/frontend/.vscode
+/frontend/*.suo
+/frontend/*.ntvs*
+/frontend/*.njsproj
+/frontend/*.sln
+
+# Python Scripts
+/scripts/*/package-lock.json
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+**/*.py[cod]
+*$py.class
+
+# Distributions
+dist/
+sdist/
+*.egg-info/
+*.egg
+
+# Virtual environment
+venv/
+env/
+.venv/
+.env
+
+#  requirements
+/scripts/daily-market-update/requirements.txt
+/scripts/daily-market-update/trading_data/requirements.txt
+
+# testing
+.tox/
+.coverage
+.cache
+nosetests.xml
+*.swp
+
+#  database
+/scripts/daily-market-update/trading_data/repomix-output.txt
+
+# Logs
+logs/
+*.log
+
+# Packages
+*.swp
+*.DS_Store
+

@@ -6,13 +6,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Ticker } from "@/types/tickerTypes";
-import { monthsShort } from "@/features/Investing/constants";
+import { TickerDaily } from "@/types/tickerTypes";
 import { useNavigate } from "react-router";
 import { TableLoading } from "./TableLoading";
 
 interface TickerTableProps {
-  filteredTickers?: Ticker[] | null;
+  filteredTickers?: TickerDaily[] | null;
   isLoading: boolean;
 }
 
@@ -21,9 +20,10 @@ export default function TickerTable({
   isLoading,
 }: TickerTableProps) {
   const navigate = useNavigate();
-  const onSymbolClick = (ticker: Ticker) => {
+  const onSymbolClick = (ticker: TickerDaily) => {
     navigate(`/investing/stock/${ticker.exchange}/${ticker.symbol}`);
   };
+
 
   return (
     <TableLoading isLoaded={!isLoading} className="h-64">
@@ -33,16 +33,15 @@ export default function TickerTable({
             <TableRow>
               <TableHead>Symbol</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Price</TableHead>
               <TableHead>Exchange</TableHead>
               <TableHead>Sector</TableHead>
               <TableHead>Industry</TableHead>
-              <TableHead>Div Amount</TableHead>
-              <TableHead>Div Months</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredTickers?.map((ticker) => (
-              <TableRow key={ticker.id}>
+              <TableRow key={ticker.ticker_id}>
                 <TableCell
                   className="font-bold cursor-pointer hover:underline"
                   onClick={() => onSymbolClick(ticker)}
@@ -50,15 +49,10 @@ export default function TickerTable({
                   {ticker.symbol}
                 </TableCell>
                 <TableCell>{ticker.name || "-"}</TableCell>
+                <TableCell>${ticker.regular_market_price || "-"}</TableCell>
                 <TableCell>{ticker.exchange || "-"}</TableCell>
                 <TableCell>{ticker.sector || "-"}</TableCell>
                 <TableCell>{ticker.industry || "-"}</TableCell>
-                <TableCell>${ticker.dividend_amount?.toFixed(2) || "-"}</TableCell>
-                <TableCell>
-                  {ticker.dividend_months?.length == 12
-                    ? "Monthly"
-                    : ticker.dividend_months?.map((val) => monthsShort[val]).join(",")}
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
