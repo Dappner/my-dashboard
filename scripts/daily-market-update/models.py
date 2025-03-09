@@ -40,14 +40,14 @@ class FinanceData(BaseModel):
     date: str = Field(default_factory=lambda: date.today().strftime("%Y-%m-%d"))
     regular_market_price: Optional[float] = None
     regular_market_change_percent: Optional[float] = None
-    market_cap: Optional[float] = None
+    market_cap: Optional[int] = None  # Changed to int to match bigint
     dividend_yield: Optional[float] = None
     fifty_two_week_low: Optional[float] = None
     fifty_two_week_high: Optional[float] = None
     fifty_day_average: Optional[float] = None
     two_hundred_day_average: Optional[float] = None
     trailing_pe: Optional[float] = None
-    total_assets: Optional[float] = None
+    total_assets: Optional[int] = None
     nav_price: Optional[float] = None
     yield_: Optional[float] = Field(None, alias="yield")  # Avoid Python keyword
     ytd_return: Optional[float] = None
@@ -58,7 +58,7 @@ class FinanceData(BaseModel):
     three_year_average_return: Optional[float] = None
     five_year_average_return: Optional[float] = None
     net_expense_ratio: Optional[float] = None
-    shares_outstanding: Optional[float] = None
+    shares_outstanding: Optional[int] = None  # Changed to int to match bigint
     trailing_three_month_returns: Optional[float] = None
     trailing_three_month_nav_returns: Optional[float] = None
     updated_at: str = Field(default_factory=lambda: datetime.now().isoformat())

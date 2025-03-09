@@ -23,6 +23,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { monthsShort } from "@/features/Investing/constants";
 import { useNavigate } from "react-router";
+import { formatSectorName, formatIndustryName } from "@/lib/formatting";
 
 interface TickerTableProps {
   filteredTickers: Ticker[];
@@ -70,8 +71,8 @@ export default function TickerTable({
               <TableCell className="font-bold cursor-pointer hover:underline" onClick={() => onSymbolClick(ticker)}>{ticker.symbol}</TableCell>
               <TableCell>{ticker.name || "-"}</TableCell>
               <TableCell>{ticker.exchange || "-"}</TableCell>
-              <TableCell>{ticker.sector || "-"}</TableCell>
-              <TableCell>{ticker.industry || "-"}</TableCell>
+              <TableCell>{formatSectorName(ticker.sector)}</TableCell>
+              <TableCell>{formatIndustryName(ticker.industry)}</TableCell>
               <TableCell>${ticker.dividend_amount?.toFixed(2) || "-"}</TableCell>
               <TableCell>{ticker.dividend_months?.length == 12 ? "Monthly"
                 :

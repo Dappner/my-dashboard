@@ -18,7 +18,7 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
 
   const { isLoading, topHoldings, sectorWeightings, assetClasses } = useFundsData(tickerId)
 
-  // Format helpers
+  console.log(sectorWeightings);
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {

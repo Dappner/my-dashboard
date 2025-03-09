@@ -1,30 +1,51 @@
-import { Holding } from "@/types/holdingsTypes";
+import { Holding, HoldingAllocation } from "@/types/holdingsTypes";
 import { monthsShort } from "./constants";
+import { PieChartDataItem } from "@/components/charts/CustomPieChart";
+import { formatIndustryName, formatSectorName } from "@/lib/formatting";
+export interface AssetClass {
+  asset_class: string;
+  weight: number;
+  date: string;
+}
 
-export const prepareSectorData = (holdings: Holding[]) => {
-  if (!holdings || holdings.length === 0) return [];
+export interface SectorWeighting {
+  sector_name: string;
+  weight: number;
+  date: string;
+}
 
-  // Group by sector and calculate total value
+export const prepareSectorData = (holdings: HoldingAllocation[]): PieChartDataItem[] => {
   const sectorMap = new Map<string, number>();
 
   holdings.forEach(holding => {
-    const sector = holding.sector || "Unknown";
-    const value = (holding.shares || 0) * (holding.average_cost_basis || 0);
-
-    if (sectorMap.has(sector)) {
-      sectorMap.set(sector, (sectorMap.get(sector) || 0) + value);
+    const marketValue = holding.current_market_value || 0;
+    if (holding.quote_type === 'EQUITY' && holding.stock_sector) {
+      sectorMap.set(
+        holding.stock_sector,
+        (sectorMap.get(holding.stock_sector) || 0) + marketValue
+      );
+    } else if (holding.sector_weightings) {
+      // For ETFs/funds, distribute market value across weighted sectors
+      (holding.sector_weightings as unknown as SectorWeighting[]).forEach(sector => {
+        const sectorValue = marketValue * (sector.weight / 100);
+        sectorMap.set(
+          sector.sector_name,
+          (sectorMap.get(sector.sector_name) || 0) + sectorValue
+        );
+      });
     } else {
-      sectorMap.set(sector, value);
+      // Fallback for holdings without sector data
+      sectorMap.set(
+        'Unknown',
+        (sectorMap.get('Unknown') || 0) + marketValue
+      );
     }
   });
 
-  // Convert to array for the pie chart
-  return Array.from(sectorMap.entries())
-    .map(([label, value]) => ({
-      label,
-      value: Number(value.toFixed(2))
-    }))
-    .sort((a, b) => b.value - a.value); // Sort by descending value
+  return Array.from(sectorMap.entries()).map(([label, value]) => ({
+    label: formatSectorName(label),
+    value,
+  }));
 };
 
 // Process data for the industry allocation pie chart
@@ -48,7 +69,7 @@ export const prepareIndustryData = (holdings: Holding[]) => {
   // Convert to array for the pie chart
   return Array.from(industryMap.entries())
     .map(([label, value]) => ({
-      label,
+      label: formatIndustryName(label),
       value: Number(value.toFixed(2))
     }))
     .sort((a, b) => b.value - a.value);
@@ -242,7 +263,8 @@ export const prepareDividendChartData = (holdings?: Holding[]) => {
 };
 
 
-export function calculateGeographicExposure(holdings: Holding[]) {
+export function calculateGeographicExposure(holdings?: Holding[] | null) {
+  if (!holdings) return null;
   const regionExposure = holdings.reduce((acc, holding) => {
     const marketValue = holding.current_market_value;
 
@@ -267,3 +289,6 @@ export function calculateGeographicExposure(holdings: Holding[]) {
     }))
     .sort((a, b) => parseFloat(b.percentage) - parseFloat(a.percentage));
 }
+
+
+

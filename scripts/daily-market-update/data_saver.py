@@ -79,9 +79,6 @@ class DataSaver:
             self.supabase.table("historical_prices").upsert(
                 price_data_list, on_conflict="ticker_id,date"
             ).execute()
-            logger.info(
-                f"Updated historical_prices for {symbol} with {len(price_data_list)} records"
-            )
             return len(price_data_list)
         except Exception as e:
             logger.error(f"Failed to save price data for {symbol}: {e}")
@@ -98,7 +95,7 @@ class DataSaver:
             category=info.get("category"),
             region=info.get("region"),
             quote_type=info.get("quoteType", "EQUITY"),
-            backfill=backfill,
+            backfill=False,
             industry=info.get("industryKey") if backfill else None,
             sector=info.get("sectorKey") if backfill else None,
             dividend_amount=info.get("lastDividendValue") if backfill else None,
@@ -110,7 +107,6 @@ class DataSaver:
             self.supabase.table("tickers").update(ticker_info).eq(
                 "id", ticker_id
             ).execute()
-            logger.info(f"Updated tickers table for {symbol}")
             return True
         except Exception as e:
             logger.error(f"Failed to update tickers table for {symbol}: {e}")
@@ -125,34 +121,67 @@ class DataSaver:
         quote_type = info.get("quoteType", "EQUITY")
         finance_data = FinanceData(
             ticker_id=ticker_id,
-            regular_market_price=info.get("regularMarketPrice") if quote_type in ["EQUITY", "ETF"] else None,
-            regular_market_change_percent=info.get("regularMarketChangePercent") if quote_type in ["EQUITY",
-                                                                                                   "ETF"] else None,
-            market_cap=info.get("marketCap") if quote_type in ["EQUITY", "ETF"] else None,
+            regular_market_price=info.get("regularMarketPrice")
+            if quote_type in ["EQUITY", "ETF"]
+            else None,
+            regular_market_change_percent=info.get("regularMarketChangePercent")
+            if quote_type in ["EQUITY", "ETF"]
+            else None,
+            market_cap=info.get("marketCap")
+            if quote_type in ["EQUITY", "ETF"]
+            else None,
             dividend_yield=info.get("dividendYield"),
-            fifty_two_week_low=info.get("fiftyTwoWeekLow") if quote_type in ["EQUITY", "ETF"] else None,
-            fifty_two_week_high=info.get("fiftyTwoWeekHigh") if quote_type in ["EQUITY", "ETF"] else None,
-            fifty_day_average=info.get("fiftyDayAverage") if quote_type in ["EQUITY", "ETF"] else None,
-            two_hundred_day_average=info.get("twoHundredDayAverage") if quote_type in ["EQUITY", "ETF"] else None,
+            fifty_two_week_low=info.get("fiftyTwoWeekLow")
+            if quote_type in ["EQUITY", "ETF"]
+            else None,
+            fifty_two_week_high=info.get("fiftyTwoWeekHigh")
+            if quote_type in ["EQUITY", "ETF"]
+            else None,
+            fifty_day_average=info.get("fiftyDayAverage")
+            if quote_type in ["EQUITY", "ETF"]
+            else None,
+            two_hundred_day_average=info.get("twoHundredDayAverage")
+            if quote_type in ["EQUITY", "ETF"]
+            else None,
             trailing_pe=info.get("trailingPE") if quote_type == "EQUITY" else None,
-            total_assets=info.get("totalAssets") if quote_type in ["MUTUALFUND", "ETF"] else None,
-            nav_price=info.get("navPrice") if quote_type in ["MUTUALFUND", "ETF"] else None,
+            total_assets=info.get("totalAssets")
+            if quote_type in ["MUTUALFUND", "ETF"]
+            else None,
+            nav_price=info.get("navPrice")
+            if quote_type in ["MUTUALFUND", "ETF"]
+            else None,
             yield_=info.get("yield") if quote_type in ["MUTUALFUND", "ETF"] else None,
             ytd_return=info.get("ytdReturn"),
             beta3year=info.get("beta"),
-            fund_family=info.get("fundFamily") if quote_type in ["MUTUALFUND", "ETF"] else None,
-            fund_inception_date=datetime.fromtimestamp(info.get("fundInceptionDate")).strftime("%Y-%m-%d")
-            if info.get("fundInceptionDate") else None,
-            legal_type=info.get("legalType") if quote_type in ["MUTUALFUND", "ETF"] else None,
-            three_year_average_return=info.get("threeYearAverageReturn") if quote_type in ["MUTUALFUND",
-                                                                                           "ETF"] else None,
-            five_year_average_return=info.get("fiveYearAverageReturn") if quote_type in ["MUTUALFUND", "ETF"] else None,
-            net_expense_ratio=info.get("netExpenseRatio") if quote_type in ["MUTUALFUND", "ETF"] else None,
-            shares_outstanding=info.get("sharesOutstanding") if quote_type in ["EQUITY", "ETF"] else None,
-            trailing_three_month_returns=info.get("trailingThreeMonthReturns") if quote_type in ["MUTUALFUND",
-                                                                                                 "ETF"] else None,
-            trailing_three_month_nav_returns=info.get("trailingThreeMonthNavReturns") if quote_type in ["MUTUALFUND",
-                                                                                                        "ETF"] else None,
+            fund_family=info.get("fundFamily")
+            if quote_type in ["MUTUALFUND", "ETF"]
+            else None,
+            fund_inception_date=datetime.fromtimestamp(
+                info.get("fundInceptionDate")
+            ).strftime("%Y-%m-%d")
+            if info.get("fundInceptionDate")
+            else None,
+            legal_type=info.get("legalType")
+            if quote_type in ["MUTUALFUND", "ETF"]
+            else None,
+            three_year_average_return=info.get("threeYearAverageReturn")
+            if quote_type in ["MUTUALFUND", "ETF"]
+            else None,
+            five_year_average_return=info.get("fiveYearAverageReturn")
+            if quote_type in ["MUTUALFUND", "ETF"]
+            else None,
+            net_expense_ratio=info.get("netExpenseRatio")
+            if quote_type in ["MUTUALFUND", "ETF"]
+            else None,
+            shares_outstanding=info.get("sharesOutstanding")
+            if quote_type in ["EQUITY", "ETF"]
+            else None,
+            trailing_three_month_returns=info.get("trailingThreeMonthReturns")
+            if quote_type in ["MUTUALFUND", "ETF"]
+            else None,
+            trailing_three_month_nav_returns=info.get("trailingThreeMonthNavReturns")
+            if quote_type in ["MUTUALFUND", "ETF"]
+            else None,
         ).dict(exclude_none=True)
 
         finance_data = {k: v for k, v in finance_data.items() if v is not None}
@@ -165,7 +194,6 @@ class DataSaver:
                 [finance_data],
                 on_conflict=["ticker_id"],
             ).execute()
-            logger.info(f"Updated yh_finance_daily table for {symbol}")
             return True
         except Exception as e:
             logger.error(f"Failed to update yh_finance_daily for {symbol}: {e}")
@@ -206,26 +234,39 @@ class DataSaver:
         if "Earnings Date" in calendar and calendar["Earnings Date"]:
             earnings_dates = calendar["Earnings Date"]
             if isinstance(earnings_dates, list) and earnings_dates:
-                earnings_dates_str = [d.strftime("%Y-%m-%d") for d in earnings_dates if d]
+                earnings_dates_str = [
+                    d.strftime("%Y-%m-%d") for d in earnings_dates if d
+                ]
                 if earnings_dates_str:
                     earnings_event = CalendarEvent(
                         ticker_id=str(ticker_id),
                         date=earnings_dates_str[0],  # Use first date as primary
                         event_type="earnings",
                         earnings_dates=earnings_dates_str,
-                        earnings_high=float(calendar["Earnings High"]) if "Earnings High" in calendar and calendar[
-                            "Earnings High"] is not None else None,
-                        earnings_low=float(calendar["Earnings Low"]) if "Earnings Low" in calendar and calendar[
-                            "Earnings Low"] is not None else None,
-                        earnings_average=float(calendar["Earnings Average"]) if "Earnings Average" in calendar and
-                                                                                calendar[
-                                                                                    "Earnings Average"] is not None else None,
-                        revenue_high=int(calendar["Revenue High"]) if "Revenue High" in calendar and calendar[
-                            "Revenue High"] is not None else None,
-                        revenue_low=int(calendar["Revenue Low"]) if "Revenue Low" in calendar and calendar[
-                            "Revenue Low"] is not None else None,
-                        revenue_average=int(calendar["Revenue Average"]) if "Revenue Average" in calendar and calendar[
-                            "Revenue Average"] is not None else None,
+                        earnings_high=float(calendar["Earnings High"])
+                        if "Earnings High" in calendar
+                        and calendar["Earnings High"] is not None
+                        else None,
+                        earnings_low=float(calendar["Earnings Low"])
+                        if "Earnings Low" in calendar
+                        and calendar["Earnings Low"] is not None
+                        else None,
+                        earnings_average=float(calendar["Earnings Average"])
+                        if "Earnings Average" in calendar
+                        and calendar["Earnings Average"] is not None
+                        else None,
+                        revenue_high=int(calendar["Revenue High"])
+                        if "Revenue High" in calendar
+                        and calendar["Revenue High"] is not None
+                        else None,
+                        revenue_low=int(calendar["Revenue Low"])
+                        if "Revenue Low" in calendar
+                        and calendar["Revenue Low"] is not None
+                        else None,
+                        revenue_average=int(calendar["Revenue Average"])
+                        if "Revenue Average" in calendar
+                        and calendar["Revenue Average"] is not None
+                        else None,
                     ).dict(exclude_none=True)
                     events_data.append(earnings_event)
 
@@ -245,100 +286,162 @@ class DataSaver:
             logger.error(f"Failed to save calendar events for {symbol}: {e}")
             return False
 
-    def save_fund_data(self, ticker_id, symbol, ticker, table_name, data_key):
-        """Saves fund-specific data, handling list, dict, and DataFrame types."""
-        if not hasattr(ticker, "funds_data") or ticker.funds_data is None:
-            logger.debug(f"No funds_data available for {symbol}")
+    def save_fund_top_holdings(
+        self, ticker_id, symbol, ticker, data_key="top_holdings"
+    ):
+        """Saves fund top holdings data from yfinance."""
+        logger.debug(
+            f"Attempting to save {data_key} for {symbol}",
+            extra={"table": "fund_top_holdings"},
+        )
+
+        if not hasattr(ticker, "funds_data"):
+            logger.error(f"No funds_data attribute available for {symbol}")
             return False
 
-        data = getattr(ticker.funds_data, data_key, None)  # Changed default to None
-        if data is None:
-            logger.debug(f"No {data_key} data for {symbol}")
+        data = getattr(ticker.funds_data, data_key, None)
+        if data is None or not isinstance(data, pd.DataFrame):
+            logger.error(f"No valid {data_key} DataFrame available for {symbol}")
             return False
 
+        logger.debug(f"Raw {data_key} data for {symbol}", extra={"data": str(data)})
         upsert_data = []
 
-        if isinstance(data, list):
-            # Filter and validate list items
-            for item in data:
-                if not isinstance(item, dict):
-                    logger.warning(
-                        f"Skipping invalid {data_key} item for {symbol}: {type(item)} - {item}"
-                    )
-                    continue
-                try:
-                    # Generic list of dictionaries
-                    item["ticker_id"] = ticker_id
-                    item["date"] = date.today().strftime("%Y-%m-%d")
-                    item["updated_at"] = datetime.now().isoformat()
-                    if "weight" in item:
-                        item["weight"] = item["weight"] * 100
-                    upsert_data.append(item)
-
-                except KeyError as e:
-                    logger.warning(
-                        f"Skipping {data_key} item for {symbol} missing required key: {e}"
-                    )
-                    continue
-
-        elif isinstance(data, dict) and table_name == "fund_sector_weightings":
-            # Handle dictionary type (sector weightings)
-            for sector_name, weight in data.items():
-                try:
-                    upsert_data.append(
-                        {
-                            "ticker_id": ticker_id,
-                            "date": date.today().strftime("%Y-%m-%d"),
-                            "sector_name": sector_name,
-                            "weight": weight * 100,
-                            "updated_at": datetime.now().isoformat(),
-                        }
-                    )
-                except Exception as e:
-                    logger.error(
-                        f"Error processing {data_key} dictionary for {symbol}: {e}"
-                    )
-                    return False
-
-        elif isinstance(data, dict) and table_name == "fund_asset_classes":
-            # Handle dictionary type (asset classes)
-            for asset_class, weight in data.items():
-                try:
-                    upsert_data.append(
-                        {
-                            "ticker_id": ticker_id,
-                            "date": date.today().strftime("%Y-%m-%d"),
-                            "asset_class": asset_class,
-                            "weight": weight * 100,
-                            "updated_at": datetime.now().isoformat(),
-                        }
-                    )
-                except Exception as e:
-                    logger.error(
-                        f"Error processing {data_key} dictionary for {symbol}: {e}"
-                    )
-                    return False
-
-        elif isinstance(data, pd.DataFrame):
-            # Handle Pandas DataFrame (top holdings)
-            try:
-                for index, row in data.iterrows():
-                    upsert_data.append(
-                        {
-                            "ticker_id": ticker_id,
-                            "date": date.today().strftime("%Y-%m-%d"),
-                            "holding_symbol": index,
-                            "holding_name": row["Name"],
-                            "weight": row["Holding Percent"] * 100,
-                            "updated_at": datetime.now().isoformat(),
-                        }
-                    )
-            except KeyError as e:
-                logger.error(f"Error processing {data_key} DataFrame for {symbol}: {e}")
-                return False
-
-        else:
+        try:
+            for index, row in data.iterrows():
+                upsert_data.append(
+                    {
+                        "ticker_id": ticker_id,
+                        "holding_symbol": index,
+                        "holding_name": row["Name"],
+                        "weight": float(row["Holding Percent"]) * 100,
+                        "date": date.today().strftime("%Y-%m-%d"),
+                        "updated_at": datetime.now().isoformat(),
+                    }
+                )
+        except KeyError as e:
             logger.error(
-                f"{data_key} for {symbol} is not a list, dict, or DataFrame: {type(data)} - {data}"
+                f"Error processing top holdings DataFrame for {symbol}: Missing key {e}"
             )
+            return False
+
+        return self._upsert_data(
+            upsert_data,
+            "fund_top_holdings",
+            symbol,
+            data_key,
+            on_conflict="ticker_id,holding_symbol",
+        )
+
+    def save_fund_sector_weightings(
+        self, ticker_id, symbol, ticker, data_key="sector_weightings"
+    ):
+        """Saves fund sector weightings data from yfinance."""
+        logger.debug(
+            f"Attempting to save {data_key} for {symbol}",
+            extra={"table": "fund_sector_weightings"},
+        )
+
+        if not hasattr(ticker, "funds_data"):
+            logger.error(f"No funds_data attribute available for {symbol}")
+            return False
+
+        data = getattr(ticker.funds_data, data_key, None)
+        if data is None or not isinstance(data, dict):
+            logger.error(f"No valid {data_key} dictionary available for {symbol}")
+            return False
+
+        logger.debug(f"Raw {data_key} data for {symbol}", extra={"data": str(data)})
+        upsert_data = []
+
+        try:
+            for sector_name, weight in data.items():
+                upsert_data.append(
+                    {
+                        "ticker_id": ticker_id,
+                        "sector_name": sector_name.replace("_", "-"),
+                        "weight": float(weight) * 100,
+                        "date": date.today().strftime("%Y-%m-%d"),
+                        "updated_at": datetime.now().isoformat(),
+                    }
+                )
+        except Exception as e:
+            logger.error(f"Error processing sector weightings for {symbol}: {e}")
+            return False
+
+        return self._upsert_data(
+            upsert_data,
+            "fund_sector_weightings",
+            symbol,
+            data_key,
+            on_conflict="ticker_id,sector_name",
+        )
+
+    def save_fund_asset_classes(
+        self, ticker_id, symbol, ticker, data_key="asset_allocation"
+    ):
+        """Saves fund asset classes data from yfinance."""
+        logger.debug(
+            f"Attempting to save {data_key} for {symbol}",
+            extra={"table": "fund_asset_classes"},
+        )
+
+        if not hasattr(ticker, "funds_data"):
+            logger.error(f"No funds_data attribute available for {symbol}")
+            return False
+
+        data = getattr(ticker.funds_data, data_key, None)
+        if data is None or not isinstance(data, dict):
+            logger.error(f"No valid {data_key} dictionary available for {symbol}")
+            return False
+
+        logger.debug(f"Raw {data_key} data for {symbol}", extra={"data": str(data)})
+        upsert_data = []
+
+        try:
+            for asset_class, weight in data.items():
+                upsert_data.append(
+                    {
+                        "ticker_id": ticker_id,
+                        "asset_class": asset_class,
+                        "weight": float(weight) * 100,
+                        "date": date.today().strftime("%Y-%m-%d"),
+                        "updated_at": datetime.now().isoformat(),
+                    }
+                )
+        except Exception as e:
+            logger.error(f"Error processing asset classes for {symbol}: {e}")
+            return False
+
+        return self._upsert_data(
+            upsert_data,
+            "fund_asset_classes",
+            symbol,
+            data_key,
+            on_conflict="ticker_id,asset_class",
+        )
+
+    def _upsert_data(self, upsert_data, table_name, symbol, data_key, on_conflict):
+        """Helper method to handle the database upsert operation."""
+        if not upsert_data:
+            logger.info(
+                f"No valid {data_key} data to save for {symbol} after processing"
+            )
+            return False
+
+        logger.debug(
+            f"Preparing to upsert {len(upsert_data)} records",
+            extra={"table": table_name, "data_sample": upsert_data[:1]},
+        )
+
+        try:
+            self.supabase.table(table_name).upsert(
+                upsert_data, on_conflict=on_conflict
+            ).execute()
+            logger.info(
+                f"Successfully saved {len(upsert_data)} {data_key} records for {symbol}"
+            )
+            return True
+        except Exception as e:
+            logger.exception(f"Database upsert failed for {symbol} {data_key}")
             return False

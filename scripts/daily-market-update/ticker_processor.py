@@ -59,15 +59,27 @@ class TickerProcessor:
                     updates.add("yh_finance_daily")
                 quote_type = info.get("quoteType", "EQUITY")
                 if quote_type in ["MUTUALFUND", "ETF"] and yf_ticker:
-                    for table, key in [
-                        ("fund_sector_weightings", "sector_weightings"),
-                        ("fund_top_holdings", "top_holdings"),
-                        ("fund_asset_classes", "asset_classes"),
-                    ]:
-                        if self.data_saver.save_fund_data(
-                            ticker_id, symbol, yf_ticker, table, key
-                        ):
-                            updates.add(table)
+                    # Save fund top holdings
+                    if self.data_saver.save_fund_top_holdings(
+                        ticker_id, symbol, yf_ticker
+                    ):
+                        updates.add("fund_top_holdings")
+                        logger.info(f"Updated fund_top_holdings for {symbol}")
+
+                    # Save fund sector weightings
+                    if self.data_saver.save_fund_sector_weightings(
+                        ticker_id, symbol, yf_ticker
+                    ):
+                        updates.add("fund_sector_weightings")
+                        logger.info(f"Updated fund_sector_weightings for {symbol}")
+
+                    # Save fund asset classes
+                    if self.data_saver.save_fund_asset_classes(
+                        ticker_id, symbol, yf_ticker
+                    ):
+                        updates.add("fund_asset_classes")
+                        logger.info(f"Updated fund_asset_classes for {symbol}")
+
             if (
                 backfill or self.data_saver.should_update(last_calendar_update)
             ) and yf_ticker:

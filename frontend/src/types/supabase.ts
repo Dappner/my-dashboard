@@ -208,7 +208,7 @@ export type Database = {
         Row: {
           created_at: string | null
           date: string
-          holding_name: string | null
+          holding_name: string
           holding_symbol: string
           id: string
           ticker_id: string
@@ -218,7 +218,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           date: string
-          holding_name?: string | null
+          holding_name: string
           holding_symbol: string
           id?: string
           ticker_id: string
@@ -228,7 +228,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           date?: string
-          holding_name?: string | null
+          holding_name?: string
           holding_symbol?: string
           id?: string
           ticker_id?: string
@@ -1236,6 +1236,81 @@ export type Database = {
           user_id: string | null
         }
         Relationships: []
+      }
+      portfolio_holdings_allocation: {
+        Row: {
+          asset_classes: Json | null
+          average_cost_basis: number | null
+          current_market_value: number | null
+          current_price: number | null
+          name: string | null
+          quote_type: string | null
+          sector_weightings: Json | null
+          stock_sector: string | null
+          symbol: string | null
+          ticker_id: string | null
+          total_cost_basis: number | null
+          total_shares: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "holdings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "holdings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_performance"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "holdings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "running_cash_balances"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "holdings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       portfolio_performance: {
         Row: {

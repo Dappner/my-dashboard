@@ -9,6 +9,7 @@ import {
 import { TickerDaily } from "@/types/tickerTypes";
 import { useNavigate } from "react-router";
 import { TableLoading } from "./TableLoading";
+import { formatIndustryName, formatSectorName } from "@/lib/formatting";
 
 interface TickerTableProps {
   filteredTickers?: TickerDaily[] | null;
@@ -51,8 +52,8 @@ export default function TickerTable({
                 <TableCell>{ticker.name || "-"}</TableCell>
                 <TableCell>${ticker.regular_market_price || "-"}</TableCell>
                 <TableCell>{ticker.exchange || "-"}</TableCell>
-                <TableCell>{ticker.sector || "-"}</TableCell>
-                <TableCell>{ticker.industry || "-"}</TableCell>
+                <TableCell>{formatSectorName(ticker.sector)}</TableCell>
+                <TableCell>{formatIndustryName(ticker.industry)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

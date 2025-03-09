@@ -1,14 +1,14 @@
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, TooltipProps } from "recharts";
 import { chartColors } from "@/constants";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent } from "../ui/card";
 
-interface DataItem {
+export interface PieChartDataItem {
   label: string;
   value: number;
 }
 
 interface CustomPieChartProps {
-  data: DataItem[];
+  data: PieChartDataItem[];
   title: string;
   inputType: "Percentage" | "Absolute";
   outputType: "Percentage" | "Absolute";

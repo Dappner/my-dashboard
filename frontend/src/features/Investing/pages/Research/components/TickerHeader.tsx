@@ -2,6 +2,7 @@ import { BriefcaseIcon, MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Ticker } from "@/types/tickerTypes";
+import { formatCategoryName, formatIndustryName, formatSectorName } from "@/lib/formatting";
 
 interface TickerHeaderProps {
   ticker: Ticker;
@@ -46,7 +47,7 @@ export default function TickerHeader({ ticker, latestPrice, isLoading }: TickerH
                 <>
                   <div className="mt-2 flex items-center text-sm text-gray-500">
                     <BriefcaseIcon aria-hidden="true" className="mr-1.5 size-5 shrink-0 text-gray-400" />
-                    {ticker?.category || "N/A"}
+                    {formatCategoryName(ticker?.category, "N/A")}
                   </div>
                   <div className="mt-2 flex items-center text-sm text-gray-500">
                     <MapPinIcon aria-hidden="true" className="mr-1.5 size-5 shrink-0 text-gray-400" />
@@ -57,11 +58,11 @@ export default function TickerHeader({ ticker, latestPrice, isLoading }: TickerH
                 <>
                   <div className="mt-2 flex items-center text-sm text-gray-500">
                     <BriefcaseIcon aria-hidden="true" className="mr-1.5 size-5 shrink-0 text-gray-400" />
-                    {ticker?.sector || "N/A"}
+                    {formatSectorName(ticker?.sector, "N/A")}
                   </div>
                   <div className="mt-2 flex items-center text-sm text-gray-500">
                     <MapPinIcon aria-hidden="true" className="mr-1.5 size-5 shrink-0 text-gray-400" />
-                    {ticker?.industry || "N/A"}
+                    {formatIndustryName(ticker?.industry)}
                   </div>
                 </>
               )}
