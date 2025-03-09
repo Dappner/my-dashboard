@@ -223,7 +223,7 @@ export default function ManageInvestingPage() {
                           field={field}
                           isLoading={isLoading}
                           tickers={tickers}
-                          onValueChange={(value) => {
+                          onValueChange={(value: string) => {
                             field.onChange(value);
                             form.handleSubmit(onTrackingSubmit)();
                           }}

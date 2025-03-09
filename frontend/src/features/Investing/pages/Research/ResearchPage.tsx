@@ -14,6 +14,7 @@ export default function ResearchPage() {
       return data;
     }
   })
+  console.log(tickers)
 
   return (
     <>

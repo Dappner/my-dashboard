@@ -35,7 +35,7 @@ export default function TickerTable({
               <TableHead>Symbol</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Price</TableHead>
-              <TableHead>Exchange</TableHead>
+              <TableHead>Trailing PE</TableHead>
               <TableHead>Sector</TableHead>
               <TableHead>Industry</TableHead>
             </TableRow>
@@ -51,7 +51,7 @@ export default function TickerTable({
                 </TableCell>
                 <TableCell>{ticker.name || "-"}</TableCell>
                 <TableCell>${ticker.regular_market_price || "-"}</TableCell>
-                <TableCell>{ticker.exchange || "-"}</TableCell>
+                <TableCell>${ticker.trailing_pe || "-"}</TableCell>
                 <TableCell>{formatSectorName(ticker.sector)}</TableCell>
                 <TableCell>{formatIndustryName(ticker.industry)}</TableCell>
               </TableRow>

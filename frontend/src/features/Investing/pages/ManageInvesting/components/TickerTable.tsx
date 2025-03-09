@@ -115,7 +115,8 @@ export default function TickerTable({
                               industry: editingTicker.industry || "",
                               dividend_amount: editingTicker.dividend_amount || undefined,
                               dividend_months: editingTicker.dividend_months || [],
-                              cik: editingTicker.cik || ""
+                              cik: editingTicker.cik || "",
+                              backfill: editingTicker.backfill || false,
                             }}
                             onSubmit={handleSubmitTicker}
                             onCancel={handleCloseEditSheet}

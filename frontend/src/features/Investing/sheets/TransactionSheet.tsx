@@ -21,11 +21,11 @@ export function TransactionSheet({ isOpen, onClose, transaction }: TransactionSh
             tradeId={transaction?.id}
             onClose={onClose}
             defaultValues={transaction ? {
-              ticker_id: transaction.ticker_id!,
+              ticker_id: transaction.ticker_id || "",
               transaction_type: transaction.transaction_type!,
               shares: transaction.shares!,
-              price_per_share: transaction.price_per_share!,
-              transaction_fee: transaction.transaction_fee!,
+              price_per_share: transaction.price_per_share || "",
+              transaction_fee: transaction.transaction_fee || "",
               transaction_date: new Date(transaction.transaction_date + "T00:00:00"),
               note_text: transaction.note_text || "",
               is_dividend_reinvestment: transaction.is_dividend_reinvestment!,

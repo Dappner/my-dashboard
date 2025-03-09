@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import MonthPicker from "@/components/forms/MonthPicker";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const tickerFormSchema = z.object({
   symbol: z.string().min(1, "Symbol is required").max(10),
@@ -23,6 +24,7 @@ export const tickerFormSchema = z.object({
   dividend_amount: z.coerce.number().optional(),
   dividend_months: z.array(z.number()).optional(),
   cik: z.string().optional(),
+  backfill: z.boolean().optional(),
 });
 
 export type TickerFormValues = z.infer<typeof tickerFormSchema>;
@@ -44,7 +46,8 @@ export function TickerForm({
     industry: "",
     dividend_amount: 0,
     dividend_months: [],
-    cik: ""
+    cik: "",
+    backfill: false,
   },
   onSubmit,
   onCancel,
@@ -171,6 +174,20 @@ export function TickerForm({
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="backfill"
+          render={({ field }) => (
+            <FormItem className="flex flex-row gap-4">
+              <FormLabel>Backfill</FormLabel>
+              <FormControl>
+                <Checkbox onCheckedChange={field.onChange} checked={field.value!} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
 
         <div className="flex justify-end gap-2">
           <Button

@@ -58,7 +58,7 @@ export const calculatePortfolioMetrics = (
     ? (timeframeChange / previousTotalPortfolioValue) * 100
     : 0;
 
-  // Timeframe-dependent return (investment only)
+  // Timeframe-dependent return (investment only) (TODO: Fix)
   let timeframeReturn: number;
   let timeframeReturnPercent: number;
   if (timeframe === "ALL") {

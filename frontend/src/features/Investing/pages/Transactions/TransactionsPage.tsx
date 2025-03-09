@@ -63,7 +63,7 @@ export default function TransactionsPage() {
         : sum + amount;
     }, 0);
 
-    const totalTrades = filteredTransactions?.length || 0;
+    const totalTrades = filteredTransactions?.filter((transaction) => ["buy", "sell"].includes(transaction.transaction_type!)).length || 0;
 
     const netCash = filteredTransactions?.reduce((sum, trade) => {
       const amount = parseFloat(trade.total_cost_basis?.toFixed(2) || "0");
