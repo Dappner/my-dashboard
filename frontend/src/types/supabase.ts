@@ -1038,6 +1038,7 @@ export type Database = {
           market_dividend_yield_percent: number | null
           name: string | null
           price_change_1d_percent: number | null
+          quote_type: string | null
           region: string | null
           sector: string | null
           shares: number | null

@@ -56,7 +56,7 @@ export const prepareIndustryData = (holdings: Holding[]) => {
   const industryMap = new Map<string, number>();
 
   holdings.forEach(holding => {
-    const industry = holding.industry || "Unknown";
+    const industry = holding.industry || holding.quote_type;
     const value = (holding.shares || 0) * (holding.average_cost_basis || 0);
 
     if (industryMap.has(industry)) {

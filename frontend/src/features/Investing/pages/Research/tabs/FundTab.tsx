@@ -1,10 +1,11 @@
-import { useTickerData } from "../hooks/useTickerData";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ResponsiveContainer, Pie, Cell, Tooltip, XAxis, YAxis, Bar, PieChart, BarChart } from "recharts";
-import { chartColors } from "@/constants";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { chartColors } from "@/constants";
 import { useFundsData } from "@/features/Investing/hooks/useFundsData";
-import { formatLargeNumber, formatPercent } from "@/lib/formatting";
+import { formatLargeNumber, formatPercent, formatSectorName } from "@/lib/formatting";
+import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useTickerData } from "../hooks/useTickerData";
+import SectionHeader from "@/components/customs/SectionHeader";
 
 
 interface FundTabProps {
@@ -18,7 +19,6 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
 
   const { isLoading, topHoldings, sectorWeightings, assetClasses } = useFundsData(tickerId)
 
-  console.log(sectorWeightings);
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {
@@ -28,7 +28,6 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
     }).format(date);
   };
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="space-y-6 p-4">
@@ -76,10 +75,7 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
       <div className="grid grid-cols-1 md:grid-cols-2 space-y-6 gap-6">
         {/* Fund Overview */}
         <div>
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Fund Overview</h2>
-          </div>
-
+          <SectionHeader title="Fund Overview" />
           <Card className="h-full">
             <CardContent>
               <div className="space-y-3">
@@ -119,10 +115,7 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
         </div>
         {/* Asset Allocation */}
         <div>
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Asset Allocation</h2>
-          </div>
-
+          <SectionHeader title="Asset Allocation" />
           <Card className="h-full">
             <CardContent>
               <div className="h-64">
@@ -174,9 +167,7 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
         </div>
         {/* Top Holdings */}
         <div>
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Top Holdings</h2>
-          </div>
+          <SectionHeader title="Top Holdings" />
           <Card>
             <CardContent>
               <div className="overflow-x-auto">
@@ -237,9 +228,7 @@ export default function FundTab({ exchange, tickerSymbol, tickerId }: FundTabPro
         </div>
         {/* Sector Weightings  */}
         <div>
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Sector Weightings</h2>
-          </div>
+          <SectionHeader title="Sector Weightings" />
           <Card>
             <CardContent>
               <div className="h-64 mb-8">
@@ -319,9 +308,3 @@ function DataRow({ label, value }: { label: string; value: string | number | nul
   );
 }
 
-// Helper function to format sector names
-function formatSectorName(name: string): string {
-  return name
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, l => l.toUpperCase());
-}

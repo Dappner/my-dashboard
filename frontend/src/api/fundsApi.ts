@@ -14,6 +14,7 @@ export const fundApi = {
     const { data, error } = await supabase
       .from("fund_top_holdings")
       .select("*")
+      .order("weight", { ascending: false })
       .eq("ticker_id", tickerId);
 
     if (error) throw new Error(`Failed to fetch top holdings: ${error.message}`);
@@ -25,6 +26,7 @@ export const fundApi = {
     const { data, error } = await supabase
       .from("fund_sector_weightings")
       .select("*")
+      .order("weight", { ascending: false })
       .eq("ticker_id", tickerId);
 
     if (error) throw new Error(`Failed to fetch sector weightings: ${error.message}`);
@@ -36,6 +38,7 @@ export const fundApi = {
     const { data, error } = await supabase
       .from("fund_asset_classes")
       .select("*")
+      .order("weight", { ascending: false })
       .eq("ticker_id", tickerId);
 
     if (error) throw new Error(`Failed to fetch asset classes: ${error.message}`);
