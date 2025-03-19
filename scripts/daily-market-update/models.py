@@ -28,11 +28,11 @@ class TickerInfo(BaseModel):
     category: Optional[str] = None
     region: Optional[str] = None
     quote_type: str = Field(default="EQUITY")
-    updated_at: str = Field(default_factory=lambda: datetime.now().isoformat())
     backfill: bool = False
     industry: Optional[str] = None
     sector: Optional[str] = None
     dividend_amount: Optional[float] = None
+    updated_at: str = Field(default_factory=lambda: datetime.now().isoformat())
 
 
 class FinanceData(BaseModel):

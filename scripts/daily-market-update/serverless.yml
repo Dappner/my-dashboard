@@ -7,7 +7,7 @@ provider:
   name: aws
   runtime: python3.10
   region: us-east-1
-  profile: my-dashboard # Add this line
+  profile: my-dashboard
   environment:
     SUPABASE_URL: ${ssm:/daily-market-update/supabase-url}
     SUPABASE_KEY: ${ssm:/daily-market-update/supabase-key}
@@ -22,9 +22,18 @@ provider:
 plugins:
   - serverless-python-requirements
 
-custom:
-  pythonRequirements:
-    dockerizePip: non-linux
+package:
+  individually: true
+  patterns:
+    - "!node_modules/**"
+    - "!tests/**"
+    - "!__pycache__/**"
+    - "!.pytest_cache/**"
+    - "!.git/**"
+    - "!.github/**"
+    - "!.vscode/**"
+    - "!*.dist-info/**"
+    - "!*.egg-info/**"
 
 functions:
   processTickerData:

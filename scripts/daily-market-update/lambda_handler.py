@@ -4,18 +4,19 @@ from config import SUPABASE_URL, SUPABASE_KEY
 from supabase_client import SupabaseClient
 from ticker_fetcher import TickerFetcher
 from ticker_processor import TickerProcessor
-
-logger = logging.getLogger()
+import time
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)],
+    force=True
 )
 logger = logging.getLogger("daily-market-update")
 
 
 def lambda_handler(event, context):
+    event = event or {}  
     logger.info("Starting Lambda execution", extra={"event": event})
     try:
         supabase_client = SupabaseClient(SUPABASE_URL, SUPABASE_KEY).get_client()
@@ -23,11 +24,15 @@ def lambda_handler(event, context):
         ticker_processor = TickerProcessor(supabase_client)
 
         tickers = ticker_fetcher.fetch_tickers()
+        
         if not tickers:
             logger.warning("No tickers found in Supabase")
             return {"statusCode": 400, "body": "No tickers found"}
 
         updates_by_ticker = {}
+
+        start_time = time.time()
+
         for ticker in tickers:
             symbol = ticker["symbol"]
             try:
@@ -36,9 +41,10 @@ def lambda_handler(event, context):
                     updates
                 )  # Convert set to list for JSON serialization
             except Exception as e:
-                logger.error(f"Error processing {ticker['symbol']}: {e}")
+                logger.error(f"Unexpected error processing {symbol}: {e}")
                 updates_by_ticker[symbol] = ["error"]
 
+        logger.info(f"Processing took {time.time() - start_time:.2f} seconds")
         total_updates = sum(len(tables) for tables in updates_by_ticker.values())
 
         summary_lines = []
@@ -73,6 +79,21 @@ def lambda_handler(event, context):
         logger.error(f"Global error: {e}")
         return {"statusCode": 500, "body": f"Internal Server Error: {str(e)}"}
 
+def build_response(tickers, updates_by_ticker):
+    total_updates = sum(len(tables) for tables in updates_by_ticker.values())
+    summary_lines = []
+    for symbol, updates in updates_by_ticker.items():
+        if "error" in updates:
+            summary_lines.append(f"{symbol}: Failed to process due to error")
+        elif updates:
+            summary_lines.append(f"{symbol}: Updated tables - {', '.join(updates)}")
+        else:
+            summary_lines.append(f"{symbol}: No updates performed")
+    summary_text = "\n".join(summary_lines)
+    return (
+        f"Processed {len(tickers)} tickers, updated {total_updates} table entries\n"
+        f"Detailed Updates:\n{summary_text}"
+    )
 
 if __name__ == "__main__":
     result = lambda_handler(None, None)
