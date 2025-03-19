@@ -1,133 +1,311 @@
+import { Holding } from "@/types/holdingsTypes";
 import { PortfolioDailyMetric, Timeframe } from "@/types/portfolioDailyMetricTypes";
-import { TradeView } from "@/types/transactionsTypes"; // Assuming this is the type for transactions
+import { TradeView } from "@/types/transactionsTypes";
 
+// Define interface with JSDoc documentation
 interface PortfolioMetrics {
-  totalPortfolioValue: number;
-  investmentValue: number;
-  cashBalance: number;
-  timeframeChange: number;
-  timeframeChangePercent: number;
-  timeframeReturn: number;
-  timeframeReturnPercent: number;
-  cashPercentage: number;
-  investmentGrowth: number;
-  investmentGrowthPercent: number;
+  /** Current total portfolio value (investments + cash) in USD */
+  currentTotalValue: number;
+  /** Current market value of all investments in USD */
+  currentInvestmentValue: number;
+  /** Current available cash balance in USD */
+  currentCashBalance: number;
+  /** Percentage of portfolio held in cash */
+  currentCashPercentage: number;
+  /** Original cost basis of all investments in USD */
+  currentCostBasis: number;
+  /** Current unrealized profit/loss in USD */
+  currentUnrealizedPL: number;
+
+  /** Dollar change in total portfolio value for the period */
+  periodTotalChange: number;
+  /** Percentage change in total portfolio value for the period */
+  periodTotalChangePercent: number;
+  /** Dollar change in investment value (price appreciation only) */
+  periodInvestmentChange: number;
+  /** Percentage change in investment value (price appreciation only) */
+  periodInvestmentChangePercent: number;
+  /** Unrealized profit/loss for the period in USD */
+  periodUnrealizedPL: number;
+
+  /** Total return including dividends for the period in USD */
+  periodTotalReturn: number;
+  /** Total return percentage including dividends for the period */
+  periodTotalReturnPercent: number;
+  /** Total dividends received during the period in USD */
+  periodDividendsReceived: number;
+
+  /** Annualized volatility (standard deviation of daily returns) */
   volatility: number;
-  ytdDividends?: number; // New KPI
-  dividendYield?: number; // New KPI
+  /** Dividends received in current year in USD */
+  currentYearDividends?: number;
+  /** Current annualized dividend yield percentage */
+  currentDividendYield?: number;
+
+  // Additional metrics
+  /** Highest portfolio value during the period */
+  periodHighValue?: number;
+  /** Lowest portfolio value during the period */
+  periodLowValue?: number;
+  /** Number of transactions in the period */
+  transactionCount?: number;
 }
 
+/**
+ * Calculates comprehensive portfolio metrics based on daily data and transactions
+ * @param dailyMetrics Array of daily portfolio metrics
+ * @param timeframe Selected timeframe for analysis
+ * @param transactions Optional array of portfolio transactions
+ * @param holdings Optional array of current holdings
+ * @returns PortfolioMetrics object containing calculated metrics
+ * @throws Error if critical data is invalid
+ */
 export const calculatePortfolioMetrics = (
   dailyMetrics: PortfolioDailyMetric[],
   timeframe: Timeframe,
-  transactions?: TradeView[], // Optional transactions for dividends
-  holdings?: any[] // Optional holdings for dividend yield
+  transactions: TradeView[] = [],
+  holdings: Holding[] = []
 ): PortfolioMetrics => {
-  if (!dailyMetrics?.length) {
+  // Input validation
+  if (!Array.isArray(dailyMetrics)) {
+    throw new Error('Daily metrics must be an array');
+  }
+
+  if (!dailyMetrics.length) {
+    return getEmptyMetrics();
+  }
+
+  try {
+    // Get start and end data points
+    const currentMetrics = dailyMetrics[dailyMetrics.length - 1];
+    const periodStartMetrics = dailyMetrics[0];
+
+    // Validate dates
+    const startDate = new Date(periodStartMetrics.current_date || '');
+    const endDate = new Date(currentMetrics.current_date || '');
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      throw new Error('Invalid date in metrics data');
+    }
+
+    // Current portfolio state calculations
+    const currentTotalValue = Number(currentMetrics.total_portfolio_value) || 0;
+    const currentInvestmentValue = Number(currentMetrics.portfolio_value) || 0;
+    const currentCashBalance = Number(currentMetrics.cash_balance) || 0;
+    const currentCostBasis = Number(currentMetrics.cost_basis) || 0;
+    const currentCashPercentage = currentTotalValue > 0
+      ? (currentCashBalance / currentTotalValue) * 100
+      : 0;
+    const currentUnrealizedPL = currentInvestmentValue - currentCostBasis;
+
+    // Previous period values
+    const previousTotalValue = Number(periodStartMetrics.total_portfolio_value) || currentTotalValue;
+    const previousInvestmentValue = Number(periodStartMetrics.portfolio_value) || currentInvestmentValue;
+    const previousCostBasis = Number(periodStartMetrics.cost_basis) || currentCostBasis;
+    const previousUnrealizedPL = previousInvestmentValue - previousCostBasis;
+
+    // Period performance calculations
+    const periodTotalChange = currentTotalValue - previousTotalValue;
+    const periodTotalChangePercent = safePercentage(periodTotalChange, previousTotalValue);
+    const periodInvestmentChange = currentInvestmentValue - previousInvestmentValue;
+    const periodInvestmentChangePercent = safePercentage(periodInvestmentChange, previousInvestmentValue);
+
+    // Additional period metrics
+    const periodValues = dailyMetrics.map(m => Number(m.total_portfolio_value) || 0);
+    const periodHighValue = Math.max(...periodValues);
+    const periodLowValue = Math.min(...periodValues);
+
+    // Dividend and return calculations
+    const periodDividendsReceived = calculatePeriodDividends(transactions, startDate, endDate);
+    const transactionCount = calculateTransactionCount(transactions, startDate, endDate);
+
+    let periodTotalReturn: number;
+    let periodTotalReturnPercent: number;
+    let periodUnrealizedPL: number;
+
+    if (timeframe === "ALL") {
+      periodTotalReturn = (currentInvestmentValue - currentCostBasis) + periodDividendsReceived;
+      periodTotalReturnPercent = safePercentage(periodTotalReturn, currentCostBasis);
+      periodUnrealizedPL = currentUnrealizedPL;
+    } else {
+      periodTotalReturn = periodInvestmentChange + periodDividendsReceived;
+      periodTotalReturnPercent = safePercentage(periodTotalReturn, previousInvestmentValue);
+      periodUnrealizedPL = currentUnrealizedPL - previousUnrealizedPL;
+    }
+
+    // Risk and income metrics
+    const volatility = calculateVolatility(dailyMetrics);
+    const currentYearDividends = calculateYearToDateDividends(transactions);
+    const currentDividendYield = calculatePortfolioDividendYield(holdings);
+
     return {
-      totalPortfolioValue: 0,
-      investmentValue: 0,
-      cashBalance: 0,
-      timeframeChange: 0,
-      timeframeChangePercent: 0,
-      timeframeReturn: 0,
-      timeframeReturnPercent: 0,
-      cashPercentage: 0,
-      investmentGrowth: 0,
-      investmentGrowthPercent: 0,
-      volatility: 0,
+      currentTotalValue,
+      currentInvestmentValue,
+      currentCashBalance,
+      currentCashPercentage,
+      currentCostBasis,
+      currentUnrealizedPL,
+      periodTotalChange,
+      periodTotalChangePercent,
+      periodInvestmentChange,
+      periodInvestmentChangePercent,
+      periodUnrealizedPL,
+      periodTotalReturn,
+      periodTotalReturnPercent,
+      periodDividendsReceived,
+      volatility,
+      currentYearDividends,
+      currentDividendYield,
+      periodHighValue,
+      periodLowValue,
+      transactionCount
     };
+  } catch (error) {
+    console.error('Error calculating portfolio metrics:', error);
+    return getEmptyMetrics();
   }
-
-  // Current (latest) and first metrics
-  const currentMetrics = dailyMetrics[dailyMetrics.length - 1];
-  const firstMetrics = dailyMetrics[0];
-
-  const totalPortfolioValue = Number(currentMetrics.total_portfolio_value || 0);
-  const investmentValue = Number(currentMetrics.portfolio_value || 0);
-  const cashBalance = Number(currentMetrics.cash_balance || 0);
-  const portfolioCostBasis = Number(currentMetrics.cost_basis || 0);
-
-  const previousTotalPortfolioValue = Number(firstMetrics.total_portfolio_value || totalPortfolioValue);
-  const previousInvestmentValue = Number(firstMetrics.portfolio_value || investmentValue);
-  const previousCashBalance = Number(firstMetrics.cash_balance || cashBalance);
-
-  // Timeframe-dependent change (total portfolio, including cash)
-  const timeframeChange = totalPortfolioValue - previousTotalPortfolioValue;
-  const timeframeChangePercent = previousTotalPortfolioValue > 0
-    ? (timeframeChange / previousTotalPortfolioValue) * 100
-    : 0;
-
-  // Timeframe-dependent return (investment only) (TODO: Fix)
-  let timeframeReturn: number;
-  let timeframeReturnPercent: number;
-  if (timeframe === "ALL") {
-    timeframeReturn = investmentValue - portfolioCostBasis;
-    timeframeReturnPercent = portfolioCostBasis > 0
-      ? (timeframeReturn / portfolioCostBasis) * 100
-      : 0;
-  } else {
-    timeframeReturn = investmentValue - previousInvestmentValue;
-    timeframeReturnPercent = previousInvestmentValue > 0
-      ? (timeframeReturn / previousInvestmentValue) * 100
-      : 0;
-  }
-
-  // Cash percentage
-  const cashPercentage = totalPortfolioValue > 0
-    ? (cashBalance / totalPortfolioValue) * 100
-    : 0;
-
-  // Investment Growth (net of cash changes over the timeframe)
-  const cashChange = cashBalance - previousCashBalance;
-  const investmentGrowth = (totalPortfolioValue - cashBalance) - (previousTotalPortfolioValue - previousCashBalance);
-  const investmentGrowthPercent = previousInvestmentValue > 0
-    ? (investmentGrowth / previousInvestmentValue) * 100
-    : 0;
-
-  // Volatility
-  const volatility = calculateVolatility(dailyMetrics);
-
-  // YTD Dividends (requires transactions)
-  const currentYear = new Date().getFullYear();
-  const ytdDividends = transactions
-    ?.filter((t) => t.transaction_type === "dividend" && new Date(t.transaction_date!).getFullYear() === currentYear)
-    ?.reduce((sum, t) => sum + (t.gross_transaction_amount || 0), 0) || 0;
-
-  // Dividend Yield (portfolio-wide average, requires holdings)
-  const dividendYield = holdings?.length
-    ? holdings.reduce((sum, h) => sum + (h.market_dividend_yield_percent || 0), 0) / holdings.length
-    : 0;
-
-  return {
-    totalPortfolioValue,
-    investmentValue,
-    cashBalance,
-    timeframeChange,
-    timeframeChangePercent,
-    timeframeReturn,
-    timeframeReturnPercent,
-    cashPercentage,
-    investmentGrowth,
-    investmentGrowthPercent,
-    volatility,
-    ytdDividends,
-    dividendYield,
-  };
 };
 
-// Calculate volatility (standard deviation of daily investment returns)
+/**
+ * Safely calculates percentage change avoiding division by zero
+ * @param change Change amount
+ * @param base Base amount
+ * @returns Percentage change
+ */
+const safePercentage = (change: number, base: number): number =>
+  base > 0 ? (change / base) * 100 : 0;
+
+/**
+ * Calculates total dividends received in a period
+ * @param transactions Array of transactions
+ * @param startDate Start of period
+ * @param endDate End of period
+ * @returns Total dividends in USD
+ */
+const calculatePeriodDividends = (
+  transactions: TradeView[],
+  startDate: Date,
+  endDate: Date
+): number => {
+  if (!transactions.length || !startDate || !endDate) return 0;
+
+  return transactions
+    .filter(t => {
+      const txDate = new Date(t.transaction_date || '');
+      return t.transaction_type === 'dividend' &&
+        !isNaN(txDate.getTime()) &&
+        txDate >= startDate &&
+        txDate <= endDate;
+    })
+    .reduce((sum, t) => sum + (Number(t.gross_transaction_amount) || 0), 0);
+};
+
+/**
+ * Calculates number of transactions in a period
+ * @param transactions Array of transactions
+ * @param startDate Start of period
+ * @param endDate End of period
+ * @returns Number of transactions
+ */
+const calculateTransactionCount = (
+  transactions: TradeView[],
+  startDate: Date,
+  endDate: Date
+): number => {
+  if (!transactions.length || !startDate || !endDate) return 0;
+
+  return transactions.filter(t => {
+    const txDate = new Date(t.transaction_date || '');
+    return !isNaN(txDate.getTime()) &&
+      txDate >= startDate &&
+      txDate <= endDate;
+  }).length;
+};
+
+/**
+ * Calculates year-to-date dividends
+ * @param transactions Array of transactions
+ * @returns Total YTD dividends in USD
+ */
+const calculateYearToDateDividends = (transactions: TradeView[]): number => {
+  if (!transactions.length) return 0;
+
+  const currentYear = new Date().getFullYear();
+  return transactions
+    .filter(t => {
+      const txDate = new Date(t.transaction_date || '');
+      return t.transaction_type === "dividend" &&
+        !isNaN(txDate.getTime()) &&
+        txDate.getFullYear() === currentYear;
+    })
+    .reduce((sum, t) => sum + (Number(t.gross_transaction_amount) || 0), 0);
+};
+
+/**
+ * Calculates weighted average dividend yield of portfolio
+ * @param holdings Array of current holdings
+ * @returns Average dividend yield percentage
+ */
+const calculatePortfolioDividendYield = (holdings: Holding[]): number => {
+  if (!holdings.length) return 0;
+
+  const totalValue = holdings.reduce((sum, h) =>
+    sum + (Number(h.current_market_value) || 0), 0);
+
+  if (totalValue === 0) return 0;
+
+  return holdings.reduce((sum, holding) => {
+    const weight = (Number(holding.current_market_value) || 0) / totalValue;
+    const yieldPercent = Number(holding.market_dividend_yield_percent) || 0;
+    return sum + (yieldPercent * weight);
+  }, 0);
+};
+
+/**
+ * Calculates annualized volatility using daily returns
+ * @param metrics Array of daily portfolio metrics
+ * @returns Annualized standard deviation of returns
+ */
 const calculateVolatility = (metrics: PortfolioDailyMetric[]): number => {
   if (metrics.length < 2) return 0;
 
   const dailyReturns = metrics.slice(1).map((current, index) => {
     const previous = metrics[index];
-    const prevValue = Number(previous.portfolio_value || 0);
-    const currValue = Number(current.portfolio_value || 0);
-    return prevValue > 0 ? ((currValue - prevValue) / prevValue) * 100 : 0;
+    const prevValue = Number(previous.portfolio_value) || 0;
+    const currValue = Number(current.portfolio_value) || 0;
+    return safePercentage(currValue - prevValue, prevValue);
   });
 
   const mean = dailyReturns.reduce((sum, val) => sum + val, 0) / dailyReturns.length;
-  const variance = dailyReturns.reduce((sum, val) => sum + (val - mean) ** 2, 0) / dailyReturns.length;
-  return Math.sqrt(variance);
+  const variance = dailyReturns.reduce((sum, val) =>
+    sum + Math.pow(val - mean, 2), 0) / dailyReturns.length;
+
+  // Annualize volatility (assuming 252 trading days)
+  return Math.sqrt(variance) * Math.sqrt(252);
 };
+
+/**
+ * Returns default empty metrics object
+ * @returns PortfolioMetrics with all values initialized to zero
+ */
+const getEmptyMetrics = (): PortfolioMetrics => ({
+  currentTotalValue: 0,
+  currentInvestmentValue: 0,
+  currentCashBalance: 0,
+  currentCashPercentage: 0,
+  currentCostBasis: 0,
+  currentUnrealizedPL: 0,
+  periodTotalChange: 0,
+  periodTotalChangePercent: 0,
+  periodInvestmentChange: 0,
+  periodInvestmentChangePercent: 0,
+  periodUnrealizedPL: 0,
+  periodTotalReturn: 0,
+  periodTotalReturnPercent: 0,
+  periodDividendsReceived: 0,
+  volatility: 0,
+  currentYearDividends: 0,
+  currentDividendYield: 0,
+  periodHighValue: 0,
+  periodLowValue: 0,
+  transactionCount: 0
+});

@@ -9,9 +9,30 @@ import { NavUser } from "./nav-user";
 import { Button } from "@/components/ui/button";
 import { Bell } from "lucide-react";
 import { Link } from "react-router";
+import { useEffect, useRef } from "react";
 
 export function AppSidebar() {
-  const { isMobile, state } = useSidebar();
+  const { isMobile, state, toggleSidebar } = useSidebar();
+
+  const hasLoaded = useRef(false);
+
+  // Load initial state from localStorage only once on mount
+  useEffect(() => {
+    if (!isMobile && !hasLoaded.current) {
+      const savedState = localStorage.getItem("sidebarState") as "expanded" | "collapsed" | null;
+      if (savedState && savedState !== state) {
+        toggleSidebar();
+      }
+      hasLoaded.current = true;
+    }
+  }, [isMobile, toggleSidebar, state]); // Dependencies included but effect only runs once
+
+  // Save state to localStorage when it changes
+  useEffect(() => {
+    if (!isMobile && hasLoaded.current) {
+      localStorage.setItem("sidebarState", state);
+    }
+  }, [state, isMobile]);
 
   return (
     <Sidebar collapsible="icon">
@@ -34,7 +55,8 @@ export function AppSidebar() {
               Alerts
             </span>
           </Button>
-        </Link>        <NavUser />
+        </Link>
+        <NavUser />
       </SidebarFooter>
     </Sidebar >
   )

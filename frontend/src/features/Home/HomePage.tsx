@@ -11,16 +11,17 @@ export default function HomePage() {
       <Card key={i} className="h-32 animate-pulse bg-gray-200" />
     ));
   }
-  const metrics = calculatePortfolioMetrics(dailyMetrics);
+  const metrics = calculatePortfolioMetrics(dailyMetrics, "ALL");
 
+  console.log(metrics);
   return (
     <div>
       <KpiCard
         title="Total Portfolio Value"
-        value={`$${metrics.totalPortfolioValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-        changePercent={metrics.timeframeChangePercent}
+        value={`$${metrics.currentTotalValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+        changePercent={metrics.periodTotalChangePercent}
         icon={TrendingUp}
-        positiveChange={metrics.timeframeChange >= 0}
+        positiveChange={metrics.periodInvestmentChange >= 0}
       />
     </div>
   )

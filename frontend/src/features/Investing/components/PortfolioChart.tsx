@@ -106,13 +106,13 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
       ? Number(firstValidIndexPrice.close_price)
       : sortedHistoricalPrices[0]?.close_price || 1;
 
-    console.log({
-      firstDateString,
-      baselinePortfolio,
-      baselineIndex,
-      historicalPricesLength: historicalPrices?.length,
-      firstHistoricalDate: sortedHistoricalPrices[0]?.date
-    });
+    // console.log({
+    //   firstDateString,
+    //   baselinePortfolio,
+    //   baselineIndex,
+    //   historicalPricesLength: historicalPrices?.length,
+    //   firstHistoricalDate: sortedHistoricalPrices[0]?.date
+    // });
 
     return sortedMetrics.map((val) => {
       const dateString = val.current_date?.split("T")[0];

@@ -37,9 +37,7 @@ export default function InvestingPage() {
       </header>
 
       {/* KPIs Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <PortfolioKpis timeframe={timeframe} />
-      </div>
+      <PortfolioKpis timeframe={timeframe} />
 
       {/* Main Content Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

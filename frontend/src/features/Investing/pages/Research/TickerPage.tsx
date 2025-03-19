@@ -14,6 +14,7 @@ export default function TickerPage() {
 
   const latestPrice = yhFinanceData?.regular_market_price;
 
+  console.log(yhFinanceData?.updated_at)
 
   return (
     <div className="space-y-6 p-4 relative">

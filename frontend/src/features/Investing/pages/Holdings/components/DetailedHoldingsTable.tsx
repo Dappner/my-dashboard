@@ -55,7 +55,7 @@ export default function DetailedHoldingsTable() {
               >
                 <TableCell className="font-medium text-gray-900">{holding.symbol}</TableCell>
                 <TableCell className="text-right">
-                  ${holding.shares?.toFixed(2)}
+                  {holding.shares?.toFixed(2)}
                 </TableCell>
                 <TableCell>${holding.current_market_value?.toFixed(2)}</TableCell>
                 <TableCell>{getWeight(holding)}%</TableCell>

@@ -9,14 +9,6 @@ from src.core.util import get_value
 logger = setup_logging(name="data_saver")
 
 
-def should_update(
-        last_update_date: Optional[date], threshold_days: int = 1
-) -> bool:
-    if not last_update_date:
-        return True
-    return (date.today() - last_update_date).days >= threshold_days
-
-
 class DataSaver:
     def __init__(self, supabase_client):
         self.supabase = supabase_client
@@ -50,6 +42,13 @@ class DataSaver:
                 f"Failed to get last update date for ticker {ticker_id} in {table_name}: {e}"
             )
             return None
+
+    def should_update(
+            self, last_update_date: Optional[date], threshold_days: int = 1
+    ) -> bool:
+        if not last_update_date:
+            return True
+        return (date.today() - last_update_date).days >= threshold_days
 
     def save_price_data(self, ticker_id: str, symbol: str, data: pd.DataFrame) -> int:
         if data is None or data.empty:

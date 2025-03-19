@@ -57,8 +57,6 @@ export default function HoldingsTable() {
                 >
                   {holding.unrealized_gain_loss_percent?.toFixed(2)}%
                 </TableCell>
-
-
               </TableRow>
             ))}
           </TableBody>

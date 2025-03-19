@@ -1,61 +1,95 @@
 import { Card } from "@/components/ui/card";
-import { ArrowDown, ArrowUp, TrendingUp, DollarSign } from "lucide-react";
+import { ArrowDown, ArrowUp, TrendingUp, DollarSign, Percent } from "lucide-react";
 import { usePortfolioDailyMetrics } from '../hooks/usePortfolioDailyMetrics';
-import useUser from '@/hooks/useUser';
 import KpiCard from "@/components/customs/KpiCard";
 import { calculatePortfolioMetrics } from "@/services/portfolioMetrics";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
+import { useTransactions } from "../hooks/useTransactions";
+import { useHoldings } from "../hooks/useHoldings";
 
 interface PortfolioKpisProps {
   timeframe: Timeframe;
 }
 
 export default function PortfolioKpis({ timeframe }: PortfolioKpisProps) {
-  const { dailyMetrics, isLoading } = usePortfolioDailyMetrics(timeframe);
-  const { user } = useUser();
+  const { dailyMetrics, isLoading: metricsLoading, error: metricsError } = usePortfolioDailyMetrics(timeframe);
+  const { transactions, isLoading: transactionsLoading } = useTransactions();
+  const { holdings, isLoading: holdingsLoading } = useHoldings();
 
-  if (isLoading || !dailyMetrics) {
-    return Array(4)
-      .fill(0)
-      .map((_, i) => <Card key={i} className="h-32 animate-pulse bg-gray-200" />);
+  const isLoading = metricsLoading || transactionsLoading || holdingsLoading;
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {Array(5).fill(0).map((_, i) => (
+          <Card key={i} className="h-32 animate-pulse bg-gray-200" />
+        ))}
+      </div>
+    );
   }
 
-  const metrics = calculatePortfolioMetrics(dailyMetrics, timeframe);
+  if (metricsError || !dailyMetrics) {
+    return (
+      <div className="text-red-600 text-center">
+        Error loading portfolio data: {metricsError?.message || 'Unknown error'}
+      </div>
+    );
+  }
+
+  const metrics = calculatePortfolioMetrics(dailyMetrics, timeframe, transactions, holdings);
+
+  const formatCurrency = (value: number): string =>
+    `$${value.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
 
   return (
-    <>
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
       <KpiCard
         title="Total Portfolio Value"
-        value={`$${metrics.totalPortfolioValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-        changePercent={metrics.timeframeChangePercent}
+        value={formatCurrency(metrics.currentTotalValue)}
+        changePercent={metrics.periodTotalChangePercent}
         icon={TrendingUp}
-        positiveChange={metrics.timeframeChange >= 0}
-        additionalInfo={`Over ${timeframe}`}
+        positiveChange={metrics.periodTotalChange >= 0}
+        additionalInfo={`Growth: ${metrics.periodTotalChange >= 0 ? '+' : ''}${formatCurrency(metrics.periodTotalChange)}`}
+        tooltip={`Total value change over ${timeframe}`}
       />
       <KpiCard
-        title="Investment Return"
-        value={`${metrics.timeframeReturn >= 0 ? '+' : '-'}$${Math.abs(metrics.timeframeReturn).toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-        changePercent={metrics.timeframeReturnPercent}
-        icon={metrics.timeframeReturn >= 0 ? ArrowUp : ArrowDown}
-        positiveChange={metrics.timeframeReturn >= 0}
+        title="Unrealized P/L"
+        value={`${metrics.currentUnrealizedPL >= 0 ? '+' : ''}${formatCurrency(metrics.currentUnrealizedPL)}`}
+        changePercent={metrics.periodTotalReturnPercent}
+        icon={metrics.currentUnrealizedPL >= 0 ? ArrowUp : ArrowDown}
+        positiveChange={metrics.currentUnrealizedPL >= 0}
         additionalInfo={`Over ${timeframe}`}
+        tooltip="Current unrealized profit/loss including dividends"
       />
       <KpiCard
-        title="Investment Growth"
-        value={`${metrics.investmentGrowth >= 0 ? '+' : '-'}$${Math.abs(metrics.investmentGrowth).toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-        changePercent={metrics.investmentGrowthPercent}
-        icon={metrics.investmentGrowth >= 0 ? ArrowUp : ArrowDown}
-        positiveChange={metrics.investmentGrowth >= 0}
+        title="Price Appreciation"
+        value={`${metrics.periodInvestmentChange >= 0 ? '+' : ''}${formatCurrency(metrics.periodInvestmentChange)}`}
+        changePercent={metrics.periodInvestmentChangePercent}
+        icon={metrics.periodInvestmentChange >= 0 ? ArrowUp : ArrowDown}
+        positiveChange={metrics.periodInvestmentChange >= 0}
         additionalInfo={`Over ${timeframe}`}
+        tooltip="Change in investment value excluding dividends"
+      />
+      <KpiCard
+        title="Dividends Received"
+        value={formatCurrency(metrics.periodDividendsReceived)}
+        icon={Percent}
+        positiveChange={true}
+        additionalInfo={`Over ${timeframe}`}
+        tooltip="Total dividends received in selected timeframe"
       />
       <KpiCard
         title="Cash Balance"
-        value={`$${(user?.cash_balance || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-        percent={metrics.cashPercentage}
+        value={formatCurrency(metrics.currentCashBalance)}
+        percent={metrics.currentCashPercentage}
         icon={DollarSign}
         percentOnly
-        additionalInfo="Current"
+        additionalInfo="of portfolio"
+        tooltip="Current cash position and percentage of total portfolio"
       />
-    </>
+    </div>
   );
 }

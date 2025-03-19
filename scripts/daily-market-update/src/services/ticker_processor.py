@@ -40,8 +40,8 @@ class TickerProcessor:
         if (
                 backfill
                 or start_date <= today
-                or should_update(last_finance_update)
-                or should_update(last_calendar_update)
+                or self.data_saver.should_update(last_finance_update)
+                or self.data_saver.should_update(last_calendar_update)
         ):
             data, info, yf_ticker = self.data_fetcher.fetch_stock_data(
                 symbol, exchange, start_date, end_date
@@ -50,7 +50,7 @@ class TickerProcessor:
                 if self.data_saver.save_price_data(ticker_id, symbol, data):
                     updates.add("historical_prices")
             if (
-                    backfill or should_update(last_finance_update)
+                    backfill or self.data_saver.should_update(last_finance_update)
             ) and info:
                 if self.data_saver.update_ticker_info(
                         ticker_id, symbol, info, backfill
@@ -63,7 +63,7 @@ class TickerProcessor:
                     updates.update(self.process_fund_data(ticker_id, symbol, yf_ticker))
 
             if (
-                    backfill or should_update(last_calendar_update)
+                    backfill or self.data_saver.should_update(last_calendar_update)
             ) and yf_ticker:
                 if self.data_saver.save_calendar_events(ticker_id, symbol, yf_ticker):
                     updates.add("calendar_events")

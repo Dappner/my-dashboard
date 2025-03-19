@@ -12,41 +12,39 @@ import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 interface PortfolioInsightsWidgetProps {
   timeframe: Timeframe;
 }
+
 export default function PortfolioInsightsWidget({ timeframe }: PortfolioInsightsWidgetProps) {
-  // Fetch data
   const { holdings, isLoading: holdingsLoading } = useHoldings();
-  const { dailyMetrics: ytdMetrics, isLoading: ytdLoading } = usePortfolioDailyMetrics(timeframe);
+  const { dailyMetrics: periodMetrics, isLoading: metricsLoading } = usePortfolioDailyMetrics(timeframe);
   const { transactions, isLoading: transactionsLoading } = useTransactions();
   const { events, isLoading: eventsLoading } = useCalendarEvents(5);
 
-  // Calculate portfolio metrics for YTD
-  const metrics = calculatePortfolioMetrics(ytdMetrics || [], timeframe, transactions, holdings);
+  const metrics = calculatePortfolioMetrics(periodMetrics || [], timeframe, transactions, holdings);
 
   // Best and Worst Performers from holdings
   const bestPerformer = holdings?.reduce(
-    (max, h) => (h.unrealized_gain_loss_percent > max.value ? { value: h.unrealized_gain_loss_percent, symbol: h.symbol } : max),
+    (max, h) => (h.unrealized_gain_loss_percent! > max.value ? { value: h.unrealized_gain_loss_percent!, symbol: h.symbol! } : max),
     { value: -Infinity, symbol: "" }
   );
   const worstPerformer = holdings?.reduce(
-    (min, h) => (h.unrealized_gain_loss_percent < min.value ? { value: h.unrealized_gain_loss_percent, symbol: h.symbol } : min),
+    (min, h) => (h.unrealized_gain_loss_percent! < min.value ? { value: h.unrealized_gain_loss_percent!, symbol: h.symbol! } : min),
     { value: Infinity, symbol: "" }
   );
 
-  // Next Dividend Event
   const nextDividendEvent = events?.find((e) => e.event_type === "dividend" && new Date(e.date) > new Date());
 
-  const isLoading = holdingsLoading || ytdLoading || transactionsLoading || eventsLoading;
+  const isLoading = holdingsLoading || metricsLoading || transactionsLoading || eventsLoading;
 
   if (isLoading) {
     return <div>Loading portfolio insights...</div>;
   }
 
   // Allocation (Stocks, Cash, and placeholder for Bonds)
-  const stocksPercent = metrics.totalPortfolioValue > 0
-    ? (metrics.investmentValue / metrics.totalPortfolioValue) * 100
+  const stocksPercent = metrics.currentTotalValue > 0
+    ? (metrics.currentInvestmentValue / metrics.currentTotalValue) * 100
     : 0;
-  const cashPercent = metrics.cashPercentage;
-  const bondsPercent = 0; // Placeholder; integrate fund_asset_classes if bonds are tracked
+  const cashPercent = metrics.currentCashPercentage;
+  const bondsPercent = 0;
 
   return (
     <Card>
@@ -73,9 +71,9 @@ export default function PortfolioInsightsWidget({ timeframe }: PortfolioInsights
                 <span className="text-red-600 font-semibold">{worstPerformer?.value.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">YTD Return</span>
-                <span className={`font-semibold ${metrics.timeframeReturnPercent >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-                  {metrics.timeframeReturnPercent >= 0 ? "+" : ""}{metrics.timeframeReturnPercent.toFixed(1)}%
+                <span className="text-sm font-medium">{timeframe} Return</span>
+                <span className={`font-semibold ${metrics.periodTotalReturnPercent >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                  {metrics.periodTotalReturnPercent >= 0 ? "+" : ""}{metrics.periodTotalReturnPercent.toFixed(1)}%
                 </span>
               </div>
             </div>
@@ -112,12 +110,12 @@ export default function PortfolioInsightsWidget({ timeframe }: PortfolioInsights
           <TabsContent value="dividends" className="pt-4">
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">YTD Dividends</span>
-                <span className="font-semibold">${metrics.ytdDividends?.toFixed(2) || "0.00"}</span>
+                <span className="text-sm font-medium">Current Year Dividends</span>
+                <span className="font-semibold">${metrics.currentYearDividends?.toFixed(2) || "0.00"}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Dividend Yield</span>
-                <span className="font-semibold">{metrics.dividendYield?.toFixed(1) || "0.0"}%</span>
+                <span className="font-semibold">{metrics.currentDividendYield?.toFixed(1) || "0.0"}%</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Next Payment</span>

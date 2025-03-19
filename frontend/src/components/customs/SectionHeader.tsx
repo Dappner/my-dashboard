@@ -10,7 +10,7 @@ export default function SectionHeader({ title, linkTo, linkText }: {
     <div className="flex justify-between items-center mb-2 h-8" >
       <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
       {linkTo && linkText && (
-        <Link to={linkTo} className="text-sm text-blue-600 flex items-center hover:underline">
+        <Link to={linkTo} viewTransition className="text-sm text-blue-600 flex items-center hover:underline">
           {linkText} <ChevronRight className="h-4 w-4" />
         </Link>
       )}
