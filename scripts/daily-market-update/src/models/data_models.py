@@ -1,7 +1,12 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, ConfigDict
 from datetime import datetime, date
 from typing import Optional, List, Dict
 import pandas as pd
+
+model_config = ConfigDict(
+    arbitrary_types_allowed=True,
+    extra="forbid"  # Prevents unexpected fields
+)
 
 
 class PriceData(BaseModel):

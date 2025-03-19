@@ -16,5 +16,8 @@ var/
 .installed.cfg
 *.egg
 
+# File used for mock tests
+tests/aapl_yfinance_data.pkl
+tests/spy_yfinance_data.pkl
 # Serverless directories
 .serverless

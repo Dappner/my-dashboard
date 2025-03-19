@@ -37,7 +37,7 @@ package:
 
 functions:
   processTickerData:
-    handler: lambda_handler.lambda_handler
+    handler: src.lambda_handler.lambda_handler
     events:
       # 5:30 PM ET (after NYSE close)
       - schedule:

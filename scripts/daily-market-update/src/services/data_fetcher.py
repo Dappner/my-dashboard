@@ -1,10 +1,9 @@
 import yfinance as yf
-import logging
 from datetime import date, timedelta
+from src.core.logging_config import setup_logging
 
-logger = logging.getLogger(__name__)
 
-
+logger = setup_logging(name="ticker_processor")
 class DataFetcher:
     def __init__(self):
         self.exchange_map = {

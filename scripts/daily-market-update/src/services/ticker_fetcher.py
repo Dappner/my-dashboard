@@ -1,7 +1,7 @@
-import logging
+from src.core.logging_config import setup_logging
 
-logger = logging.getLogger(__name__)
 
+logger = setup_logging(name="ticker_fetcher")
 
 class TickerFetcher:
     def __init__(self, supabase_client):

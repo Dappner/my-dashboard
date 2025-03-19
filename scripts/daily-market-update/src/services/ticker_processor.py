@@ -1,9 +1,10 @@
-import logging
 from datetime import date, timedelta
-from data_fetcher import DataFetcher
-from data_saver import DataSaver
+from src.services.data_fetcher import DataFetcher
+from src.services.data_saver import DataSaver
+from src.core.logging_config import setup_logging
 
-logger = logging.getLogger(__name__)
+
+logger = setup_logging(name="ticker_processor")
 
 
 class TickerProcessor:
@@ -37,10 +38,10 @@ class TickerProcessor:
             f"Processing {symbol}, lpu: {last_price_update}, lfu: {last_finance_update}, lcu: {last_calendar_update}"
         )
         if (
-            backfill
-            or start_date <= today
-            or self.data_saver.should_update(last_finance_update)
-            or self.data_saver.should_update(last_calendar_update)
+                backfill
+                or start_date <= today
+                or should_update(last_finance_update)
+                or should_update(last_calendar_update)
         ):
             data, info, yf_ticker = self.data_fetcher.fetch_stock_data(
                 symbol, exchange, start_date, end_date
@@ -49,10 +50,10 @@ class TickerProcessor:
                 if self.data_saver.save_price_data(ticker_id, symbol, data):
                     updates.add("historical_prices")
             if (
-                backfill or self.data_saver.should_update(last_finance_update)
+                    backfill or should_update(last_finance_update)
             ) and info:
                 if self.data_saver.update_ticker_info(
-                    ticker_id, symbol, info, backfill
+                        ticker_id, symbol, info, backfill
                 ):
                     updates.add("tickers")
                 if self.data_saver.save_finance_data(ticker_id, symbol, info):
@@ -62,7 +63,7 @@ class TickerProcessor:
                     updates.update(self.process_fund_data(ticker_id, symbol, yf_ticker))
 
             if (
-                backfill or self.data_saver.should_update(last_calendar_update)
+                    backfill or should_update(last_calendar_update)
             ) and yf_ticker:
                 if self.data_saver.save_calendar_events(ticker_id, symbol, yf_ticker):
                     updates.add("calendar_events")

@@ -1,7 +1,8 @@
 from supabase import create_client
-import logging
+from src.core.logging_config import setup_logging
 
-logger = logging.getLogger(__name__)
+
+logger = setup_logging(name="ticker_processor")
 
 
 class SupabaseClient:
