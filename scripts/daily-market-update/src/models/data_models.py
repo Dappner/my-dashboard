@@ -5,7 +5,7 @@ import pandas as pd
 
 model_config = ConfigDict(
     arbitrary_types_allowed=True,
-    extra="forbid"  # Prevents unexpected fields
+    extra="forbid",  # Prevents unexpected fields
 )
 
 
