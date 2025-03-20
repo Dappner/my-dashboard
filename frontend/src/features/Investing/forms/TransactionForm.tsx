@@ -14,10 +14,21 @@ import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { InsertTransaction, UpdateTransaction } from "@/types/transactionsTypes";
+import {
+  InsertTransaction,
+  UpdateTransaction,
+} from "@/types/transactionsTypes";
 import { useTransactions } from "../hooks/useTransactions";
-import { tickersApiKeys, tickersApi } from "@/api/tickersApi";
-import { TransactionTypeSelect, TickerSelect, AmountField, PriceField, FeeField, DateField, NoteField } from "./FormControls";
+import { tickersApi, tickersApiKeys } from "@/api/tickersApi";
+import {
+  AmountField,
+  DateField,
+  FeeField,
+  NoteField,
+  PriceField,
+  TickerSelect,
+  TransactionTypeSelect,
+} from "./FormControls";
 
 const cleanEmptyStrings = (obj: any) => {
   const cleaned = { ...obj };
@@ -28,6 +39,7 @@ const cleanEmptyStrings = (obj: any) => {
   }
   return cleaned;
 };
+
 export const transactionFormSchema = z.object({
   ticker_id: z.string().optional(),
   transaction_type: z.enum(["buy", "sell", "dividend", "deposit", "withdraw"], {
@@ -35,12 +47,14 @@ export const transactionFormSchema = z.object({
   }),
   shares: z.coerce.number().positive("Amount must be positive").optional(),
   price_per_share: z.coerce.number().optional(), // Made optional, no positivity requirement by default
-  transaction_fee: z.coerce.number().min(0, "Fee cannot be negative").default(0),
+  transaction_fee: z.coerce.number().min(0, "Fee cannot be negative").default(
+    0,
+  ),
   transaction_date: z.date({
     required_error: "Transaction date is required",
   }),
   note_text: z.string().optional(),
-  is_dividend_reinvestment: z.boolean().default(false)
+  is_dividend_reinvestment: z.boolean().default(false),
 }).refine(
   (data) => {
     if (["buy", "sell", "dividend"].includes(data.transaction_type)) {
@@ -54,7 +68,7 @@ export const transactionFormSchema = z.object({
   {
     message: "Required fields are missing based on transaction type",
     path: ["transaction_type"],
-  }
+  },
 );
 
 export type TransactionFormValues = z.infer<typeof transactionFormSchema>;
@@ -80,24 +94,25 @@ export function TransactionForm({
 }: TransactionFormProps) {
   const { user } = useAuthContext();
   const mode = tradeId ? "update" : "create";
+
   const tickersQuery = useQuery({
     queryKey: tickersApiKeys.all,
     queryFn: tickersApi.getTickers,
   });
 
-  const { updateTransaction, isUpdating, isAdding, addTransaction
-  } = useTransactions({
-    onAddSuccess: () => {
-      onClose();
-    },
-    onUpdateSuccess: () => {
-      onClose();
-    },
-    onError: (err) => {
-      console.error("Transaction error:", err); // Log error for debugging
-      onClose();
-    },
-  });
+  const { updateTransaction, isUpdating, isAdding, addTransaction } =
+    useTransactions({
+      onAddSuccess: () => {
+        onClose();
+      },
+      onUpdateSuccess: () => {
+        onClose();
+      },
+      onError: (err) => {
+        console.error("Transaction error:", err); // Log error for debugging
+        onClose();
+      },
+    });
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionFormSchema),
@@ -123,115 +138,125 @@ export function TransactionForm({
     }
   };
 
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-4">
-        {/* Transaction Type - Full Width at the Top */}
-        <FormField
-          control={form.control}
-          name="transaction_type"
-          render={({ field }) => <TransactionTypeSelect field={field} />}
-        />
+      <div className="h-full flex flex-col">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="px-4 space-y-6 pb-4 overflow-y-auto flex-1"
+        >
+          {/* Transaction Type - Full Width at the Top */}
+          <FormField
+            control={form.control}
+            name="transaction_type"
+            render={({ field }) => <TransactionTypeSelect field={field} />}
+          />
 
-        {/* Fields for Trade Transactions */}
-        {!isCashTransaction && (
+          {/* Fields for Trade Transactions */}
+          {!isCashTransaction && (
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="ticker_id"
+                render={({ field }) => (
+                  <TickerSelect
+                    field={field}
+                    isLoading={tickersQuery.isLoading}
+                    tickers={tickersQuery.data}
+                  />
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="shares"
+                render={({ field }) => (
+                  <AmountField field={field} label="Shares *" />
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="price_per_share"
+                render={({ field }) => <PriceField field={field} />}
+              />
+              <FormField
+                control={form.control}
+                name="transaction_fee"
+                render={({ field }) => <FeeField field={field} />}
+              />
+            </div>
+          )}
+
+          {/* Fields for Cash Transactions */}
+          {isCashTransaction && (
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="shares"
+                render={({ field }) => (
+                  <AmountField field={field} label="Amount *" />
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="transaction_fee"
+                render={({ field }) => <FeeField field={field} />}
+              />
+            </div>
+          )}
+
+          {/* Common Fields for All Transactions */}
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="ticker_id"
+              name="transaction_date"
+              render={({ field }) => <DateField field={field} />}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="note_text"
+            render={({ field }) => <NoteField field={field} />}
+          />
+          {transactionType === "buy" && (
+            <FormField
+              control={form.control}
+              name="is_dividend_reinvestment"
               render={({ field }) => (
-                <TickerSelect field={field} isLoading={tickersQuery.isLoading} tickers={tickersQuery.data} />
+                <FormItem className="flex items-center space-x-2">
+                  <FormLabel>Dividend Reinvestment</FormLabel>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="shares"
-              render={({ field }) => <AmountField field={field} label="Shares *" />}
-            />
-            <FormField
-              control={form.control}
-              name="price_per_share"
-              render={({ field }) => <PriceField field={field} />}
-            />
-            <FormField
-              control={form.control}
-              name="transaction_fee"
-              render={({ field }) => <FeeField field={field} />}
-            />
-          </div>
-        )}
+          )}
+        </form>
 
-        {/* Fields for Cash Transactions */}
-        {isCashTransaction && (
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="shares"
-              render={({ field }) => <AmountField field={field} label="Amount *" />}
-            />
-            <FormField
-              control={form.control}
-              name="transaction_fee"
-              render={({ field }) => <FeeField field={field} />}
-            />
+        <div className="sticky bottom-0 bg-white p-4 border-t">
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isAdding || isUpdating}>
+              {isAdding || isUpdating
+                ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                )
+                : mode === "update"
+                ? "Update Transaction"
+                : "Add Transaction"}
+            </Button>
           </div>
-        )}
-
-        {/* Common Fields for All Transactions */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="transaction_date"
-            render={({ field }) => <DateField field={field} />}
-          />
         </div>
-
-        <FormField
-          control={form.control}
-          name="note_text"
-          render={({ field }) => <NoteField field={field} />}
-        />
-        {transactionType === "buy" && (
-          <FormField
-            control={form.control}
-            name="is_dividend_reinvestment"
-            render={({ field }) => (
-              <FormItem className="flex items-center space-x-2">
-                <FormLabel>Dividend Reinvestment</FormLabel>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        )}
-
-        {/* Submit Buttons with Debug Information */}
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isAdding || isUpdating}>
-            {isAdding || isUpdating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : mode === "update" ? "Update Transaction" : "Add Transaction"}
-          </Button>
-        </div>
-
-        {/* Debug: Show form errors if any */}
-        {form.formState.errors && Object.keys(form.formState.errors).length > 0 && (
-          <div className="text-red-500 text-sm">
-            Form Errors: {JSON.stringify(form.formState.errors)}
-          </div>
-        )}
-      </form>
+      </div>
     </Form>
   );
 }

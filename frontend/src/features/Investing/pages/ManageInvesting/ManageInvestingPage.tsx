@@ -64,6 +64,7 @@ export default function ManageInvestingPage() {
       toast.error(`An error occurred: ${error.message}`);
     },
   });
+
   const { user, updateUser } = useUser();
 
   const form = useForm<TrackingFormValues>({
