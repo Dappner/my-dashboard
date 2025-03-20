@@ -39,16 +39,34 @@ functions:
   processTickerData:
     handler: src.lambda_handler.lambda_handler
     events:
-      # 5:30 PM ET (after NYSE close)
+      # 6:00 AM Eastern Time
+      - schedule:
+          # 6:00 AM EDT = 10:00 UTC (March to November)
+          rate: cron(0 10 ? * MON-SUN *)
+          enabled: true
+      - schedule:
+          # 6:00 AM EST = 11:00 UTC (November to March)
+          rate: cron(0 11 ? * MON-SUN *)
+          enabled: true
+      # 12:00 PM Eastern Time (Noon)
+      - schedule:
+          # 12:00 PM EDT = 16:00 UTC (March to November)
+          rate: cron(0 16 ? * MON-SUN *)
+          enabled: true
+      - schedule:
+          # 12:00 PM EST = 17:00 UTC (November to March)
+          rate: cron(0 17 ? * MON-SUN *)
+          enabled: true
+      # 5:30 PM Eastern Time (after NYSE close)
       - schedule:
           # 5:30 PM EDT = 21:30 UTC (March to November)
-          rate: cron(30 21 ? * MON-SAT *)
+          rate: cron(30 21 ? * MON-FRI *)
           enabled: true
       - schedule:
           # 5:30 PM EST = 22:30 UTC (November to March)
-          rate: cron(30 22 ? * MON-SAT *)
+          rate: cron(30 22 ? * MON-FRI *)
           enabled: true
-      # Midnight Eastern Time
+      # 12:00 AM Eastern Time (Midnight)
       - schedule:
           # 12:00 AM EDT = 04:00 UTC (March to November)
           rate: cron(0 4 ? * MON-SUN *)
@@ -57,5 +75,5 @@ functions:
           # 12:00 AM EST = 05:00 UTC (November to March)
           rate: cron(0 5 ? * MON-SUN *)
           enabled: true
-    timeout: 300 # 5 minutes, adjust based on expected runtime
+    timeout: 300 # 5 minutes
     memorySize: 512
