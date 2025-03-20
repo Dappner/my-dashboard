@@ -1,15 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
+import {
+  FormControl,
+  FormDescription,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
-// Reusable form field components
 export const TickerSelect = ({ field, isLoading, tickers }: any) => (
   <FormItem>
     <FormLabel>Ticker *</FormLabel>
@@ -20,17 +35,17 @@ export const TickerSelect = ({ field, isLoading, tickers }: any) => (
         </SelectTrigger>
       </FormControl>
       <SelectContent>
-        {isLoading ? (
-          <SelectItem value="loading" disabled>Loading tickers...</SelectItem>
-        ) : tickers?.length === 0 ? (
-          <SelectItem value="empty" disabled>No tickers found</SelectItem>
-        ) : (
-          tickers?.map((ticker: any) => (
-            <SelectItem key={ticker.id} value={ticker.id}>
-              {ticker.symbol} ({ticker.exchange})
-            </SelectItem>
-          ))
-        )}
+        {isLoading
+          ? <SelectItem value="loading" disabled>Loading tickers...</SelectItem>
+          : tickers?.length === 0
+          ? <SelectItem value="empty" disabled>No tickers found</SelectItem>
+          : (
+            tickers?.map((ticker: any) => (
+              <SelectItem key={ticker.id} value={ticker.id}>
+                {ticker.symbol} ({ticker.exchange})
+              </SelectItem>
+            ))
+          )}
       </SelectContent>
     </Select>
     <FormMessage />
@@ -96,15 +111,26 @@ export const DateField = ({ field }: any) => (
         <FormControl>
           <Button
             variant="outline"
-            className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+            className={cn(
+              "w-full pl-3 text-left font-normal",
+              !field.value && "text-muted-foreground",
+            )}
           >
-            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+            {field.value
+              ? format(field.value, "PPP")
+              : <span>Pick a date</span>}
             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
           </Button>
         </FormControl>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0 bg-white border shadow-lg rounded-md"> {/* Added styling */}
-        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+      <PopoverContent className="w-auto p-0 bg-white border shadow-lg rounded-md">
+        {/* Added styling */}
+        <Calendar
+          mode="single"
+          selected={field.value}
+          onSelect={field.onChange}
+          initialFocus
+        />
       </PopoverContent>
     </Popover>
     <FormMessage />
@@ -115,11 +141,15 @@ export const NoteField = ({ field }: any) => (
   <FormItem>
     <FormLabel>Notes</FormLabel>
     <FormControl>
-      <Textarea placeholder="Add any notes about this transaction" className="resize-none" {...field} />
+      <Textarea
+        placeholder="Add any notes about this transaction"
+        className="resize-none"
+        {...field}
+      />
     </FormControl>
-    <FormDescription>Record your thoughts, strategy, or reasoning.</FormDescription>
+    <FormDescription>
+      Record your thoughts, strategy, or reasoning.
+    </FormDescription>
     <FormMessage />
   </FormItem>
 );
-
-

@@ -1,20 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { CardDescription, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  TickerForm,
-  TickerFormValues,
-} from "@/features/Investing/forms/TickerForm";
 import { useTicker } from "@/features/Investing/hooks/useTickers";
-import { InsertTicker, Ticker } from "@/types/tickerTypes";
 import { Loader2, PlusCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -25,7 +12,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { TickerSelect } from "../../forms/FormControls";
@@ -33,6 +19,7 @@ import useUser from "@/hooks/useUser";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { TickerSheet, useTickerSheet } from "../../sheets/TickerSheet";
 
 const trackingFormSchema = z.object({
   ticker_id: z.string().min(1, "Please select a ticker"),
@@ -41,29 +28,19 @@ const trackingFormSchema = z.object({
 type TrackingFormValues = z.infer<typeof trackingFormSchema>;
 
 export default function ManageInvestingPage() {
-  const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
-  const [editingTicker, setEditingTicker] = useState<Ticker | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const {
     tickers,
     isLoading,
-    addTicker,
-    updateTicker,
-    deleteTicker,
-    isAdding,
-    isUpdating,
-  } = useTicker({
-    onAddSuccess: () => {
-      setIsAddSheetOpen(false);
-    },
-    onUpdateSuccess: () => {
-      setEditingTicker(null);
-    },
-    onError: (error) => {
-      console.error("An error occurred:", error);
-      toast.error(`An error occurred: ${error.message}`);
-    },
-  });
+  } = useTicker({});
+
+  const {
+    isTickerSheetOpen,
+    selectedTicker,
+    openEditTicker,
+    openAddTicker,
+    closeSheet,
+  } = useTickerSheet();
 
   const { user, updateUser } = useUser();
 
@@ -74,27 +51,8 @@ export default function ManageInvestingPage() {
     },
   });
 
-  const handleSubmitTicker = (values: TickerFormValues) => {
-    if (editingTicker) {
-      updateTicker({ id: editingTicker.id, ...values });
-    } else {
-      addTicker(values as InsertTicker);
-    }
-  };
-
-  const onDeleteTicker = (id: string) => {
-    if (confirm("Are you sure you want to delete this ticker?")) {
-      deleteTicker(id);
-    }
-  };
-
-  const onEditTicker = (ticker: Ticker) => {
-    setEditingTicker(ticker);
-  };
-
   const onTrackingSubmit = async (data: TrackingFormValues) => {
     try {
-      console.log("ATTEMPT");
       updateUser({
         id: user!.id,
         tracking_ticker_id: data.ticker_id,
@@ -105,10 +63,6 @@ export default function ManageInvestingPage() {
       console.error("Error updating tracking ticker:", error);
     }
   };
-  const handleCloseEditSheet = () => {
-    setEditingTicker(null);
-  };
-
   // Filter tickers based on search query
   const filteredTickers = tickers?.filter(
     (ticker) =>
@@ -143,31 +97,10 @@ export default function ManageInvestingPage() {
                 investment purposes.
               </CardDescription>
             </div>
-            <Sheet open={isAddSheetOpen} onOpenChange={setIsAddSheetOpen}>
-              <SheetTrigger asChild>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Ticker
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="flex flex-col h-full">
-                <SheetHeader>
-                  <SheetTitle>Add New Ticker</SheetTitle>
-                  <SheetDescription>
-                    Enter the details of the stock or investment vehicle you
-                    want to track.
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="flex-1 pb-2 overflow-y-auto">
-                  <TickerForm
-                    onSubmit={handleSubmitTicker}
-                    onCancel={() => setIsAddSheetOpen(false)}
-                    isSubmitting={isAdding}
-                    isEditing={false}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
+            <Button onClick={openAddTicker}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Ticker
+            </Button>
           </div>
           <div className="mb-6">
             <Input
@@ -189,12 +122,7 @@ export default function ManageInvestingPage() {
               <div className="rounded-md border">
                 <TickerTable
                   filteredTickers={filteredTickers}
-                  onEditTicker={onEditTicker}
-                  onDeleteTicker={onDeleteTicker}
-                  editingTicker={editingTicker}
-                  isUpdating={isUpdating}
-                  handleSubmitTicker={handleSubmitTicker}
-                  handleCloseEditSheet={handleCloseEditSheet}
+                  onEditTicker={openEditTicker}
                 />
               </div>
             )
@@ -209,7 +137,7 @@ export default function ManageInvestingPage() {
                   <Button
                     variant="outline"
                     className="mt-4"
-                    onClick={() => setIsAddSheetOpen(true)}
+                    onClick={openAddTicker}
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add your first ticker
@@ -238,7 +166,6 @@ export default function ManageInvestingPage() {
                   name="ticker_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tracking Ticker</FormLabel>
                       <FormControl>
                         <TickerSelect
                           field={field}
@@ -265,6 +192,11 @@ export default function ManageInvestingPage() {
           </div>
         </TabsContent>
       </Tabs>
+      <TickerSheet
+        ticker={selectedTicker}
+        isOpen={isTickerSheetOpen}
+        onClose={closeSheet}
+      />
     </div>
   );
 }

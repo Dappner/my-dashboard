@@ -5,13 +5,45 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { TransactionForm } from "../forms/TransactionForm";
+import { TradeView } from "@/types/transactionsTypes";
+import { useState } from "react";
+
+export const useTransactionSheet = () => {
+  const [isTransactionSheetOpen, setIsTransactionSheetOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<
+    TradeView | null
+  >(null);
+
+  const openEditTransaction = (trade: TradeView) => {
+    setSelectedTransaction(trade);
+    setIsTransactionSheetOpen(true);
+  };
+
+  const openAddTransaction = () => {
+    setSelectedTransaction(null);
+    setIsTransactionSheetOpen(true);
+  };
+
+  const closeSheet = () => {
+    setSelectedTransaction(null);
+    setIsTransactionSheetOpen(false);
+  };
+
+  return {
+    isTransactionSheetOpen,
+    selectedTransaction,
+    openEditTransaction,
+    openAddTransaction,
+    closeSheet,
+    setIsTransactionSheetOpen,
+  };
+};
 
 interface TransactionSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  transaction?: any; // Replace with proper transaction type
+  transaction?: TradeView | null;
 }
-
 export function TransactionSheet(
   { isOpen, onClose, transaction }: TransactionSheetProps,
 ) {
@@ -32,8 +64,8 @@ export function TransactionSheet(
                 ticker_id: transaction.ticker_id || "",
                 transaction_type: transaction.transaction_type!,
                 shares: transaction.shares!,
-                price_per_share: transaction.price_per_share || "",
-                transaction_fee: transaction.transaction_fee || "",
+                price_per_share: transaction.price_per_share || 0,
+                transaction_fee: transaction.transaction_fee || 0,
                 transaction_date: new Date(
                   transaction.transaction_date + "T00:00:00",
                 ),

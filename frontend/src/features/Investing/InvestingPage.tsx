@@ -13,24 +13,41 @@ import TickerEvents from "./components/TickerEvents";
 import TransactionTable from "./components/TransactionTable";
 import { useCalendarEvents } from "./hooks/useCalendarEvents";
 import { useTransactions } from "./hooks/useTransactions";
-import { useTransactionSheet } from "./hooks/useTransactionSheet";
-import { TransactionSheet } from "./sheets/TransactionSheet";
+import {
+  TransactionSheet,
+  useTransactionSheet,
+} from "./sheets/TransactionSheet";
 
 export default function InvestingPage() {
-  const { isTransactionSheetOpen, selectedTransaction, openAddTransaction, closeSheet } = useTransactionSheet();
+  const {
+    isTransactionSheetOpen,
+    openAddTransaction,
+    closeSheet,
+  } = useTransactionSheet();
   const { transactions, isLoading: transactionsLoading } = useTransactions();
-  const { events, isLoading: eventsLoading, isError: eventsError, error: eventsErrorMsg } = useCalendarEvents(3);
+  const {
+    events,
+    isLoading: eventsLoading,
+    isError: eventsError,
+    error: eventsErrorMsg,
+  } = useCalendarEvents(3);
 
   const [timeframe, setTimeframe] = useState<Timeframe>("1M");
-  const [chartType, setChartType] = useState<"absolute" | "percentual">("absolute");
-
+  const [chartType, setChartType] = useState<"absolute" | "percentual">(
+    "absolute",
+  );
 
   const recentTransactions = transactions?.slice(0, 5);
   return (
     <div className="mx-auto space-y-6 p-4">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Investment Dashboard</h1>
-        <Button onClick={openAddTransaction} className="flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-gray-900">
+          Investment Dashboard
+        </h1>
+        <Button
+          onClick={openAddTransaction}
+          className="flex items-center gap-2"
+        >
           <Plus className="h-4 w-4" />
           Add Transaction
         </Button>
@@ -44,9 +61,17 @@ export default function InvestingPage() {
         <main className="lg:col-span-2 space-y-6">
           <section>
             <div className="flex flex-row items-center justify-between mb-2 h-8">
-              <h2 className="text-lg font-semibold text-gray-900">Portfolio Performance</h2>
-              <TimeframeControls timeframe={timeframe} onTimeframeChange={setTimeframe} />
-              <ChartTypeControls chartType={chartType} onChartTypeChange={setChartType} />
+              <h2 className="text-lg font-semibold text-gray-900">
+                Portfolio Performance
+              </h2>
+              <TimeframeControls
+                timeframe={timeframe}
+                onTimeframeChange={setTimeframe}
+              />
+              <ChartTypeControls
+                chartType={chartType}
+                onChartTypeChange={setChartType}
+              />
             </div>
 
             <PortfolioChart timeframe={timeframe} type={chartType} />
@@ -58,7 +83,11 @@ export default function InvestingPage() {
               linkTo="/investing/transactions"
               linkText="View All"
             />
-            <TransactionTable transactions={recentTransactions!} isLoading={transactionsLoading} actions={false} />
+            <TransactionTable
+              transactions={recentTransactions!}
+              isLoading={transactionsLoading}
+              actions={false}
+            />
           </section>
         </main>
 
@@ -85,13 +114,11 @@ export default function InvestingPage() {
               error={eventsErrorMsg}
             />
           </section>
-
         </aside>
 
         <TransactionSheet
           isOpen={isTransactionSheetOpen}
           onClose={closeSheet}
-          transaction={selectedTransaction}
         />
       </div>
     </div>

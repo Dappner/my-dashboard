@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import MonthPicker from "@/components/forms/MonthPicker";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTicker } from "../hooks/useTickers";
+import { InsertTicker } from "@/types/tickerTypes";
 
 export const tickerFormSchema = z.object({
   symbol: z.string().min(1, "Symbol is required").max(10),
@@ -31,10 +33,8 @@ export type TickerFormValues = z.infer<typeof tickerFormSchema>;
 
 interface TickerFormProps {
   defaultValues?: TickerFormValues;
-  onSubmit: (values: TickerFormValues) => void;
-  onCancel: () => void;
-  isSubmitting: boolean;
-  isEditing: boolean;
+  tickerId?: string | null;
+  onClose: () => void;
 }
 
 export function TickerForm({
@@ -47,17 +47,38 @@ export function TickerForm({
     dividend_amount: 0,
     dividend_months: [],
     cik: "",
-    backfill: false,
+    backfill: true,
   },
-  onSubmit,
-  onCancel,
-  isSubmitting,
-  isEditing,
+  tickerId,
+  onClose,
 }: TickerFormProps) {
+  const mode = tickerId ? "update" : "create";
+
+  const { updateTicker, isUpdating, isAdding, addTicker } = useTicker({
+    onAddSuccess: () => {
+      onClose();
+    },
+    onUpdateSuccess: () => {
+      onClose();
+    },
+    onError: (err) => {
+      console.error("Ticker error:", err);
+      onClose();
+    },
+  });
+
   const form = useForm<TickerFormValues>({
     resolver: zodResolver(tickerFormSchema),
     defaultValues,
   });
+
+  const onSubmit = (values: TickerFormValues) => {
+    if (mode == "update") {
+      updateTicker({ id: tickerId!, ...values });
+    } else {
+      addTicker(values as InsertTicker);
+    }
+  };
 
   return (
     <Form {...form}>
@@ -201,14 +222,21 @@ export function TickerForm({
             <Button
               type="button"
               variant="outline"
-              onClick={onCancel}
+              onClick={onClose}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting &&
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isEditing ? "Update Ticker" : "Add Ticker"}
+            <Button type="submit" disabled={isAdding || isUpdating}>
+              {isAdding || isUpdating
+                ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                )
+                : mode === "update"
+                ? "Update Ticker"
+                : "Add Ticker"}
             </Button>
           </div>
         </div>

@@ -75,7 +75,7 @@ export type TransactionFormValues = z.infer<typeof transactionFormSchema>;
 
 interface TransactionFormProps {
   defaultValues?: TransactionFormValues;
-  tradeId?: string;
+  tradeId?: string | null;
   onClose: () => void;
 }
 export function TransactionForm({
@@ -152,7 +152,6 @@ export function TransactionForm({
             render={({ field }) => <TransactionTypeSelect field={field} />}
           />
 
-          {/* Fields for Trade Transactions */}
           {!isCashTransaction && (
             <div className="grid grid-cols-2 gap-4">
               <FormField

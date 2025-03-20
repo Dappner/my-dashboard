@@ -3,8 +3,10 @@ import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import TransactionTable from "../../components/TransactionTable";
 import { useTransactions } from "../../hooks/useTransactions";
-import { useTransactionSheet } from "../../hooks/useTransactionSheet";
-import { TransactionSheet } from "../../sheets/TransactionSheet";
+import {
+  TransactionSheet,
+  useTransactionSheet,
+} from "../../sheets/TransactionSheet";
 import PaginationControls from "./components/PaginationControls";
 import TransactionsFilters, {
   TransactionsFilters as TFilters,
@@ -21,7 +23,8 @@ export default function TransactionsPage() {
     openAddTransaction,
     closeSheet,
   } = useTransactionSheet();
-  const { transactions, isLoading, isError, refetch, deleteTransaction } = useTransactions();
+  const { transactions, isLoading, isError, refetch, deleteTransaction } =
+    useTransactions();
 
   const [filters, setFilters] = useState<TFilters>({
     transaction_type: "all",
@@ -58,16 +61,20 @@ export default function TransactionsPage() {
     const netCashflow = filteredTransactions?.reduce((sum, trade) => {
       const amount = parseFloat(trade.total_cost_basis?.toFixed(2) || "0");
       return trade.transaction_type === "buy" ||
-        trade.transaction_type === "withdraw"
+          trade.transaction_type === "withdraw"
         ? sum - amount
         : sum + amount;
     }, 0);
 
-    const totalTrades = filteredTransactions?.filter((transaction) => ["buy", "sell"].includes(transaction.transaction_type!)).length || 0;
+    const totalTrades = filteredTransactions?.filter((transaction) =>
+      ["buy", "sell"].includes(transaction.transaction_type!)
+    ).length || 0;
 
     const netCash = filteredTransactions?.reduce((sum, trade) => {
       const amount = parseFloat(trade.total_cost_basis?.toFixed(2) || "0");
-      if (trade.transaction_type === "deposit") return sum + amount;
+      if (trade.transaction_type === "deposit") {
+        return sum + amount;
+      }
       if (trade.transaction_type === "withdraw") return sum - amount;
       return sum;
     }, 0);
@@ -90,40 +97,46 @@ export default function TransactionsPage() {
             onAddTransaction={openAddTransaction}
           />
 
-          {isLoading ? (
-            <div className="text-center py-4 text-muted-foreground">
-              <div className="animate-pulse">Loading trades...</div>
-            </div>
-          ) : isError ? (
-            <div className="text-center py-4 space-y-2">
-              <p className="text-destructive">Error loading trades</p>
-              <Button variant="outline" onClick={() => refetch()}>
-                Retry
-              </Button>
-            </div>
-          ) : filteredTransactions?.length === 0 ? (
-            <div className="text-center py-4 text-muted-foreground">
-              No trades found matching the filters
-            </div>
-          ) : (
-            <>
-              <TransactionTable
-                transactions={paginatedTrades!}
-                isLoading={isLoading}
-                actions
-                onEditTransaction={openEditTransaction}
-                onDeleteTransaction={onDeleteTransaction}
-              />
-              <PaginationControls
-                currentPage={currentPage}
-                totalPages={totalPages}
-                itemsPerPage={itemsPerPage}
-                totalItems={filteredTransactions?.length || 0}
-                onPageChange={setCurrentPage}
-                disabled={isLoading}
-              />
-            </>
-          )}
+          {isLoading
+            ? (
+              <div className="text-center py-4 text-muted-foreground">
+                <div className="animate-pulse">Loading trades...</div>
+              </div>
+            )
+            : isError
+            ? (
+              <div className="text-center py-4 space-y-2">
+                <p className="text-destructive">Error loading trades</p>
+                <Button variant="outline" onClick={() => refetch()}>
+                  Retry
+                </Button>
+              </div>
+            )
+            : filteredTransactions?.length === 0
+            ? (
+              <div className="text-center py-4 text-muted-foreground">
+                No trades found matching the filters
+              </div>
+            )
+            : (
+              <>
+                <TransactionTable
+                  transactions={paginatedTrades!}
+                  isLoading={isLoading}
+                  actions
+                  onEditTransaction={openEditTransaction}
+                  onDeleteTransaction={onDeleteTransaction}
+                />
+                <PaginationControls
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  itemsPerPage={itemsPerPage}
+                  totalItems={filteredTransactions?.length || 0}
+                  onPageChange={setCurrentPage}
+                  disabled={isLoading}
+                />
+              </>
+            )}
         </div>
       </div>
       <TransactionSheet
@@ -134,4 +147,3 @@ export default function TransactionsPage() {
     </div>
   );
 }
-
