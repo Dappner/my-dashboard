@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "update-types": "npx supabase gen types typescript --project-id wwzyziohidsxmjfkoowh --schema public --schema grocery > src/types/supabase.ts"
