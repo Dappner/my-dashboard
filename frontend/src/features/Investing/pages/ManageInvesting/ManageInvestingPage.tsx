@@ -1,8 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
+import { CardDescription, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -23,7 +20,14 @@ import { useState } from "react";
 import { toast } from "sonner";
 import TickerTable from "./components/TickerTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { TickerSelect } from "../../forms/FormControls";
 import useUser from "@/hooks/useUser";
 import { z } from "zod";
@@ -89,7 +93,7 @@ export default function ManageInvestingPage() {
 
   const onTrackingSubmit = async (data: TrackingFormValues) => {
     try {
-      console.log("ATTEMPT")
+      console.log("ATTEMPT");
       updateUser({
         id: user!.id,
         tracking_ticker_id: data.ticker_id,
@@ -113,21 +117,26 @@ export default function ManageInvestingPage() {
       (ticker.exchange &&
         ticker.exchange.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (ticker.sector &&
-        ticker.sector.toLowerCase().includes(searchQuery.toLowerCase()))
+        ticker.sector.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
   return (
     <div className="space-y-6">
       <Tabs defaultValue="tickers">
-        <TabsList >
-          <TabsTrigger value="tickers" className="cursor-pointer">Tickers</TabsTrigger>
-          <TabsTrigger value="tracking" className="cursor-pointer">Tracking</TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="tickers" className="cursor-pointer">
+            Tickers
+          </TabsTrigger>
+          <TabsTrigger value="tracking" className="cursor-pointer">
+            Tracking
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="tickers">
-
           <div className="flex items-center justify-between">
             <div className="pb-4">
-              <CardTitle className="text-2xl">Manage Investment Tickers</CardTitle>
+              <CardTitle className="text-2xl">
+                Manage Investment Tickers
+              </CardTitle>
               <CardDescription>
                 Add, edit, and remove tickers that you want to track for
                 investment purposes.
@@ -140,7 +149,7 @@ export default function ManageInvestingPage() {
                   Add Ticker
                 </Button>
               </SheetTrigger>
-              <SheetContent>
+              <SheetContent className="flex flex-col h-full">
                 <SheetHeader>
                   <SheetTitle>Add New Ticker</SheetTitle>
                   <SheetDescription>
@@ -148,7 +157,7 @@ export default function ManageInvestingPage() {
                     want to track.
                   </SheetDescription>
                 </SheetHeader>
-                <div className="py-4">
+                <div className="flex-1 pb-2 overflow-y-auto">
                   <TickerForm
                     onSubmit={handleSubmitTicker}
                     onCancel={() => setIsAddSheetOpen(false)}
@@ -168,55 +177,66 @@ export default function ManageInvestingPage() {
             />
           </div>
 
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : filteredTickers && filteredTickers.length > 0 ? (
-            <div className="rounded-md border">
-              <TickerTable
-                filteredTickers={filteredTickers}
-                onEditTicker={onEditTicker}
-                onDeleteTicker={onDeleteTicker}
-                editingTicker={editingTicker}
-                isUpdating={isUpdating}
-                handleSubmitTicker={handleSubmitTicker}
-                handleCloseEditSheet={handleCloseEditSheet}
-              />
-            </div>
-          ) : (
-            <div className="py-8 text-center">
-              <p className="text-muted-foreground">
-                {searchQuery ? "No tickers matching your search" : "No tickers added yet"}
-              </p>
-              {!searchQuery && (
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() => setIsAddSheetOpen(true)}
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add your first ticker
-                </Button>
-              )}
-            </div>
-          )}
+          {isLoading
+            ? (
+              <div className="flex justify-center items-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            )
+            : filteredTickers && filteredTickers.length > 0
+            ? (
+              <div className="rounded-md border">
+                <TickerTable
+                  filteredTickers={filteredTickers}
+                  onEditTicker={onEditTicker}
+                  onDeleteTicker={onDeleteTicker}
+                  editingTicker={editingTicker}
+                  isUpdating={isUpdating}
+                  handleSubmitTicker={handleSubmitTicker}
+                  handleCloseEditSheet={handleCloseEditSheet}
+                />
+              </div>
+            )
+            : (
+              <div className="py-8 text-center">
+                <p className="text-muted-foreground">
+                  {searchQuery
+                    ? "No tickers matching your search"
+                    : "No tickers added yet"}
+                </p>
+                {!searchQuery && (
+                  <Button
+                    variant="outline"
+                    className="mt-4"
+                    onClick={() => setIsAddSheetOpen(true)}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add your first ticker
+                  </Button>
+                )}
+              </div>
+            )}
         </TabsContent>
         <TabsContent value="tracking">
           <div className="space-y-4 max-w-md">
             <div>
-              <CardTitle className="text-xl">Configure Tracking Ticker</CardTitle>
+              <CardTitle className="text-xl">
+                Configure Tracking Ticker
+              </CardTitle>
               <CardDescription>
                 Select a ticker to use as your primary tracking index
               </CardDescription>
             </div>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onTrackingSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onTrackingSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="ticker_id"
                   render={({ field }) => (
-                    <FormItem >
+                    <FormItem>
                       <FormLabel>Tracking Ticker</FormLabel>
                       <FormControl>
                         <TickerSelect
@@ -234,9 +254,9 @@ export default function ManageInvestingPage() {
                   )}
                 />
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
+                  {form.formState.isSubmitting
+                    ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    : null}
                   Save Changes
                 </Button>
               </form>
@@ -247,4 +267,3 @@ export default function ManageInvestingPage() {
     </div>
   );
 }
-

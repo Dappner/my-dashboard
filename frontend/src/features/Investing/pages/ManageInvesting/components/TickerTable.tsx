@@ -1,10 +1,10 @@
 import {
-  SheetTrigger,
+  Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
-  Sheet,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import {
   Table,
@@ -23,7 +23,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { monthsShort } from "@/features/Investing/constants";
 import { useNavigate } from "react-router";
-import { formatSectorName, formatIndustryName } from "@/lib/formatting";
+import { formatIndustryName, formatSectorName } from "@/lib/formatting";
 
 interface TickerTableProps {
   filteredTickers: Ticker[];
@@ -47,8 +47,8 @@ export default function TickerTable({
   const navigate = useNavigate();
 
   const onSymbolClick = (ticker: Ticker) => {
-    navigate(`/investing/stock/${ticker.exchange}/${ticker.symbol}`)
-  }
+    navigate(`/investing/stock/${ticker.exchange}/${ticker.symbol}`);
+  };
 
   return (
     <div className="w-full border rounded-md bg-white">
@@ -68,15 +68,25 @@ export default function TickerTable({
         <TableBody>
           {filteredTickers.map((ticker) => (
             <TableRow key={ticker.id}>
-              <TableCell className="font-bold cursor-pointer hover:underline" onClick={() => onSymbolClick(ticker)}>{ticker.symbol}</TableCell>
+              <TableCell
+                className="font-bold cursor-pointer hover:underline"
+                onClick={() => onSymbolClick(ticker)}
+              >
+                {ticker.symbol}
+              </TableCell>
               <TableCell>{ticker.name || "-"}</TableCell>
               <TableCell>{ticker.exchange || "-"}</TableCell>
               <TableCell>{formatSectorName(ticker.sector)}</TableCell>
               <TableCell>{formatIndustryName(ticker.industry)}</TableCell>
-              <TableCell>${ticker.dividend_amount?.toFixed(2) || "-"}</TableCell>
-              <TableCell>{ticker.dividend_months?.length == 12 ? "Monthly"
-                :
-                ticker.dividend_months?.map((val) => monthsShort[val]).join(",")}
+              <TableCell>
+                ${ticker.dividend_amount?.toFixed(2) || "-"}
+              </TableCell>
+              <TableCell>
+                {ticker.dividend_months?.length == 12
+                  ? "Monthly"
+                  : ticker.dividend_months?.map((val) => monthsShort[val]).join(
+                    ",",
+                  )}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end space-x-2">
@@ -97,14 +107,14 @@ export default function TickerTable({
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </SheetTrigger>
-                    <SheetContent>
+                    <SheetContent className="flex flex-col h-full">
                       <SheetHeader>
                         <SheetTitle>Edit Ticker</SheetTitle>
                         <SheetDescription>
                           Update the details for {ticker.symbol}
                         </SheetDescription>
                       </SheetHeader>
-                      <div className="py-4">
+                      <div className="flex-1 pb-2 overflow-y-auto">
                         {editingTicker?.id === ticker.id && (
                           <TickerForm
                             defaultValues={{
@@ -113,8 +123,10 @@ export default function TickerTable({
                               exchange: editingTicker.exchange || "",
                               sector: editingTicker.sector || "",
                               industry: editingTicker.industry || "",
-                              dividend_amount: editingTicker.dividend_amount || undefined,
-                              dividend_months: editingTicker.dividend_months || [],
+                              dividend_amount: editingTicker.dividend_amount ||
+                                undefined,
+                              dividend_months: editingTicker.dividend_months ||
+                                [],
                               cik: editingTicker.cik || "",
                               backfill: editingTicker.backfill || false,
                             }}
@@ -144,4 +156,3 @@ export default function TickerTable({
     </div>
   );
 }
-

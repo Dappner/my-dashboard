@@ -61,148 +61,158 @@ export function TickerForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="px-4 space-y-6">
-        <FormField
-          control={form.control}
-          name="symbol"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Symbol *</FormLabel>
-              <FormControl>
-                <Input placeholder="AAPL" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Apple Inc." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="exchange"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Exchange</FormLabel>
-              <FormControl>
-                <Input placeholder="NASDAQ" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="sector"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sector</FormLabel>
-              <FormControl>
-                <Input placeholder="Technology" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="industry"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Industry</FormLabel>
-              <FormControl>
-                <Input placeholder="Consumer Electronics" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="dividend_amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Dividend Amount </FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <div className="h-full flex flex-col">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="px-4 space-y-6 pb-4 overflow-y-auto flex-1"
+        >
+          <FormField
+            control={form.control}
+            name="symbol"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Symbol *</FormLabel>
+                <FormControl>
+                  <Input placeholder="AAPL" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Apple Inc." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="exchange"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Exchange</FormLabel>
+                <FormControl>
+                  <Input placeholder="NASDAQ" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="sector"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sector</FormLabel>
+                <FormControl>
+                  <Input placeholder="Technology" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="industry"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Industry</FormLabel>
+                <FormControl>
+                  <Input placeholder="Consumer Electronics" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="dividend_amount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dividend Amount</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="dividend_months"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Dividend Months</FormLabel>
-              <FormControl>
-                <MonthPicker
-                  onChange={field.onChange}
-                  selectedMonths={field.value}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="cik"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>CIK</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. 320193" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="backfill"
-          render={({ field }) => (
-            <FormItem className="flex flex-row gap-4">
-              <FormLabel>Backfill</FormLabel>
-              <FormControl>
-                <Checkbox onCheckedChange={field.onChange} checked={field.value!} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="dividend_months"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dividend Months</FormLabel>
+                <FormControl>
+                  <MonthPicker
+                    onChange={field.onChange}
+                    selectedMonths={field.value}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="cik"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>CIK</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g. 320193" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="backfill"
+            render={({ field }) => (
+              <FormItem className="flex flex-row gap-4">
+                <FormLabel>Backfill</FormLabel>
+                <FormControl>
+                  <Checkbox
+                    onCheckedChange={field.onChange}
+                    checked={field.value!}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </form>
 
-
-        <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEditing ? "Update Ticker" : "Add Ticker"}
-          </Button>
+        <div className="sticky bottom-0 bg-white p-4 border-t">
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting &&
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isEditing ? "Update Ticker" : "Add Ticker"}
+            </Button>
+          </div>
         </div>
-      </form>
+      </div>
     </Form>
   );
 }
