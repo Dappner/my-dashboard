@@ -10,6 +10,8 @@ import SettingsPage from '@/features/Settings/SettingsPage'
 import TransactionsPage from './features/Investing/pages/Transactions/TransactionsPage'
 import HoldingsPage from './features/Investing/pages/Holdings/HoldingsPage'
 import AlertsPage from './features/Investing/pages/AlertsPage'
+import SpendingPage from './features/Spending/SpendingPage'
+import ReceiptsPage from './features/Spending/pages/ReceiptsPage'
 
 function App() {
 
@@ -28,6 +30,11 @@ function App() {
             </Route>
             <Route path="stock/:exchange/:ticker" element={<TickerPage />} />
             <Route path="alerts" element={<AlertsPage />} />
+          </Route>
+
+          <Route path="spending">
+            <Route index element={<SpendingPage />} />
+            <Route path="receipts" element={<ReceiptsPage />} />
           </Route>
 
           <Route path="settings" element={<SettingsPage />} />

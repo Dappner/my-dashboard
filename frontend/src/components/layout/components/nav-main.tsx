@@ -1,4 +1,4 @@
-import { BookOpen, ChartNoAxesCombined, ChevronRight, Home, Settings2Icon, type LucideIcon } from "lucide-react"
+import { BookOpen, ChartNoAxesCombined, ChevronRight, CreditCard, Home, Settings2Icon, type LucideIcon } from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
@@ -54,6 +54,18 @@ const navBarItems: NavBarItem[] = [
         url: "/investing/manage"
       }
     ],
+  },
+  {
+    title: "Spending",
+    url: "/spending",
+    rootName: "Overview",
+    icon: CreditCard,
+    items: [
+      {
+        title: "Receipts",
+        url: "/spending/receipts"
+      }
+    ]
   },
   {
     title: "Literature",
