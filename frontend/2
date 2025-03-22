@@ -1,0 +1,20 @@
+#
+# FNM (Version manager for Node)
+eval "$(fnm env --use-on-cd)"
+# Node / PNPM
+export PNPM_HOME="$HOME/Library/pnpm"
+
+# Bun configuration
+export BUN_INSTALL="$HOME/.bun"
+
+# Bun completions
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+# Fuzzy Finder (fzf) initialization
+eval "$(fzf --zsh)"
+
+# ZOXIDE
+eval "$(zoxide init --cmd cd zsh)"
+
+
+

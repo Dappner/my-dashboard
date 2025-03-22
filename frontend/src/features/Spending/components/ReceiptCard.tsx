@@ -104,51 +104,55 @@ export const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt }) => {
           Items Purchased
         </h3>
 
-        {Object.entries(itemsByCategory).map(([category, items]) => (
-          <div key={category} className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              {getCategoryIcon(category)}
-              <h4 className="text-base font-medium text-gray-700">
-                {category}
-              </h4>
-            </div>
-            <ul className="space-y-4 pl-6">
-              {items.map((item) => (
-                <li
-                  key={item.item_id}
-                  className="flex justify-between items-center"
-                >
-                  <div className="flex-1">
-                    <span className="text-gray-800">{item.readable_name}</span>
-                    {item.is_discounted && (
-                      <Badge
-                        variant="outline"
-                        className="ml-2 text-green-600 border-green-300 text-xs"
-                      >
-                        <TagIcon className="h-3 w-3 mr-1" />
-                        Saved {receipt.currency_code}
-                        {item.discount_amount.toFixed(2)}
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="text-right min-w-32">
-                    {item.is_discounted && (
-                      <span className="line-through text-gray-400 mr-2">
-                        {receipt.currency_code}
-                        {item.original_unit_price.toFixed(2)}
+        <div className="flex flex-col max-h-64 overflow-y-scroll">
+          {Object.entries(itemsByCategory).map(([category, items]) => (
+            <div key={category} className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                {getCategoryIcon(category)}
+                <h4 className="text-base font-medium text-gray-700">
+                  {category}
+                </h4>
+              </div>
+              <ul className="space-y-4 pl-6">
+                {items.map((item) => (
+                  <li
+                    key={item.item_id}
+                    className="flex justify-between items-center"
+                  >
+                    <div className="flex-1">
+                      <span className="text-gray-800">
+                        {item.readable_name}
                       </span>
-                    )}
-                    <span className="font-medium">
-                      {item.quantity > 1 ? `${item.quantity} x ` : ""}
-                      {receipt.currency_code}
-                      {item.unit_price.toFixed(2)}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+                      {item.is_discounted && (
+                        <Badge
+                          variant="outline"
+                          className="ml-2 text-green-600 border-green-300 text-xs"
+                        >
+                          <TagIcon className="h-3 w-3 mr-1" />
+                          Saved {receipt.currency_code}
+                          {item.discount_amount.toFixed(2)}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-right min-w-32">
+                      {item.is_discounted && (
+                        <span className="line-through text-gray-400 mr-2">
+                          {receipt.currency_code}
+                          {item.original_unit_price.toFixed(2)}
+                        </span>
+                      )}
+                      <span className="font-medium">
+                        {item.quantity > 1 ? `${item.quantity} x ` : ""}
+                        {receipt.currency_code}
+                        {item.unit_price.toFixed(2)}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="border-t border-gray-200 pt-5">

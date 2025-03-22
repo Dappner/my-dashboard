@@ -34,6 +34,7 @@ export default function ReceiptsPage() {
     // Use toast.promise to handle the upload states
     toast.promise(uploadPromise, {
       loading: "Uploading receipt...",
+      //TODO: Type data correctly
       success: (data: unknown) =>
         `${data.fileName} has been analyzed and uploaded successfully!`,
       error: (err) => `Error uploading receipt: ${err.message}`,
