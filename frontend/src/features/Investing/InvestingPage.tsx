@@ -5,7 +5,6 @@ import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import ChartTypeControls from "./components/ChartTypeControls";
-import HoldingsTable from "./components/HoldingsTable";
 import PortfolioChart from "./components/PortfolioChart";
 import PortfolioInsightsWidget from "./components/PortfolioInsightsWidget";
 import PortfolioKpis from "./components/PortfolioKpis";
@@ -17,6 +16,7 @@ import {
   TransactionSheet,
   useTransactionSheet,
 } from "./sheets/TransactionSheet";
+import HoldingsWidget from "./components/HoldingsWidget";
 
 export default function InvestingPage() {
   const {
@@ -99,7 +99,7 @@ export default function InvestingPage() {
               linkTo="/investing/holdings"
               linkText="View All"
             />
-            <HoldingsTable />
+            <HoldingsWidget />
           </section>
           <section>
             <SectionHeader title="Insights" />

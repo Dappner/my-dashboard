@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis, Legend } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import { format } from "date-fns";
 import { usePortfolioDailyMetrics } from "../hooks/usePortfolioDailyMetrics";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
@@ -20,7 +24,6 @@ interface ChartDataPoint {
   costBasis?: number;
   indexFund?: number;
 }
-
 
 type ChartConfig = typeof chartConfig;
 type VisibleLines = Record<keyof ChartConfig, boolean>;
@@ -50,9 +53,13 @@ const ErrorState = () => (
   </div>
 );
 
-export default function PortfolioChart({ timeframe, type }: PortfolioChartProps) {
+export default function PortfolioChart(
+  { timeframe, type }: PortfolioChartProps,
+) {
   const { user } = useUser();
-  const { dailyMetrics, isLoading, isError } = usePortfolioDailyMetrics(timeframe);
+  const { dailyMetrics, isLoading, isError } = usePortfolioDailyMetrics(
+    timeframe,
+  );
   const [visibleLines, setVisibleLines] = useState<VisibleLines>({
     totalPortfolio: true,
     portfolio: true,
@@ -61,22 +68,27 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
     indexFund: true,
   });
 
-  const { historicalPrices, historicalPricesLoading } = useTickerHistoricalPrices(user?.tracking_ticker_id || '', timeframe);
+  const { historicalPrices, historicalPricesLoading } =
+    useTickerHistoricalPrices(user?.tracking_ticker_id || "", timeframe);
 
   if (isLoading || historicalPricesLoading) return <LoadingState />;
-  if (isError || !dailyMetrics?.length || (type === "percentual" && (!historicalPrices || !historicalPrices.length))) {
-    console.warn('Chart data issue:', {
+  if (
+    isError || !dailyMetrics?.length ||
+    (type === "percentual" && (!historicalPrices || !historicalPrices.length))
+  ) {
+    console.warn("Chart data issue:", {
       isError,
       dailyMetricsLength: dailyMetrics?.length,
       historicalPricesLength: historicalPrices?.length,
-      ticker: user?.tracking_ticker_id
+      ticker: user?.tracking_ticker_id,
     });
     return <ErrorState />;
   }
 
   // Create a map from date string to close_price for accurate matching
   const historicalPricesMap = new Map(
-    historicalPrices?.map((hp) => [hp.date.split("T")[0], hp.close_price]) || []
+    historicalPrices?.map((hp) => [hp.date.split("T")[0], hp.close_price]) ||
+      [],
   );
 
   const getChartData = (): ChartDataPoint[] => {
@@ -97,7 +109,7 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
       : [];
 
     // Find the first valid baseline index price
-    const firstValidIndexPrice = sortedHistoricalPrices.find(hp => {
+    const firstValidIndexPrice = sortedHistoricalPrices.find((hp) => {
       const hpDate = hp.date.split("T")[0];
       return new Date(hpDate) <= new Date(firstDateString);
     });
@@ -105,14 +117,6 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
     const baselineIndex = firstValidIndexPrice
       ? Number(firstValidIndexPrice.close_price)
       : sortedHistoricalPrices[0]?.close_price || 1;
-
-    // console.log({
-    //   firstDateString,
-    //   baselinePortfolio,
-    //   baselineIndex,
-    //   historicalPricesLength: historicalPrices?.length,
-    //   firstHistoricalDate: sortedHistoricalPrices[0]?.date
-    // });
 
     return sortedMetrics.map((val) => {
       const dateString = val.current_date?.split("T")[0];
@@ -153,8 +157,8 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
     if (type === "percentual") {
       const yValues = data.flatMap((d) => [
         d.portfolio || 0,
-        d.indexFund || 0
-      ]).filter(val => Number.isFinite(val));
+        d.indexFund || 0,
+      ]).filter((val) => Number.isFinite(val));
 
       if (yValues.length === 0) return [-100, 100];
 
@@ -168,8 +172,8 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
       d.totalPortfolio || 0,
       d.portfolio || 0,
       d.cash || 0,
-      d.costBasis || 0
-    ]).filter(val => Number.isFinite(val));
+      d.costBasis || 0,
+    ]).filter((val) => Number.isFinite(val));
 
     const minY = Math.min(...yValues);
     const maxY = Math.max(...yValues);
@@ -180,14 +184,20 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
   const formatTooltipValue = (value: number, name: string) => {
     const key = name as keyof ChartConfig;
     const formattedValue = type === "absolute"
-      ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      ? `$${
+        value.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+      }`
       : `${value.toFixed(2)}%`;
     return [formattedValue + " ", chartConfig[key]?.label || name];
   };
 
-  const formatYAxis = (value: number) => type === "absolute"
-    ? `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
-    : `${value.toFixed(1)}%`;
+  const formatYAxis = (value: number) =>
+    type === "absolute"
+      ? `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+      : `${value.toFixed(1)}%`;
 
   const formatDateLabel = (test, payload?: any): string => {
     if (payload?.[0]?.payload?.date) {
@@ -200,7 +210,10 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
   };
 
   const toggleLineVisibility = (dataKey: string) => {
-    setVisibleLines((prev) => ({ ...prev, [dataKey]: !prev[dataKey as keyof VisibleLines] }));
+    setVisibleLines((prev) => ({
+      ...prev,
+      [dataKey]: !prev[dataKey as keyof VisibleLines],
+    }));
   };
 
   const chartData = getChartData();
@@ -214,7 +227,11 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
           data={chartData}
           margin={{ left: 0, right: 12, top: 24, bottom: 0 }}
         >
-          <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid
+            vertical={false}
+            strokeDasharray="3 3"
+            stroke="#e5e7eb"
+          />
           <XAxis
             dataKey="date"
             tickLine={false}
@@ -251,7 +268,9 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
             formatter={(value) => (
               <span
                 style={{
-                  color: visibleLines[value as keyof VisibleLines] ? chartConfig[value as keyof ChartConfig]?.color : "#999",
+                  color: visibleLines[value as keyof VisibleLines]
+                    ? chartConfig[value as keyof ChartConfig]?.color
+                    : "#999",
                   cursor: "pointer",
                 }}
               >
@@ -260,19 +279,54 @@ export default function PortfolioChart({ timeframe, type }: PortfolioChartProps)
             )}
           />
           {type === "absolute" && visibleLines.totalPortfolio && (
-            <Line dataKey="totalPortfolio" type="monotone" stroke={chartConfig.totalPortfolio.color} strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 1 }} />
+            <Line
+              dataKey="totalPortfolio"
+              type="monotone"
+              stroke={chartConfig.totalPortfolio.color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 1 }}
+            />
           )}
           {visibleLines.portfolio && (
-            <Line dataKey="portfolio" type="monotone" stroke={chartConfig.portfolio.color} strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 1 }} />
+            <Line
+              dataKey="portfolio"
+              type="monotone"
+              stroke={chartConfig.portfolio.color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 1 }}
+            />
           )}
           {type === "absolute" && visibleLines.cash && (
-            <Line dataKey="cash" type="monotone" stroke={chartConfig.cash.color} strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 1 }} />
+            <Line
+              dataKey="cash"
+              type="monotone"
+              stroke={chartConfig.cash.color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 1 }}
+            />
           )}
           {type === "absolute" && visibleLines.costBasis && (
-            <Line dataKey="costBasis" type="monotone" stroke={chartConfig.costBasis.color} strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 1 }} />
+            <Line
+              dataKey="costBasis"
+              type="monotone"
+              stroke={chartConfig.costBasis.color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 1 }}
+            />
           )}
           {type === "percentual" && visibleLines.indexFund && (
-            <Line dataKey="indexFund" type="monotone" stroke={chartConfig.indexFund.color} strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 1 }} />
+            <Line
+              dataKey="indexFund"
+              type="monotone"
+              stroke={chartConfig.indexFund.color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 1 }}
+            />
           )}
         </LineChart>
       </ChartContainer>
