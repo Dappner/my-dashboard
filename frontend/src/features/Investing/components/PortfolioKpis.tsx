@@ -1,6 +1,12 @@
 import { Card } from "@/components/ui/card";
-import { ArrowDown, ArrowUp, TrendingUp, DollarSign, Percent } from "lucide-react";
-import { usePortfolioDailyMetrics } from '../hooks/usePortfolioDailyMetrics';
+import {
+  ArrowDown,
+  ArrowUp,
+  DollarSign,
+  Percent,
+  TrendingUp,
+} from "lucide-react";
+import { usePortfolioDailyMetrics } from "../hooks/usePortfolioDailyMetrics";
 import KpiCard from "@/components/customs/KpiCard";
 import { calculatePortfolioMetrics } from "@/services/portfolioMetrics";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
@@ -12,7 +18,8 @@ interface PortfolioKpisProps {
 }
 
 export default function PortfolioKpis({ timeframe }: PortfolioKpisProps) {
-  const { dailyMetrics, isLoading: metricsLoading, error: metricsError } = usePortfolioDailyMetrics(timeframe);
+  const { dailyMetrics, isLoading: metricsLoading, error: metricsError } =
+    usePortfolioDailyMetrics(timeframe);
   const { transactions, isLoading: transactionsLoading } = useTransactions();
   const { holdings, isLoading: holdingsLoading } = useHoldings();
 
@@ -20,8 +27,8 @@ export default function PortfolioKpis({ timeframe }: PortfolioKpisProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {Array(5).fill(0).map((_, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array(4).fill(0).map((_, i) => (
           <Card key={i} className="h-32 animate-pulse bg-gray-200" />
         ))}
       </div>
@@ -31,33 +38,41 @@ export default function PortfolioKpis({ timeframe }: PortfolioKpisProps) {
   if (metricsError || !dailyMetrics) {
     return (
       <div className="text-red-600 text-center">
-        Error loading portfolio data: {metricsError?.message || 'Unknown error'}
+        Error loading portfolio data: {metricsError?.message || "Unknown error"}
       </div>
     );
   }
 
-  const metrics = calculatePortfolioMetrics(dailyMetrics, timeframe, transactions, holdings);
+  const metrics = calculatePortfolioMetrics(
+    dailyMetrics,
+    timeframe,
+    transactions,
+    holdings,
+  );
 
   const formatCurrency = (value: number): string =>
-    `$${value.toLocaleString('en-US', {
+    `$${value.toLocaleString("en-US", {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })}`;
+      maximumFractionDigits: 2,
+    })
+    }`;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <KpiCard
         title="Total Portfolio Value"
         value={formatCurrency(metrics.currentTotalValue)}
         changePercent={metrics.periodTotalChangePercent}
         icon={TrendingUp}
         positiveChange={metrics.periodTotalChange >= 0}
-        additionalInfo={`Growth: ${metrics.periodTotalChange >= 0 ? '+' : ''}${formatCurrency(metrics.periodTotalChange)}`}
+        additionalInfo={`Growth: ${metrics.periodTotalChange >= 0 ? "+" : ""}${formatCurrency(metrics.periodTotalChange)
+          }`}
         tooltip={`Total value change over ${timeframe}`}
       />
       <KpiCard
         title="Unrealized P/L"
-        value={`${metrics.currentUnrealizedPL >= 0 ? '+' : ''}${formatCurrency(metrics.currentUnrealizedPL)}`}
+        value={`${metrics.currentUnrealizedPL >= 0 ? "+" : ""}${formatCurrency(metrics.currentUnrealizedPL)
+          }`}
         changePercent={metrics.periodTotalReturnPercent}
         icon={metrics.currentUnrealizedPL >= 0 ? ArrowUp : ArrowDown}
         positiveChange={metrics.currentUnrealizedPL >= 0}
@@ -65,16 +80,7 @@ export default function PortfolioKpis({ timeframe }: PortfolioKpisProps) {
         tooltip="Current unrealized profit/loss including dividends"
       />
       <KpiCard
-        title="Price Appreciation"
-        value={`${metrics.periodInvestmentChange >= 0 ? '+' : ''}${formatCurrency(metrics.periodInvestmentChange)}`}
-        changePercent={metrics.periodInvestmentChangePercent}
-        icon={metrics.periodInvestmentChange >= 0 ? ArrowUp : ArrowDown}
-        positiveChange={metrics.periodInvestmentChange >= 0}
-        additionalInfo={`Over ${timeframe}`}
-        tooltip="Change in investment value excluding dividends"
-      />
-      <KpiCard
-        title="Dividends Received"
+        title="Realized P/L"
         value={formatCurrency(metrics.periodDividendsReceived)}
         icon={Percent}
         positiveChange={true}

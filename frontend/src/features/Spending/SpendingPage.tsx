@@ -26,41 +26,110 @@ import {
   CalendarIcon,
   ReceiptIcon,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase"; // Assuming you have a Supabase client
 
-// Mock function to fetch spending data - replace with your actual API call
-const fetchSpendingData = async () => {
-  // This would be your Supabase query or other data fetching mechanism
-  return {
-    totalSpent: 1245.67,
-    receiptCount: 28,
-    monthlyTrend: 8.5, // percentage increase from last month
-    categories: [
-      { name: "Groceries", amount: 387.22 },
-      { name: "Dining", amount: 235.89 },
-      { name: "Shopping", amount: 312.45 },
-      { name: "Entertainment", amount: 189.11 },
-      { name: "Other", amount: 121.00 },
-    ],
-    monthlyData: [
-      { month: "Jan", amount: 980.54 },
-      { month: "Feb", amount: 1050.32 },
-      { month: "Mar", amount: 1120.87 },
-      { month: "Apr", amount: 1140.23 },
-      { month: "May", amount: 1210.76 },
-      { month: "Jun", amount: 1160.45 },
-      { month: "Jul", amount: 1245.67 },
-    ],
-  };
-};
+// Types for the data we'll fetch
+interface MonthlyData {
+  month: string;
+  amount: number;
+}
+
+interface CategoryData {
+  name: string;
+  amount: number;
+}
+
+interface SpendingOverviewData {
+  totalSpent: number;
+  receiptCount: number;
+  monthlyTrend: number;
+  monthlyData: MonthlyData[];
+  categories: CategoryData[];
+}
 
 export default function SpendingOverview() {
   const today = new Date();
   const currentMonth = format(today, "MMMM yyyy");
   const lastMonth = format(subMonths(today, 1), "MMMM yyyy");
 
-  const { data, isLoading, error } = useSuspenseQuery({
+  const { data, isLoading, error } = useSuspenseQuery<SpendingOverviewData>({
     queryKey: ["spendingOverview"],
-    queryFn: fetchSpendingData,
+    queryFn: async () => {
+      // Get current and last month's dates
+      const currentMonthStart = format(today, "yyyy-MM-01");
+      const lastMonthStart = format(subMonths(today, 1), "yyyy-MM-01");
+      const sixMonthsAgo = format(subMonths(today, 6), "yyyy-MM-01");
+
+      // Fetch total spent and receipt count for current month
+      const { data: currentMonthData } = await supabase
+        .schema("grocery")
+        .from("receipts")
+        .select("total_amount, id")
+        .gte("purchase_date", currentMonthStart);
+
+      const totalSpent = currentMonthData?.reduce(
+        (sum, receipt) => sum + (receipt.total_amount || 0),
+        0,
+      ) || 0;
+      const receiptCount = currentMonthData?.length || 0;
+
+      // Fetch last month's total for trend calculation
+      const { data: lastMonthData } = await supabase
+        .schema("grocery")
+        .from("receipts")
+        .select("total_amount")
+        .gte("purchase_date", lastMonthStart)
+        .lt("purchase_date", currentMonthStart);
+
+      const lastMonthTotal = lastMonthData?.reduce(
+        (sum, receipt) => sum + (receipt.total_amount || 0),
+        0,
+      ) || 0;
+      const monthlyTrend = lastMonthTotal > 0
+        ? ((totalSpent - lastMonthTotal) / lastMonthTotal) * 100
+        : 0;
+
+      // Fetch 6 months of data for trend chart
+      const { data: monthlyDataRaw } = await supabase
+        .schema("grocery")
+        .from("receipts")
+        .select("purchase_date, total_amount")
+        .gte("purchase_date", sixMonthsAgo)
+        .order("purchase_date", { ascending: true });
+
+      const monthlyData = Object.entries(
+        monthlyDataRaw?.reduce((acc, receipt) => {
+          const month = format(new Date(receipt.purchase_date), "MMM yyyy");
+          acc[month] = (acc[month] || 0) + (receipt.total_amount || 0);
+          return acc;
+        }, {} as Record<string, number>) || {},
+      ).map(([month, amount]) => ({ month, amount }));
+
+      // Fetch category breakdown
+      const { data: categoryDataRaw } = await supabase
+        .schema("grocery")
+        .from("receipt_items")
+        .select("categories(name), total_price")
+        .gte("created_at", currentMonthStart)
+        .not("category_id", "is", null);
+
+      const categories = Object.entries(
+        categoryDataRaw?.reduce((acc, item) => {
+          const categoryName = item.categories?.name || "Uncategorized";
+          acc[categoryName] = (acc[categoryName] || 0) +
+            (item.total_price || 0);
+          return acc;
+        }, {} as Record<string, number>) || {},
+      ).map(([name, amount]) => ({ name, amount }));
+
+      return {
+        totalSpent,
+        receiptCount,
+        monthlyTrend,
+        monthlyData,
+        categories,
+      };
+    },
   });
 
   if (isLoading) {
@@ -73,6 +142,10 @@ export default function SpendingOverview() {
 
   if (error) {
     return <div className="text-red-500">Error loading spending data</div>;
+  }
+
+  if (!data) {
+    return <div>No spending data available</div>;
   }
 
   return (
@@ -109,13 +182,14 @@ export default function SpendingOverview() {
                     ? (
                       <span className="flex items-center text-red-500">
                         <ArrowUpIcon className="mr-1 h-4 w-4" />
-                        {data.monthlyTrend}% from {lastMonth}
+                        {data.monthlyTrend.toFixed(1)}% from {lastMonth}
                       </span>
                     )
                     : (
                       <span className="flex items-center text-green-500">
                         <ArrowDownIcon className="mr-1 h-4 w-4" />
-                        {Math.abs(data.monthlyTrend)}% from {lastMonth}
+                        {Math.abs(data.monthlyTrend).toFixed(1)}% from{" "}
+                        {lastMonth}
                       </span>
                     )}
                 </p>
@@ -142,7 +216,10 @@ export default function SpendingOverview() {
               <CardHeader>
                 <CardTitle>Average Daily Spend</CardTitle>
                 <CardDescription>
-                  Daily average: ${(data.totalSpent / 30).toFixed(2)}
+                  Daily average: $
+                  {(data.totalSpent /
+                    new Date(today.getFullYear(), today.getMonth() + 1, 0)
+                      .getDate()).toFixed(2)}
                 </CardDescription>
               </CardHeader>
               <CardContent className="h-64">
@@ -154,9 +231,7 @@ export default function SpendingOverview() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
-                    <Tooltip
-                      formatter={(value) => [`$${value}`, "Amount"]}
-                    />
+                    <Tooltip formatter={(value) => [`$${value}`, "Amount"]} />
                     <Line
                       type="monotone"
                       dataKey="amount"
@@ -175,7 +250,7 @@ export default function SpendingOverview() {
             <CardHeader>
               <CardTitle>Monthly Spending Trend</CardTitle>
               <CardDescription>
-                How your spending has evolved over the past months
+                How your spending has evolved over the past 6 months
               </CardDescription>
             </CardHeader>
             <CardContent className="h-96">
@@ -187,9 +262,7 @@ export default function SpendingOverview() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip
-                    formatter={(value) => [`$${value}`, "Amount"]}
-                  />
+                  <Tooltip formatter={(value) => [`$${value}`, "Amount"]} />
                   <Legend />
                   <Bar dataKey="amount" name="Monthly Spend" fill="#8884d8" />
                 </BarChart>
@@ -203,7 +276,7 @@ export default function SpendingOverview() {
             <CardHeader>
               <CardTitle>Spending by Category</CardTitle>
               <CardDescription>
-                Breakdown of spending across different categories
+                Breakdown of spending across different categories this month
               </CardDescription>
             </CardHeader>
             <CardContent className="h-96">
@@ -215,10 +288,8 @@ export default function SpendingOverview() {
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" />
-                  <Tooltip
-                    formatter={(value) => [`$${value}`, "Amount"]}
-                  />
+                  <YAxis dataKey="name" type="category" width={100} />
+                  <Tooltip formatter={(value) => [`$${value}`, "Amount"]} />
                   <Legend />
                   <Bar dataKey="amount" name="Amount Spent" fill="#82ca9d" />
                 </BarChart>

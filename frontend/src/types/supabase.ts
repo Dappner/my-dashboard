@@ -30,6 +30,38 @@ export type Database = {
         }
         Relationships: []
       }
+      item_translations: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          id: string
+          original_name: string
+          readable_name: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          id?: string
+          original_name: string
+          readable_name: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          id?: string
+          original_name?: string
+          readable_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_translations_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       receipt_items: {
         Row: {
           category_id: string | null
@@ -448,7 +480,7 @@ export type Database = {
       }
       historical_prices: {
         Row: {
-          close_price: number
+          close_price: number | null
           created_at: string | null
           date: string
           dividends: number | null
@@ -462,7 +494,7 @@ export type Database = {
           volume: number | null
         }
         Insert: {
-          close_price: number
+          close_price?: number | null
           created_at?: string | null
           date: string
           dividends?: number | null
@@ -476,7 +508,7 @@ export type Database = {
           volume?: number | null
         }
         Update: {
-          close_price?: number
+          close_price?: number | null
           created_at?: string | null
           date?: string
           dividends?: number | null
