@@ -2,8 +2,7 @@ import { timeframes } from "@/constants";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import { Button } from "@/components/ui/button";
 
-
-export default function TimeframeControls({ timeframe, onTimeframeChange, onChartTypeChange }: {
+export default function TimeframeControls({ timeframe, onTimeframeChange }: {
   timeframe: Timeframe;
   onTimeframeChange: (period: Timeframe) => void;
 }) {
@@ -21,4 +20,4 @@ export default function TimeframeControls({ timeframe, onTimeframeChange, onChar
       ))}
     </div>
   );
-} 
+}

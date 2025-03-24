@@ -65,9 +65,6 @@ export default function ReceiptsPage() {
           <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
             Receipts
           </h1>
-          <p className="text-gray-600 mt-1">
-            Manage and explore your uploaded receipts
-          </p>
         </div>
         <div className="flex flex-col items-center justify-center">
           <input
@@ -91,7 +88,7 @@ export default function ReceiptsPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {filteredReceipts.map((receipt) => (
           <ReceiptCard key={receipt.receipt_id} receipt={receipt} />
         ))}
