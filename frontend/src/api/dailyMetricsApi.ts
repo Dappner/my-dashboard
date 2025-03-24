@@ -1,4 +1,4 @@
-import { useDateRangeFilter } from "@/hooks/useDateRangeFilter";
+import { getDateRangeFilter } from "@/lib/dateRangeFilter";
 import { supabase } from "@/lib/supabase";
 import {
   PortfolioDailyMetric,
@@ -13,8 +13,7 @@ export const dailyMetricsApiKeys = {
 
 export const dailyMetricsApi = {
   async getDailyMetrics(timeframe: Timeframe): Promise<PortfolioDailyMetric[]> {
-    const { startDate } = useDateRangeFilter(timeframe);
-    // Get current date
+    const { startDate } = getDateRangeFilter(timeframe);
 
     let query = supabase
       .from("portfolio_daily_metrics")
