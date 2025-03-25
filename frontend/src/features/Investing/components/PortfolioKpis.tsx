@@ -73,10 +73,10 @@ export default function PortfolioKpis({ timeframe }: PortfolioKpisProps) {
         title="Unrealized P/L"
         value={`${metrics.currentUnrealizedPL >= 0 ? "+" : ""}${formatCurrency(metrics.currentUnrealizedPL)
           }`}
-        changePercent={metrics.periodTotalReturnPercent}
+        // changePercent={metrics.periodTotalReturnPercent}
         icon={metrics.currentUnrealizedPL >= 0 ? ArrowUp : ArrowDown}
         positiveChange={metrics.currentUnrealizedPL >= 0}
-        additionalInfo={`Over ${timeframe}`}
+        // additionalInfo={`Over ${timeframe}`}
         tooltip="Current unrealized profit/loss including dividends"
       />
       <KpiCard
