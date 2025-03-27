@@ -48,7 +48,6 @@ export const routeConfig: AppRouteObject[] = [
         element: <InvestingPage />,
         handle: {
           title: "Investment Dashboard",
-          // Crumb usually inherited or is the final part based on parent
         },
       },
       {
@@ -89,11 +88,16 @@ export const routeConfig: AppRouteObject[] = [
   },
   {
     path: "spending",
-    element: <SpendingPage />, // Assuming SpendingPage renders an <Outlet /> for its children
+    element: <Outlet />,
     handle: { title: "Spending Overview", crumb: () => "Spending" },
     children: [
-      // Optional: Index route for default /spending content if needed
-      // { index: true, element: <SpendingOverviewContent />, handle: { title: "Overview" } },
+      {
+        index: true,
+        element: <SpendingPage />,
+        handle: {
+          title: "Spending Dashboard",
+        },
+      },
       {
         path: "receipts",
         element: <ReceiptsPage />,

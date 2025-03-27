@@ -31,7 +31,7 @@ export default function Layout() {
   return (
     <HeaderProvider>
       <SidebarProvider>
-        <div className="flex h-dvh">
+        <div className="flex h-dvh w-full">
           <AppSidebar />
           <SidebarInset
             className={cn(
