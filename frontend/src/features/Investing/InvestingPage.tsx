@@ -60,12 +60,15 @@ export default function InvestingPage() {
             </div>
 
             {/* Chart Type Controls ABOVE chart (Mobile: below md) */}
-            <div className="flex items-center justify-between mb-2 gap-2 px-2 pt-2 md:hidden">
-              <TotalValueDisplay timeframe={timeframe} />
-              <ChartTypeControls
-                chartType={chartType}
-                onChartTypeChange={setChartType}
-              />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between mb-2 gap-2 px-2 pt-2 md:hidden">
+                <TotalValueDisplay timeframe={timeframe} />
+                <ChartTypeControls
+                  chartType={chartType}
+                  onChartTypeChange={setChartType}
+                />
+              </div>
+              <SidebarKpis timeframe={timeframe} />
             </div>
 
             {/* Chart */}
