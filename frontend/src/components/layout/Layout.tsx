@@ -35,7 +35,7 @@ export default function Layout() {
           <AppSidebar />
           <SidebarInset
             className={cn(
-              "flex flex-1 flex-col overflow-hidden bg-gray-50", // Use flex-col and control overflow
+              "flex flex-1 flex-col overflow-hidden bg-gray-50",
             )}
           >
             <ResponsiveHeader className="flex-shrink-0" />

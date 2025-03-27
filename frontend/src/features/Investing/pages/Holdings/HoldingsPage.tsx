@@ -3,20 +3,28 @@ import AllocationTab from "./tabs/AllocationTab";
 import RiskTab from "./tabs/RiskTab";
 import DividendTab from "./tabs/DividendTab";
 import OverviewTab from "./tabs/OverviewTab";
+import { PageContainer } from "@/components/layout/components/PageContainer";
 
 export default function HoldingsPage() {
-
   return (
-    <div className="mx-auto space-y-6 p-4">
+    <PageContainer>
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Holdings</h1>
       </header>
       <Tabs defaultValue="overview">
         <TabsList>
-          <TabsTrigger value="overview" className="cursor-pointer">Overview</TabsTrigger>
-          <TabsTrigger value="allocation" className="cursor-pointer">Allocation</TabsTrigger>
-          <TabsTrigger value="dividends" className="cursor-pointer">Dividends</TabsTrigger>
-          <TabsTrigger value="risk" className="cursor-pointer">Risk</TabsTrigger>
+          <TabsTrigger value="overview" className="cursor-pointer">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="allocation" className="cursor-pointer">
+            Allocation
+          </TabsTrigger>
+          <TabsTrigger value="dividends" className="cursor-pointer">
+            Dividends
+          </TabsTrigger>
+          <TabsTrigger value="risk" className="cursor-pointer">
+            Risk
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
           <OverviewTab />
@@ -31,6 +39,6 @@ export default function HoldingsPage() {
           <RiskTab />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 }

@@ -16,6 +16,7 @@ import {
 } from "./sheets/TransactionSheet";
 import TotalValueDisplay from "./components/TotalValueDisplay";
 import SidebarKpis from "./components/SidebarKpis";
+import { PageContainer } from "@/components/layout/components/PageContainer";
 
 export default function InvestingPage() {
   const {
@@ -39,7 +40,7 @@ export default function InvestingPage() {
   const recentTransactions = transactions?.slice(0, 5);
 
   return (
-    <div className="mx-auto space-y-2 sm:space-y-4 ">
+    <PageContainer>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* === Main Column (Chart, Mobile Holdings, Transactions) === */}
         <main className="lg:col-span-2 space-y-4">
@@ -143,6 +144,6 @@ export default function InvestingPage() {
           onClose={closeSheet}
         />
       </div>
-    </div>
+    </PageContainer>
   );
 }

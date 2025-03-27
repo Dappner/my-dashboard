@@ -13,7 +13,6 @@ import AlertsPage from "@/features/Investing/pages/AlertsPage";
 import SpendingPage from "@/features/Spending/SpendingPage";
 import ReceiptsPage from "@/features/Spending/pages/ReceiptsPage";
 
-// Define the shape of your custom handle object
 interface AppRouteHandle {
   crumb?: (data?: any) => ReactNode;
   title?: string;
@@ -21,11 +20,10 @@ interface AppRouteHandle {
 
 // *** Augment the official RouteObject type ***
 export type AppRouteObject = RouteObject & {
-  handle?: AppRouteHandle; // Add your custom handle
-  children?: AppRouteObject[]; // Ensure children also use the augmented type
+  handle?: AppRouteHandle;
+  children?: AppRouteObject[];
 };
 
-// Your route configuration, now using the augmented AppRouteObject type
 export const routeConfig: AppRouteObject[] = [
   {
     path: "/",
@@ -112,7 +110,6 @@ export const routeConfig: AppRouteObject[] = [
   },
 ];
 
-// Login route definition (can also use AppRouteObject)
 export const loginRoute: AppRouteObject = {
   path: "/login",
   element: <LoginPage />,

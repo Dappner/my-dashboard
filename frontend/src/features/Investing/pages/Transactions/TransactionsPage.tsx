@@ -13,6 +13,7 @@ import TransactionsFilters, {
 } from "./components/TransactionsFilters";
 import TransactionKPIs from "./components/TransactionsKpis";
 import { filterTransactions } from "./components/utils";
+import { PageContainer } from "@/components/layout/components/PageContainer";
 
 export default function TransactionsPage() {
   const itemsPerPage = 10;
@@ -75,7 +76,9 @@ export default function TransactionsPage() {
       if (trade.transaction_type === "deposit") {
         return sum + amount;
       }
-      if (trade.transaction_type === "withdraw") return sum - amount;
+      if (trade.transaction_type === "withdraw") {
+        return sum - amount;
+      }
       return sum;
     }, 0);
 
@@ -83,7 +86,7 @@ export default function TransactionsPage() {
   }, [filteredTransactions]);
 
   return (
-    <div className="p-6">
+    <PageContainer>
       <div className="px-2">
         <TransactionKPIs
           netCashflow={kpis?.netCashflow || 0}
@@ -144,6 +147,6 @@ export default function TransactionsPage() {
         onClose={closeSheet}
         transaction={selectedTransaction}
       />
-    </div>
+    </PageContainer>
   );
 }
