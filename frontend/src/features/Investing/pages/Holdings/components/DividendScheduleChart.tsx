@@ -1,19 +1,20 @@
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
 } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import { holdingsApi, holdingsApiKeys } from "@/api/holdingsApi";
 import { prepareDividendChartData } from "@/features/Investing/utils";
-import { formatCurrency, getStockColors } from "../utils";
+import { getStockColors } from "../utils";
+import { formatCurrency } from "@/lib/formatting";
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -23,7 +24,7 @@ interface CustomTooltipProps {
 function DividendScheduleChart() {
   const { data: holdings, isLoading } = useQuery({
     queryFn: holdingsApi.getHoldings,
-    queryKey: holdingsApiKeys.all
+    queryKey: holdingsApiKeys.all,
   });
 
   const chartData = React.useMemo(() => {
@@ -35,16 +36,18 @@ function DividendScheduleChart() {
   // Get all unique ticker symbols from holdings
   const tickers = React.useMemo(() => {
     if (!holdings) return [];
-    return [...new Set(holdings.map(holding => holding.symbol))];
+    return [...new Set(holdings.map((holding) => holding.symbol))];
   }, [holdings]);
 
   // Custom tooltip to show details
-  const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
+  const CustomTooltip: React.FC<CustomTooltipProps> = (
+    { active, payload, label },
+  ) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-4 border rounded shadow">
           <p className="font-bold">{label}</p>
-          {payload.filter(entry =>
+          {payload.filter((entry) =>
             entry.dataKey !== "month" &&
             entry.dataKey !== "name" &&
             entry.dataKey !== "total"
@@ -84,7 +87,9 @@ function DividendScheduleChart() {
   return (
     <>
       <div className="flex flex-row items-center justify-between mb-2 h-8">
-        <h2 className="text-lg font-semibold text-gray-900">Dividend Schedule</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          Dividend Schedule
+        </h2>
       </div>
       <Card>
         <CardContent>

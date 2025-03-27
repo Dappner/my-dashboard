@@ -11,6 +11,7 @@ import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import { useTransactions } from "../hooks/useTransactions";
 import { useHoldings } from "../hooks/useHoldings";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrency, formatPercent } from "@/lib/formatting";
 
 interface PortfolioKpisProps {
   timeframe: Timeframe;
@@ -50,17 +51,6 @@ export default function PortfolioKpis(
     transactions,
     holdings,
   );
-
-  const formatCurrency = (value: number): string =>
-    `$${
-      value.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-    }`;
-
-  const formatPercent = (value: number): string =>
-    `${value >= 0 ? "+" : ""}${Math.abs(value).toFixed(2)}%`;
 
   return (
     <div className={`grid grid-cols-2 sm:grid-cols-4 gap-2 ${className}`}>

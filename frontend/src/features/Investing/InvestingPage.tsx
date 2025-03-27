@@ -8,7 +8,6 @@ import ChartTypeControls from "./components/ChartTypeControls";
 import HoldingsWidget from "./components/HoldingsWidget";
 import PortfolioChart from "./components/PortfolioChart";
 import PortfolioInsightsWidget from "./components/PortfolioInsightsWidget";
-import PortfolioKpis from "./components/PortfolioKpis";
 import TickerEvents from "./components/TickerEvents";
 import TransactionTable from "./components/TransactionTable";
 import { useCalendarEvents } from "./hooks/useCalendarEvents";
@@ -17,6 +16,8 @@ import {
   TransactionSheet,
   useTransactionSheet,
 } from "./sheets/TransactionSheet";
+import TotalValueDisplay from "./components/TotalValueDisplay";
+import SidebarKpis from "./components/SidebarKpis";
 
 export default function InvestingPage() {
   const {
@@ -40,42 +41,44 @@ export default function InvestingPage() {
   const recentTransactions = transactions?.slice(0, 5);
 
   return (
-    <div className="mx-auto space-y-2 sm:space-y-4 sm:p-4">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
+    <div className="mx-auto space-y-2 sm:space-y-4 px-4 sm:px-0">
+      <header className="flex items-center justify-between pb-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
           Investment Dashboard
         </h1>
         <Button
           onClick={openAddTransaction}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 sm:gap-2" // Less gap mobile
+          size="sm"
         >
           <Plus className="h-4 w-4" />
-          <span className="hidden sm:block">Add Transaction</span>
+          <span className="hidden sm:inline">Add Transaction</span>
+          <span className="sm:hidden">Add</span>
         </Button>
       </header>
 
-      {/* KPIs Row */}
-      <PortfolioKpis timeframe={timeframe} className="px-4 sm:px-0 pb-4" />
-
-      {/* Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 sm:px-0">
-        <main className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* === Main Column (Chart, Mobile Holdings, Transactions) === */}
+        <main className="lg:col-span-2 space-y-4">
           <section>
-            {/* Controls ABOVE chart (Desktop: md and up) */}
-            <div className="hidden md:flex md:items-center md:justify-between md:mb-2 md:h-8 md:gap-4">
-              {/* Use updated TimeframeControls */}
-              <TimeframeControls
-                timeframe={timeframe}
-                onTimeframeChange={setTimeframe}
-              />
-              <ChartTypeControls
-                chartType={chartType}
-                onChartTypeChange={setChartType}
-              />
+            {/* Desktop */}
+            <div className="hidden md:flex md:justify-between md:mb-2 md:gap-4 md:items-end">
+              <TotalValueDisplay timeframe={timeframe} />
+              <div className="flex flex-row gap-4 ">
+                <TimeframeControls
+                  timeframe={timeframe}
+                  onTimeframeChange={setTimeframe}
+                />
+                <ChartTypeControls
+                  chartType={chartType}
+                  onChartTypeChange={setChartType}
+                />
+              </div>
             </div>
 
-            {/* Mobile */}
-            <div className="flex items-center justify-end mb-2 h-8 gap-2 md:hidden">
+            {/* Chart Type Controls ABOVE chart (Mobile: below md) */}
+            <div className="flex items-center justify-between mb-2 pt-4 h-8 gap-2 md:hidden">
+              <TotalValueDisplay timeframe={timeframe} />
               <ChartTypeControls
                 chartType={chartType}
                 onChartTypeChange={setChartType}
@@ -85,13 +88,24 @@ export default function InvestingPage() {
             {/* Chart */}
             <PortfolioChart timeframe={timeframe} type={chartType} />
 
-            {/* Mobile */}
+            {/* Timeframe Controls BELOW chart (Mobile: below md) */}
             <div className="flex justify-center mt-3 md:hidden">
               <TimeframeControls
                 timeframe={timeframe}
                 onTimeframeChange={setTimeframe}
               />
             </div>
+          </section>
+
+          {/* --- Holdings Section (MOBILE ONLY) --- */}
+          <section className="block lg:hidden">
+            <SectionHeader
+              title="Holdings"
+              linkTo="/investing/holdings"
+              linkText="View Details"
+            />
+
+            <HoldingsWidget />
           </section>
 
           <section>
@@ -107,22 +121,34 @@ export default function InvestingPage() {
             />
           </section>
         </main>
-        {/* Right Sidebar - Takes 1/3 of the space */}
+        {/* === End Main Column === */}
+
+        {/* === Right Sidebar (Desktop Holdings, Insights, Events) === */}
+        {/* Takes 1/3 of the space ON LARGE SCREENS */}
         <aside className="space-y-6">
           <section>
+            {/* Maybe add a subtle header? Optional. */}
+            {/* <h3 className="text-sm font-medium text-gray-500 mb-2">Performance Details</h3> */}
+            <SidebarKpis timeframe={timeframe} />
+          </section>
+          {/* --- Holdings Section (DESKTOP ONLY) --- */}
+          <section className="hidden lg:block">
             <SectionHeader
               title="Holdings"
               linkTo="/investing/holdings"
-              linkText="View All"
+              linkText="View Details"
             />
+
             <HoldingsWidget />
           </section>
+
           <section>
             <SectionHeader title="Insights" />
             <PortfolioInsightsWidget timeframe={timeframe} />
           </section>
 
           <section>
+            <SectionHeader title="Upcoming Events" />
             <TickerEvents
               events={events}
               isLoading={eventsLoading}

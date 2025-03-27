@@ -23,11 +23,10 @@ export default function TimeframeControls({
   return (
     <ToggleGroup
       type="single"
-      // variant="outline" // You might prefer no outline for closer match
-      size="sm" // Small size for density
+      size="sm"
       value={timeframe}
       onValueChange={handleValueChange}
-      className="flex flex-wrap justify-center" // Allow wrapping and center items
+      className="flex flex-wrap justify-center bg-white shadow-xs"
       aria-label="Select time frame"
     >
       {timeframes.map((period) => (
@@ -35,9 +34,7 @@ export default function TimeframeControls({
           key={period}
           value={period}
           aria-label={`Select ${period} timeframe`}
-          // Add custom styling for a closer match to the screenshot if needed
-          // e.g., className="data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 px-3"
-          className="px-3" // Adjust padding as needed
+          className="data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 px-4 sm:px-3 cursor-pointer"
         >
           {period}
         </ToggleGroupItem>

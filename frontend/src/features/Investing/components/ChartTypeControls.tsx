@@ -14,24 +14,25 @@ export default function ChartTypeControls({ chartType, onChartTypeChange }: {
 
   return (
     <ToggleGroup
-      type="single" // Ensures only one item can be selected
-      variant="outline" // Gives the group a nice outline style
-      size="sm" // Makes the buttons small
-      value={chartType} // The currently selected value
-      onValueChange={handleValueChange} // Function to call when selection changes
-      aria-label="Chart value type" // Accessibility label for the group
+      type="single"
+      size="sm"
+      variant="outline"
+      value={chartType}
+      onValueChange={handleValueChange}
+      aria-label="Chart value type"
+      className="bg-white shadow-xs"
     >
       <ToggleGroupItem
         value="absolute"
-        aria-label="Show absolute values" // Accessibility label
-        className="p-4"
+        aria-label="Show absolute values"
+        className="data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 px-3 cursor-pointer"
       >
         Value
       </ToggleGroupItem>
       <ToggleGroupItem
         value="percentual"
-        aria-label="Show percentage values" // Accessibility label
-        className="p-4"
+        aria-label="Show percentage values"
+        className="data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 px-3 cursor-pointer"
       >
         %
       </ToggleGroupItem>
