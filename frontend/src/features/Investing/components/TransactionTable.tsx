@@ -1,4 +1,11 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { Pencil, Trash2 } from "lucide-react";
@@ -8,29 +15,28 @@ import { Button } from "@/components/ui/button";
 
 export const getTradeTypeStyles = (type: TransactionType) => {
   switch (type) {
-    case 'buy':
+    case "buy":
       return {
-        variant: 'default' as const,
-        className: 'bg-green-100 text-green-800 border-green-200'
+        variant: "default" as const,
+        className: "bg-green-100 text-green-800 border-green-200",
       };
-    case 'sell':
+    case "sell":
       return {
-        variant: 'destructive' as const,
-        className: 'bg-red-100 text-red-800 border-red-200'
+        variant: "destructive" as const,
+        className: "bg-red-100 text-red-800 border-red-200",
       };
-    case 'dividend':
+    case "dividend":
       return {
-        variant: 'secondary' as const,
-        className: 'bg-blue-100 text-blue-800 border-blue-200'
+        variant: "secondary" as const,
+        className: "bg-blue-100 text-blue-800 border-blue-200",
       };
     default:
       return {
-        variant: 'outline' as const,
-        className: 'bg-gray-100 text-gray-800'
+        variant: "outline" as const,
+        className: "bg-gray-100 text-gray-800",
       };
   }
 };
-
 
 export const getCashflowStyles = (type: TransactionType) => {
   if (type === "buy" || type === "withdraw") {
@@ -38,8 +44,7 @@ export const getCashflowStyles = (type: TransactionType) => {
   } else {
     return "";
   }
-}
-
+};
 
 interface TransactionTableProps {
   transactions: TradeView[];
@@ -57,31 +62,46 @@ export default function TransactionTable({
   onDeleteTransaction,
   actions = false,
   isGlobal = true,
-
 }: TransactionTableProps) {
   if (isLoading) {
     return (
       <div className="bg-white flex justify-center align-middle h-64 border rounded-md shadow-sm overflow-x-auto">
         <h3>Loading Transactions</h3>
       </div>
-    )
+    );
   }
 
-
   return (
-    <div className="bg-white border rounded-md shadow-sm overflow-x-auto">
+    <div className="bg-white border sm:rounded-md shadow-sm overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50 hover:bg-muted/50">
-            <TableHead className="font-semibold text-muted-foreground">Type</TableHead>
-            <TableHead className="font-semibold text-muted-foreground">Date</TableHead>
+            <TableHead className="font-semibold text-muted-foreground">
+              Type
+            </TableHead>
+            <TableHead className="font-semibold text-muted-foreground">
+              Date
+            </TableHead>
             {isGlobal &&
-              <TableHead className="font-semibold text-muted-foreground">Ticker</TableHead>
-            }
-            <TableHead className="text-right font-semibold text-muted-foreground">Quantity</TableHead>
-            <TableHead className="text-right font-semibold text-muted-foreground">Price</TableHead>
-            <TableHead className="text-right font-semibold text-muted-foreground">Cashflow</TableHead>
-            {actions && <TableHead className="text-right font-semibold text-muted-foreground">Actions</TableHead>}
+              (
+                <TableHead className="font-semibold text-muted-foreground">
+                  Ticker
+                </TableHead>
+              )}
+            <TableHead className="text-right font-semibold text-muted-foreground">
+              Quantity
+            </TableHead>
+            <TableHead className="text-right font-semibold text-muted-foreground">
+              Price
+            </TableHead>
+            <TableHead className="text-right font-semibold text-muted-foreground">
+              Cashflow
+            </TableHead>
+            {actions && (
+              <TableHead className="text-right font-semibold text-muted-foreground">
+                Actions
+              </TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -100,7 +120,7 @@ export default function TransactionTable({
                     className={cn(
                       "font-medium",
                       typeStyles.className,
-                      !actions && "text-xs px-2"
+                      !actions && "text-xs px-2",
                     )}
                   >
                     {trade.transaction_type?.toUpperCase()}
@@ -110,17 +130,24 @@ export default function TransactionTable({
                   {format(parseISO(trade.transaction_date!), "MMM dd, yyyy")}
                 </TableCell>
                 {isGlobal &&
-                  <TableCell className={cn(!actions && "text-sm")}>
-                    {trade.symbol}
-                  </TableCell>
-                }
+                  (
+                    <TableCell className={cn(!actions && "text-sm")}>
+                      {trade.symbol}
+                    </TableCell>
+                  )}
                 <TableCell className={cn("text-right", !actions && "text-sm")}>
                   {trade.shares!.toFixed(2)}
                 </TableCell>
                 <TableCell className={cn("text-right", !actions && "text-sm")}>
                   ${trade.price_per_share!.toFixed(2)}
                 </TableCell>
-                <TableCell className={cn("text-right font-medium", cashFlowStyles, !actions && "text-sm")}>
+                <TableCell
+                  className={cn(
+                    "text-right font-medium",
+                    cashFlowStyles,
+                    !actions && "text-sm",
+                  )}
+                >
                   ${trade.total_cost_basis?.toFixed(2)}
                 </TableCell>
                 {actions && (
@@ -151,5 +178,5 @@ export default function TransactionTable({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

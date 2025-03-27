@@ -21,7 +21,6 @@ import { PageContainer } from "@/components/layout/components/PageContainer";
 export default function InvestingPage() {
   const {
     isTransactionSheetOpen,
-    openAddTransaction,
     closeSheet,
   } = useTransactionSheet();
   const { transactions, isLoading: transactionsLoading } = useTransactions();
@@ -40,7 +39,7 @@ export default function InvestingPage() {
   const recentTransactions = transactions?.slice(0, 5);
 
   return (
-    <PageContainer>
+    <PageContainer className="pt-0">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* === Main Column (Chart, Mobile Holdings, Transactions) === */}
         <main className="lg:col-span-2 space-y-4">
@@ -61,7 +60,7 @@ export default function InvestingPage() {
             </div>
 
             {/* Chart Type Controls ABOVE chart (Mobile: below md) */}
-            <div className="flex items-center justify-between mb-2 gap-2 md:hidden">
+            <div className="flex items-center justify-between mb-2 gap-2 px-2 pt-2 md:hidden">
               <TotalValueDisplay timeframe={timeframe} />
               <ChartTypeControls
                 chartType={chartType}

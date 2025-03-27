@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TransactionTable from "../../components/TransactionTable";
 import { useTransactions } from "../../hooks/useTransactions";
 import {
@@ -36,6 +36,10 @@ export default function TransactionsPage() {
   const filteredTransactions = useMemo(() => {
     return filterTransactions(filters, transactions);
   }, [transactions, filters]);
+  useEffect(() => {
+    console.log("Transactions updated:", transactions);
+    console.log("Filtered Transactions:", filteredTransactions);
+  }, [transactions, filteredTransactions]);
 
   const paginatedTrades = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -86,61 +90,61 @@ export default function TransactionsPage() {
   }, [filteredTransactions]);
 
   return (
-    <PageContainer>
-      <div className="px-2">
-        <TransactionKPIs
-          netCashflow={kpis?.netCashflow || 0}
-          totalTrades={kpis?.totalTrades}
-          netCash={kpis?.netCash || 0}
-        />
-        <div className={cn("w-full space-y-4")}>
+    <PageContainer className="pt-0">
+      <TransactionKPIs
+        netCashflow={kpis?.netCashflow || 0}
+        totalTrades={kpis?.totalTrades}
+        netCash={kpis?.netCash || 0}
+      />
+      <div className={cn("w-full space-y-4")}>
+        <div className="px-2">
           <TransactionsFilters
             filters={filters}
             setTransactionsFilters={setFilters}
             onAddTransaction={openAddTransaction}
           />
-
-          {isLoading
-            ? (
-              <div className="text-center py-4 text-muted-foreground">
-                <div className="animate-pulse">Loading trades...</div>
-              </div>
-            )
-            : isError
-            ? (
-              <div className="text-center py-4 space-y-2">
-                <p className="text-destructive">Error loading trades</p>
-                <Button variant="outline" onClick={() => refetch()}>
-                  Retry
-                </Button>
-              </div>
-            )
-            : filteredTransactions?.length === 0
-            ? (
-              <div className="text-center py-4 text-muted-foreground">
-                No trades found matching the filters
-              </div>
-            )
-            : (
-              <>
-                <TransactionTable
-                  transactions={paginatedTrades!}
-                  isLoading={isLoading}
-                  actions
-                  onEditTransaction={openEditTransaction}
-                  onDeleteTransaction={onDeleteTransaction}
-                />
-                <PaginationControls
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  itemsPerPage={itemsPerPage}
-                  totalItems={filteredTransactions?.length || 0}
-                  onPageChange={setCurrentPage}
-                  disabled={isLoading}
-                />
-              </>
-            )}
         </div>
+
+        {isLoading
+          ? (
+            <div className="text-center py-4 text-muted-foreground">
+              <div className="animate-pulse">Loading trades...</div>
+            </div>
+          )
+          : isError
+          ? (
+            <div className="text-center py-4 space-y-2">
+              <p className="text-destructive">Error loading trades</p>
+              <Button variant="outline" onClick={() => refetch()}>
+                Retry
+              </Button>
+            </div>
+          )
+          : filteredTransactions?.length === 0
+          ? (
+            <div className="text-center py-4 text-muted-foreground">
+              No trades found matching the filters
+            </div>
+          )
+          : (
+            <>
+              <TransactionTable
+                transactions={paginatedTrades!}
+                isLoading={isLoading}
+                actions
+                onEditTransaction={openEditTransaction}
+                onDeleteTransaction={onDeleteTransaction}
+              />
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                itemsPerPage={itemsPerPage}
+                totalItems={filteredTransactions?.length || 0}
+                onPageChange={setCurrentPage}
+                disabled={isLoading}
+              />
+            </>
+          )}
       </div>
       <TransactionSheet
         isOpen={isTransactionSheetOpen}

@@ -79,7 +79,6 @@ export default function PortfolioChart(
     costBasis: false,
     indexFund: true,
   });
-  //TODO: Correctly implement the Percentual Graphing
 
   const { historicalPrices, historicalPricesLoading } =
     useTickerHistoricalPrices(user?.tracking_ticker_id || "", timeframe);
@@ -233,7 +232,7 @@ export default function PortfolioChart(
   const yDomain = getYDomain(chartData);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm px-4 border border-gray-100">
+    <div className="sm:bg-white sm:rounded-lg sm:shadow-sm sm:px-4 border border-gray-100">
       <ChartContainer config={chartConfig} className="h-96 w-full">
         <AreaChart
           accessibilityLayer

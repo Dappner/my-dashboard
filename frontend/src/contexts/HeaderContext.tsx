@@ -1,84 +1,68 @@
 import React, {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
-  useLayoutEffect,
   useMemo,
   useState,
 } from "react";
 
+// Simple state: just the current title and actions nodes
 interface HeaderState {
-  title: string | null;
+  title: ReactNode | null; // Allow ReactNode for flexibility if needed, but string is often fine
   actions: ReactNode | null;
 }
 
 interface HeaderContextProps extends HeaderState {
-  setTitle: (title: string | null) => void; // Allow setting null
+  // Stable setters are key
+  setTitle: (title: ReactNode | null) => void;
   setActions: (actions: ReactNode | null) => void;
 }
 
 const HeaderContext = createContext<HeaderContextProps | undefined>(undefined);
 
-export const HeaderProvider: React.FC<{ children: ReactNode }> = (
-  { children },
-) => {
+export const HeaderProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [headerState, setHeaderState] = useState<HeaderState>({
-    // *** Start with null title ***
-    title: null,
+    title: null, // Start empty
     actions: null,
   });
 
-  // Allow setting null title
-  const setTitle = (title: string | null) => {
-    setHeaderState((prev) => ({ ...prev, title }));
-  };
+  // Use useCallback to ensure setters have stable references
+  const setTitle = useCallback((title: ReactNode | null) => {
+    // Optional: Prevent update if value is identical (reference check for nodes)
+    setHeaderState((
+      prev,
+    ) => (prev.title === title ? prev : { ...prev, title }));
+  }, []);
 
-  const setActions = (actions: ReactNode | null) => {
-    setHeaderState((prev) => ({ ...prev, actions }));
-  };
+  const setActions = useCallback((actions: ReactNode | null) => {
+    setHeaderState((
+      prev,
+    ) => (prev.actions === actions ? prev : { ...prev, actions }));
+  }, []);
 
-  const value = useMemo(() => ({
-    ...headerState,
-    setTitle,
-    setActions,
-  }), [headerState.title, headerState.actions]);
+  // Memoize the context value based on state and stable setters
+  const value = useMemo(
+    () => ({
+      ...headerState,
+      setTitle,
+      setActions,
+    }),
+    [headerState.title, headerState.actions, setTitle, setActions],
+  );
 
   return (
-    <HeaderContext.Provider value={value}>
-      {children}
-    </HeaderContext.Provider>
+    <HeaderContext.Provider value={value}>{children}</HeaderContext.Provider>
   );
 };
 
+// Standard consumer hook
 export const useHeader = (): HeaderContextProps => {
   const context = useContext(HeaderContext);
   if (context === undefined) {
     throw new Error("useHeader must be used within a HeaderProvider");
   }
   return context;
-};
-
-// Hook to set header state from components
-// Sets title/actions on mount and clears on unmount
-export const useSetHeader = (
-  title: string | null,
-  actions: ReactNode | null = null,
-) => {
-  const { setTitle, setActions } = useHeader();
-
-  useLayoutEffect(() => {
-    setTitle(title); // Set the provided title (can be null)
-    setActions(actions);
-
-    // Cleanup function
-    return () => {
-      // Reset actions when component unmounts
-      setActions(null);
-      // Optionally reset title back to null if desired,
-      // otherwise the last static title might show briefly.
-      // Resetting might cause a flicker if the next page loads slowly.
-      // setTitle(null);
-    };
-    // Depend on the reference of actions, but only primitive title
-  }, [title, actions, setTitle, setActions]);
 };

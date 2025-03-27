@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -24,7 +24,7 @@ export default function PaginationControls({
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   return (
-    <div className="flex items-center justify-between mt-4">
+    <div className="flex items-center justify-between mt-4 px-2 sm:px-0">
       <div className="text-sm text-muted-foreground">
         Showing {startItem} to {endItem} of {totalItems} items
       </div>

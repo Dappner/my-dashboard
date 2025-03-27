@@ -19,7 +19,7 @@ export default function HoldingsWidget() {
   };
 
   return (
-    <div className="bg-white border rounded-md shadow-sm overflow-x-auto">
+    <div className="bg-white border sm:rounded-md shadow-sm overflow-x-auto">
       {isLoading
         ? (
           <div className="text-center py-4 text-muted-foreground">

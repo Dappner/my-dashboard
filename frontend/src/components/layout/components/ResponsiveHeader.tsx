@@ -12,7 +12,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-// Interface for the expected structure of the route handle
 interface AppRouteHandle {
   crumb?: (data?: any) => React.ReactNode;
   title?: string;
@@ -49,20 +48,19 @@ interface ResponsiveHeaderProps {
 }
 
 export function ResponsiveHeader({ className }: ResponsiveHeaderProps) {
-  // 1. Get title set by component (via context) and actions
-  const { title: contextTitle, actions } = useHeader();
+  // 1. Get title override AND actions configuration from context
+  const { title: contextTitle, actions: contextActions } = useHeader();
   const matches = useMatches();
 
   // 2. Get static title from the last matched route's handle (fallback)
   const lastMatch = matches.length > 0 ? matches[matches.length - 1] : null;
   const routeHandle = lastMatch?.handle as AppRouteHandle | undefined;
-  const routeHandleTitle = routeHandle?.title; // Static title from route config
+  const routeHandleTitle = routeHandle?.title;
 
-  // 3. Determine the final display title based on priority
-  //    Priority: Context Title > Route Handle Title > Fallback (space/empty)
-  const displayTitle = contextTitle ?? routeHandleTitle ?? " "; // Use nullish coalescing
+  // 3. Determine the final display title
+  const displayTitle = contextTitle ?? routeHandleTitle ?? " ";
+  const displayActions = contextActions;
 
-  // --- Breadcrumb Generation Logic ---
   const crumbs = React.useMemo(() => {
     return matches
       .filter((match): match is RouteObject & { handle: AppRouteHandle } =>
@@ -78,10 +76,7 @@ export function ResponsiveHeader({ className }: ResponsiveHeaderProps) {
           <React.Fragment key={match.id || match.pathname}>
             <BreadcrumbItem>
               {isLast
-                ? (
-                  // Use the final calculated displayTitle for the last breadcrumb page
-                  <BreadcrumbPage>{displayTitle}</BreadcrumbPage>
-                )
+                ? <BreadcrumbPage>{displayTitle}</BreadcrumbPage>
                 : (
                   <BreadcrumbLink asChild>
                     <Link to={match.pathname}>{crumbContent}</Link>
@@ -93,8 +88,7 @@ export function ResponsiveHeader({ className }: ResponsiveHeaderProps) {
         );
       })
       .filter(Boolean);
-    // Recompute based on matches AND the final displayTitle ensures breadcrumb updates correctly
-  }, [matches, displayTitle]);
+  }, [matches]); // <-- DEPEND ONLY ON MATCHES
 
   return (
     <header
@@ -103,16 +97,12 @@ export function ResponsiveHeader({ className }: ResponsiveHeaderProps) {
         className,
       )}
     >
-      {/* --- Left Section --- */}
+      {/* Left Section uses displayTitle */}
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <SidebarTrigger className="-ml-1 cursor-pointer flex-shrink-0" />
-
-        {/* Mobile Title - Use final displayTitle */}
         <h1 className="flex-1 truncate text-lg font-semibold sm:hidden">
           {displayTitle}
         </h1>
-
-        {/* Desktop Breadcrumbs / Title - Use final displayTitle */}
         <div className="hidden min-w-0 flex-1 sm:block">
           {crumbs.length > 1
             ? (
@@ -120,16 +110,14 @@ export function ResponsiveHeader({ className }: ResponsiveHeaderProps) {
                 <BreadcrumbList>{crumbs}</BreadcrumbList>
               </Breadcrumb>
             )
-            : (
-              // Also use displayTitle when showing only title on desktop
-              <h1 className="truncate text-lg font-semibold">{displayTitle}</h1>
-            )}
+            : <h1 className="truncate text-lg font-semibold">{displayTitle}
+            </h1>}
         </div>
       </div>
 
-      {/* --- Right Section (Actions) --- */}
+      {/* Right Section renders actions from context */}
       <div className="flex flex-shrink-0 items-center gap-2">
-        {actions}
+        {displayActions}
       </div>
     </header>
   );

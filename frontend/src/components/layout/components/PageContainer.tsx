@@ -11,7 +11,7 @@ export function PageContainer({
   return (
     <div
       className={cn(
-        "mx-auto p-0 sm:p-4 md:p-6 space-y-4",
+        "mx-auto p-0 pt-2 sm:p-4 md:p-6 space-y-4",
         "pb-[calc(1.5rem+72px)] sm:pb-4 md:pb-6",
         className,
       )}
