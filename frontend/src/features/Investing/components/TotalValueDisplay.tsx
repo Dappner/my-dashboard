@@ -78,6 +78,9 @@ export default function TotalValueDisplay({
 
   return (
     <div className={cn(className)}>
+      <div className="hidden sm:block sm:text-xl font-normal text-gray-700">
+        Value
+      </div>
       <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-0.5">
         {formatCurrency(metrics.currentTotalValue)}
       </div>

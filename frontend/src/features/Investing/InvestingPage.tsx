@@ -41,22 +41,7 @@ export default function InvestingPage() {
   const recentTransactions = transactions?.slice(0, 5);
 
   return (
-    <div className="mx-auto space-y-2 sm:space-y-4 px-4 sm:px-0">
-      <header className="flex items-center justify-between pb-2">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-          Investment Dashboard
-        </h1>
-        <Button
-          onClick={openAddTransaction}
-          className="flex items-center gap-1 sm:gap-2" // Less gap mobile
-          size="sm"
-        >
-          <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">Add Transaction</span>
-          <span className="sm:hidden">Add</span>
-        </Button>
-      </header>
-
+    <div className="mx-auto space-y-2 sm:space-y-4 ">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* === Main Column (Chart, Mobile Holdings, Transactions) === */}
         <main className="lg:col-span-2 space-y-4">

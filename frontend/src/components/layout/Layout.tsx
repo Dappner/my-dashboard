@@ -1,38 +1,58 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { AppSidebar } from "./components/AppSidebar";
-import RouteBreadcrumbs from "./components/RouteBreadcrumbs";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Toaster } from "../ui/sonner";
 import LoadingSpinner from "./components/LoadingSpinner";
 import useUser from "@/hooks/useUser";
+import { HeaderProvider } from "@/contexts/HeaderContext";
+import { ResponsiveHeader } from "./components/ResponsiveHeader";
+import { cn } from "@/lib/utils";
 
 export default function Layout() {
-  const { user: authUser, isLoading } = useAuthContext();
+  const { user: authUser, isLoading: authLoading } = useAuthContext();
   const { isLoading: userLoading } = useUser();
   const location = useLocation();
 
-  if (isLoading || userLoading) {
+  const isLoading = authLoading || userLoading;
+
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner />
       </div>
     );
   }
+
   if (!authUser) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset className="min-h-dvh bg-gray-50">
-        <RouteBreadcrumbs />
-        <main className="p-4 sm:p-8 pt-0 sm:pt-0">
-          <Outlet />
-          <Toaster richColors />
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <HeaderProvider>
+      <SidebarProvider>
+        <div className="flex h-dvh">
+          <AppSidebar />
+          <SidebarInset
+            className={cn(
+              "flex flex-1 flex-col overflow-hidden bg-gray-50", // Use flex-col and control overflow
+            )}
+          >
+            <ResponsiveHeader className="flex-shrink-0" />
+
+            <main
+              className={cn(
+                "flex-1 overflow-y-auto p-0 sm:p-4 md:p-8",
+              )}
+            >
+              <Outlet />
+            </main>
+
+            {/* Toaster remains outside the scrollable area */}
+            <Toaster richColors position="top-right" />
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+    </HeaderProvider>
   );
 }
