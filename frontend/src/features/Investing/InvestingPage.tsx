@@ -77,7 +77,7 @@ export default function InvestingPage() {
             </div>
 
             {/* Chart Type Controls ABOVE chart (Mobile: below md) */}
-            <div className="flex items-center justify-between mb-2 pt-4 h-8 gap-2 md:hidden">
+            <div className="flex items-center justify-between mb-2 gap-2 md:hidden">
               <TotalValueDisplay timeframe={timeframe} />
               <ChartTypeControls
                 chartType={chartType}
@@ -124,11 +124,8 @@ export default function InvestingPage() {
         {/* === End Main Column === */}
 
         {/* === Right Sidebar (Desktop Holdings, Insights, Events) === */}
-        {/* Takes 1/3 of the space ON LARGE SCREENS */}
         <aside className="space-y-6">
-          <section>
-            {/* Maybe add a subtle header? Optional. */}
-            {/* <h3 className="text-sm font-medium text-gray-500 mb-2">Performance Details</h3> */}
+          <section className="hidden lg:block">
             <SidebarKpis timeframe={timeframe} />
           </section>
           {/* --- Holdings Section (DESKTOP ONLY) --- */}

@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -12,8 +20,8 @@ import useUser from "@/hooks/useUser";
 import { useTickerHistoricalPrices } from "../pages/Research/hooks/useTickerHistoricalPrices";
 
 function extractDate(dateString: string): Date {
-  const datePart = dateString.split("T")[0]; // Extracts "2025-02-07"
-  return new Date(datePart); // Creates a Date object for "2025-02-07" at 00:00:00 local time
+  const datePart = dateString.split("T")[0];
+  return new Date(datePart);
 }
 
 interface ChartDataPoint {
@@ -29,7 +37,11 @@ type ChartConfig = typeof chartConfig;
 type VisibleLines = Record<keyof ChartConfig, boolean>;
 
 const chartConfig = {
-  totalPortfolio: { label: "Total Portfolio Value", color: "#2563eb" },
+  totalPortfolio: {
+    label: "Total Portfolio Value",
+    color: "#2563eb",
+    fill: "#e6f0fa",
+  },
   portfolio: { label: "Investment Value", color: "#16a34a" },
   cash: { label: "Cash Balance", color: "#9333ea" },
   costBasis: { label: "Cost Basis", color: "#6b7280" },
@@ -42,7 +54,7 @@ interface PortfolioChartProps {
 }
 
 const LoadingState = () => (
-  <div className="flex items-center justify-center h-80 bg-white rounded-lg shadow-sm border border-gray-100">
+  <div className="flex items-center justify-center h-96 bg-white rounded-lg shadow-sm border border-gray-100">
     <span className="text-muted-foreground">Loading chart...</span>
   </div>
 );
@@ -62,11 +74,12 @@ export default function PortfolioChart(
   );
   const [visibleLines, setVisibleLines] = useState<VisibleLines>({
     totalPortfolio: true,
-    portfolio: true,
+    portfolio: false,
     cash: false,
-    costBasis: true,
+    costBasis: false,
     indexFund: true,
   });
+  //TODO: Correctly implement the Percentual Graphing
 
   const { historicalPrices, historicalPricesLoading } =
     useTickerHistoricalPrices(user?.tracking_ticker_id || "", timeframe);
@@ -94,9 +107,9 @@ export default function PortfolioChart(
   const getChartData = (): ChartDataPoint[] => {
     // Sort dailyMetrics by date to ensure we get the earliest date first
     const sortedMetrics = [...dailyMetrics].sort((a, b) =>
-      new Date(a.current_date).getTime() - new Date(b.current_date).getTime()
+      new Date(a.current_date!).getTime() - new Date(b.current_date!).getTime()
     );
-    const firstDateString = sortedMetrics[0].current_date.split("T")[0];
+    const firstDateString = sortedMetrics[0].current_date!.split("T")[0];
 
     // Ensure we have valid baseline values
     const baselinePortfolio = Number(sortedMetrics[0].portfolio_value) || 1;
@@ -120,7 +133,7 @@ export default function PortfolioChart(
 
     return sortedMetrics.map((val) => {
       const dateString = val.current_date?.split("T")[0];
-      const date = extractDate(val.current_date);
+      const date = extractDate(val.current_date!);
 
       const totalValue = Number(val.total_portfolio_value) || 0;
       const portfolioValue = Number(val.portfolio_value) || 0;
@@ -220,9 +233,9 @@ export default function PortfolioChart(
   const yDomain = getYDomain(chartData);
 
   return (
-    <div className="w-full">
+    <div className="bg-white rounded-lg shadow-sm px-4 border border-gray-100">
       <ChartContainer config={chartConfig} className="h-96 w-full">
-        <LineChart
+        <AreaChart
           accessibilityLayer
           data={chartData}
           margin={{ left: 0, right: 12, top: 24, bottom: 0 }}
@@ -248,7 +261,7 @@ export default function PortfolioChart(
             tickFormatter={formatYAxis}
             stroke="#6b7280"
             fontSize={12}
-            width={60}
+            width={50}
             domain={yDomain}
           />
           <ChartTooltip
@@ -279,17 +292,20 @@ export default function PortfolioChart(
             )}
           />
           {type === "absolute" && visibleLines.totalPortfolio && (
-            <Line
+            <Area
               dataKey="totalPortfolio"
               type="monotone"
               stroke={chartConfig.totalPortfolio.color}
               strokeWidth={2}
+              fill={chartConfig.totalPortfolio.fill}
+              fillOpacity={1}
               dot={false}
-              activeDot={{ r: 4, strokeWidth: 1 }}
+              activeDot={false}
+              connectNulls={false}
             />
           )}
           {visibleLines.portfolio && (
-            <Line
+            <Area
               dataKey="portfolio"
               type="monotone"
               stroke={chartConfig.portfolio.color}
@@ -299,7 +315,7 @@ export default function PortfolioChart(
             />
           )}
           {type === "absolute" && visibleLines.cash && (
-            <Line
+            <Area
               dataKey="cash"
               type="monotone"
               stroke={chartConfig.cash.color}
@@ -309,7 +325,7 @@ export default function PortfolioChart(
             />
           )}
           {type === "absolute" && visibleLines.costBasis && (
-            <Line
+            <Area
               dataKey="costBasis"
               type="monotone"
               stroke={chartConfig.costBasis.color}
@@ -319,7 +335,7 @@ export default function PortfolioChart(
             />
           )}
           {type === "percentual" && visibleLines.indexFund && (
-            <Line
+            <Area
               dataKey="indexFund"
               type="monotone"
               stroke={chartConfig.indexFund.color}
@@ -328,7 +344,7 @@ export default function PortfolioChart(
               activeDot={{ r: 4, strokeWidth: 1 }}
             />
           )}
-        </LineChart>
+        </AreaChart>
       </ChartContainer>
     </div>
   );
