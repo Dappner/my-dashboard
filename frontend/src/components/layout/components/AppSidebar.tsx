@@ -16,10 +16,13 @@ export function AppSidebar() {
 
   const hasLoaded = useRef(false);
 
-  // Load initial state from localStorage only once on mount
+  // Loads State from Sidebar
   useEffect(() => {
     if (!isMobile && !hasLoaded.current) {
-      const savedState = localStorage.getItem("sidebarState") as "expanded" | "collapsed" | null;
+      const savedState = localStorage.getItem("sidebarState") as
+        | "expanded"
+        | "collapsed"
+        | null;
       if (savedState && savedState !== state) {
         toggleSidebar();
       }
@@ -47,7 +50,6 @@ export function AppSidebar() {
               }`}
           >
             <Bell className="size-5" />
-            {/* Always show "Alerts" unless explicitly hidden */}
             <span
               className={`${state === "collapsed" && !isMobile ? "hidden" : "ml-2"
                 } truncate font-semibold`}
@@ -58,7 +60,6 @@ export function AppSidebar() {
         </Link>
         <NavUser />
       </SidebarFooter>
-    </Sidebar >
-  )
+    </Sidebar>
+  );
 }
-
