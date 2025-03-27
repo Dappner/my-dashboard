@@ -26,9 +26,9 @@ export default function Layout() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="min-h-screen bg-gray-50">
+      <SidebarInset className="min-h-dvh bg-gray-50">
         <RouteBreadcrumbs />
-        <main className="p-8 pt-0">
+        <main className="p-4 sm:p-8 pt-0 sm:pt-0">
           <Outlet />
           <Toaster richColors />
         </main>

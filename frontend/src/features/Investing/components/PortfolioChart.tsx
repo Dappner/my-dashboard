@@ -220,7 +220,7 @@ export default function PortfolioChart(
   const yDomain = getYDomain(chartData);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm px-4 border border-gray-100">
+    <div className="w-full">
       <ChartContainer config={chartConfig} className="h-96 w-full">
         <LineChart
           accessibilityLayer

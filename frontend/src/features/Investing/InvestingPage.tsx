@@ -40,7 +40,7 @@ export default function InvestingPage() {
   const recentTransactions = transactions?.slice(0, 5);
 
   return (
-    <div className="mx-auto space-y-6 sm:p-4">
+    <div className="mx-auto space-y-2 sm:space-y-4 sm:p-4">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">
           Investment Dashboard
