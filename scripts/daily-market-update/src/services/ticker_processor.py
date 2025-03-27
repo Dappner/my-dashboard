@@ -1,5 +1,4 @@
-from datetime import date, timedelta, datetime
-import math
+from datetime import date, timedelta
 from src.services.data_fetcher import DataFetcher
 from src.services.data_saver import DataSaver
 from src.core.logging_config import setup_logging
@@ -266,28 +265,37 @@ class TickerProcessor:
                 if self.data_saver.save_calendar_events(ticker_id, symbol, yf_ticker):
                     updates.add("calendar_events")
 
-        #
-        # Now do stuff for recommnending dividends and reinvestments
+        # --- Process Dividend Payment Suggestions ---
+        # Run if historical prices were successfully updated in this run
         if "historical_prices" in updates and processed_price_dates:
-            logger.info(f"[{symbol}] Triggering dividend suggestion processing.")
+            logger.info(
+                f"[{symbol}] Triggering dividend payment suggestion processing."
+            )
             suggestions_created = self._process_dividend_suggestions(
                 ticker_id, symbol, processed_price_dates
             )
             if suggestions_created > 0:
-                # Optionally add 'suggested_trades' to updates if you want to track it in the summary
-                updates.add("suggested_trades")
+                updates.add(
+                    "suggested_trades"
+                )  # Track that suggestions were potentially made/updated
                 logger.info(
-                    f"[{symbol}] Created {suggestions_created} dividend reinvestment suggestions."
+                    f"[{symbol}] Created/updated {suggestions_created} dividend payment suggestions."
+                )
+            else:
+                logger.info(
+                    f"[{symbol}] No new dividend payment suggestions were created/updated."
                 )
         elif processed_price_dates:
+            # This case means price data was fetched but saving failed or resulted in no changes recognized by save_price_data
             logger.info(
-                f"[{symbol}] Historical prices were processed but no updates saved; skipping dividend suggestions."
+                f"[{symbol}] Historical prices were processed but no updates recorded; skipping dividend suggestions."
             )
         else:
+            # This case means either no fetch was needed, or fetch failed to return price data
             logger.info(
                 f"[{symbol}] No new historical price data processed; skipping dividend suggestions."
             )
-
+        # --- END Dividend Processing ---
         return updates
 
     def process_fund_data(self, ticker_id, symbol, yf_ticker):
