@@ -1,8 +1,6 @@
 import TimeframeControls from "@/components/controls/TimeFrameControls";
 import SectionHeader from "@/components/customs/SectionHeader";
-import { Button } from "@/components/ui/button";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
-import { Plus } from "lucide-react";
 import { useState } from "react";
 import ChartTypeControls from "./components/ChartTypeControls";
 import HoldingsWidget from "./components/HoldingsWidget";
