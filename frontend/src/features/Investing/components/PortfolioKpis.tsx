@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import {
   ArrowDown,
   ArrowUp,
@@ -11,6 +10,7 @@ import { calculatePortfolioMetrics } from "@/services/portfolioMetrics";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import { useTransactions } from "../hooks/useTransactions";
 import { useHoldings } from "../hooks/useHoldings";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PortfolioKpisProps {
   timeframe: Timeframe;
@@ -29,14 +29,13 @@ export default function PortfolioKpis(
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {Array(4).fill(0).map((_, i) => (
-          <Card key={i} className="h-32 animate-pulse bg-gray-200" />
+      <div className={`grid grid-cols-2 gap-2 ${className}`}>
+        {[1, 2, 3, 4].map((_, index) => (
+          <Skeleton key={index} className="h-20 w-full rounded-md" />
         ))}
       </div>
     );
   }
-
   if (metricsError || !dailyMetrics) {
     return (
       <div className="text-red-600 text-center">

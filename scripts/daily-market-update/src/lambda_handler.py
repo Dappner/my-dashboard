@@ -26,19 +26,20 @@ def initialize_components() -> tuple:
         raise
 
 
-def process_tickers(tickers: List[Dict], processor: TickerProcessor) -> ProcessingResult:
+def process_tickers(
+    tickers: List[Dict], processor: TickerProcessor
+) -> ProcessingResult:
     """Process tickers with detailed tracking."""
     result = ProcessingResult(
-        ticker_count=len(tickers),
-        successful=[],
-        failed={},
-        updated_tables={}
+        ticker_count=len(tickers), successful=[], failed={}, updated_tables={}
     )
 
     for ticker in tickers:
         symbol = ticker["symbol"]
         try:
-            logger.info(f"Starting processing for {symbol}", extra={"ticker_id": ticker["id"]})
+            logger.info(
+                f"Starting processing for {symbol}", extra={"ticker_id": ticker["id"]}
+            )
             updates = processor.process_ticker(ticker)
             result.successful.append(symbol)
             result.updated_tables[symbol] = list(updates)
@@ -51,7 +52,7 @@ def process_tickers(tickers: List[Dict], processor: TickerProcessor) -> Processi
 
 
 def lambda_handler(event, context):
-    """Main Lambda Entry Point """
+    """Main Lambda Entry Point"""
     logger.info("Lambda execution started", extra={"event": event or {}})
 
     # Initializing
@@ -71,23 +72,21 @@ def lambda_handler(event, context):
 
     # Build and return Summary
     summary = (
-            f"Processed {result.ticker_count} tickers\n"
-            f"Successful: {len(result.successful)}\n"
-            f"Failed: {len(result.failed)}\n"
-            f"Details:\n" +
-            "\n".join(
-                f"{s}: {', '.join(result.updated_tables.get(s, ['No updates']))}"
-                if s in result.successful else f"{s}: Failed - {result.failed[s]}"
-                for s in (result.successful + list(result.failed.keys()))
-            )
+        f"Processed {result.ticker_count} tickers\n"
+        f"Successful: {len(result.successful)}\n"
+        f"Failed: {len(result.failed)}\n"
+        f"Details:\n"
+        + "\n".join(
+            f"{s}: {', '.join(result.updated_tables.get(s, ['No updates']))}"
+            if s in result.successful
+            else f"{s}: Failed - {result.failed[s]}"
+            for s in (result.successful + list(result.failed.keys()))
+        )
     )
 
     logger.info("Execution completed", extra={"summary": summary})
 
-    return {
-        "statusCode": 200 if not result.failed else 207,
-        "body": summary
-    }
+    return {"statusCode": 200 if not result.failed else 207, "body": summary}
 
 
 if __name__ == "__main__":

@@ -1,65 +1,47 @@
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { timeframes } from "@/constants";
 import { Timeframe } from "@/types/portfolioDailyMetricTypes";
-import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 
-export default function TimeframeControls({ timeframe, onTimeframeChange }: {
+export default function TimeframeControls({
+  timeframe,
+  onTimeframeChange,
+}: {
   timeframe: Timeframe;
   onTimeframeChange: (period: Timeframe) => void;
 }) {
-  return (
-    <div>
-      {/* Desktop View: Row of Buttons (Hidden below 'md' breakpoint) */}
-      <div className="hidden md:flex md:gap-2">
-        {timeframes.map((period) => (
-          <Button
-            key={period}
-            variant={timeframe === period ? "default" : "outline"}
-            size="sm"
-            onClick={() => onTimeframeChange(period)}
-          >
-            {period}
-          </Button>
-        ))}
-      </div>
+  // Handler ensures only valid Timeframe values are passed up
+  const handleValueChange = (value: string) => {
+    // Check if the selected value is a valid timeframe and actually changed
+    if (
+      value && value !== timeframe && timeframes.includes(value as Timeframe)
+    ) {
+      onTimeframeChange(value as Timeframe);
+    }
+    // If value is empty (clicked active item), do nothing to prevent deselection
+  };
 
-      {/* Mobile View: Dropdown Button (Visible below 'md' breakpoint) */}
-      <div className="md:hidden">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            {/* Button that shows the currently selected timeframe */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1"
-            >
-              {timeframe}
-              <ChevronDown className="h-4 w-4 opacity-50" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {/* Align dropdown to the right */}
-            {timeframes.map((period) => (
-              <DropdownMenuItem
-                key={period}
-                // Optional: Add visual indication for the selected item in the dropdown
-                className={timeframe === period ? "bg-accent" : ""}
-                onClick={() => onTimeframeChange(period)}
-              // Prevent closing dropdown immediately if needed, though usually desired
-              // onSelect={(event) => event.preventDefault()}
-              >
-                {period}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </div>
+  return (
+    <ToggleGroup
+      type="single"
+      // variant="outline" // You might prefer no outline for closer match
+      size="sm" // Small size for density
+      value={timeframe}
+      onValueChange={handleValueChange}
+      className="flex flex-wrap justify-center" // Allow wrapping and center items
+      aria-label="Select time frame"
+    >
+      {timeframes.map((period) => (
+        <ToggleGroupItem
+          key={period}
+          value={period}
+          aria-label={`Select ${period} timeframe`}
+          // Add custom styling for a closer match to the screenshot if needed
+          // e.g., className="data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 px-3"
+          className="px-3" // Adjust padding as needed
+        >
+          {period}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
   );
 }

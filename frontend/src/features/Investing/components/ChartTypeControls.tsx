@@ -24,14 +24,16 @@ export default function ChartTypeControls({ chartType, onChartTypeChange }: {
       <ToggleGroupItem
         value="absolute"
         aria-label="Show absolute values" // Accessibility label
+        className="p-4"
       >
-        Absolute
+        Value
       </ToggleGroupItem>
       <ToggleGroupItem
         value="percentual"
         aria-label="Show percentage values" // Accessibility label
+        className="p-4"
       >
-        Percent
+        %
       </ToggleGroupItem>
     </ToggleGroup>
   );

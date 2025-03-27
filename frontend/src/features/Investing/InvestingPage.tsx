@@ -5,6 +5,7 @@ import { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import ChartTypeControls from "./components/ChartTypeControls";
+import HoldingsWidget from "./components/HoldingsWidget";
 import PortfolioChart from "./components/PortfolioChart";
 import PortfolioInsightsWidget from "./components/PortfolioInsightsWidget";
 import PortfolioKpis from "./components/PortfolioKpis";
@@ -16,7 +17,6 @@ import {
   TransactionSheet,
   useTransactionSheet,
 } from "./sheets/TransactionSheet";
-import HoldingsWidget from "./components/HoldingsWidget";
 
 export default function InvestingPage() {
   const {
@@ -50,21 +50,20 @@ export default function InvestingPage() {
           className="flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          Add Transaction
+          <span className="hidden sm:block">Add Transaction</span>
         </Button>
       </header>
 
       {/* KPIs Row */}
-      <PortfolioKpis timeframe={timeframe} />
+      <PortfolioKpis timeframe={timeframe} className="px-4 sm:px-0 pb-4" />
 
       {/* Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 sm:px-0">
         <main className="lg:col-span-2 space-y-6">
           <section>
-            <div className="flex flex-row items-center justify-between mb-2 h-8 gap-2">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Portfolio Performance
-              </h2>
+            {/* Controls ABOVE chart (Desktop: md and up) */}
+            <div className="hidden md:flex md:items-center md:justify-between md:mb-2 md:h-8 md:gap-4">
+              {/* Use updated TimeframeControls */}
               <TimeframeControls
                 timeframe={timeframe}
                 onTimeframeChange={setTimeframe}
@@ -75,7 +74,24 @@ export default function InvestingPage() {
               />
             </div>
 
+            {/* Mobile */}
+            <div className="flex items-center justify-end mb-2 h-8 gap-2 md:hidden">
+              <ChartTypeControls
+                chartType={chartType}
+                onChartTypeChange={setChartType}
+              />
+            </div>
+
+            {/* Chart */}
             <PortfolioChart timeframe={timeframe} type={chartType} />
+
+            {/* Mobile */}
+            <div className="flex justify-center mt-3 md:hidden">
+              <TimeframeControls
+                timeframe={timeframe}
+                onTimeframeChange={setTimeframe}
+              />
+            </div>
           </section>
 
           <section>
@@ -91,7 +107,6 @@ export default function InvestingPage() {
             />
           </section>
         </main>
-
         {/* Right Sidebar - Takes 1/3 of the space */}
         <aside className="space-y-6">
           <section>
