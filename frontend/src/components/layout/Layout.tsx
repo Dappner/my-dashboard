@@ -1,11 +1,11 @@
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { Navigate, Outlet, useLocation } from "react-router"
-import { AppSidebar } from "./components/AppSidebar"
-import RouteBreadcrumbs from "./components/RouteBreadcrumbs"
-import { useAuthContext } from "@/contexts/AuthContext"
-import { Toaster } from "../ui/sonner"
-import LoadingSpinner from "./components/LoadingSpinner"
-import useUser from "@/hooks/useUser"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Navigate, Outlet, useLocation } from "react-router";
+import { AppSidebar } from "./components/AppSidebar";
+import RouteBreadcrumbs from "./components/RouteBreadcrumbs";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { Toaster } from "../ui/sonner";
+import LoadingSpinner from "./components/LoadingSpinner";
+import useUser from "@/hooks/useUser";
 
 export default function Layout() {
   const { user: authUser, isLoading } = useAuthContext();
@@ -16,10 +16,11 @@ export default function Layout() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
-      </div>)
+      </div>
+    );
   }
   if (!authUser) {
-    return < Navigate to="/login" state={{ from: location.pathname }} replace />
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   return (
@@ -33,5 +34,5 @@ export default function Layout() {
         </main>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

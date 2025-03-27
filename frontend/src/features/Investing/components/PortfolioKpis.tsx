@@ -51,32 +51,33 @@ export default function PortfolioKpis({ timeframe }: PortfolioKpisProps) {
   );
 
   const formatCurrency = (value: number): string =>
-    `$${value.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })
+    `$${
+      value.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
     }`;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
       <KpiCard
         title="Total Portfolio Value"
         value={formatCurrency(metrics.currentTotalValue)}
         changePercent={metrics.periodTotalChangePercent}
         icon={TrendingUp}
         positiveChange={metrics.periodTotalChange >= 0}
-        additionalInfo={`Growth: ${metrics.periodTotalChange >= 0 ? "+" : ""}${formatCurrency(metrics.periodTotalChange)
-          }`}
+        additionalInfo={`Growth: ${metrics.periodTotalChange >= 0 ? "+" : ""}${
+          formatCurrency(metrics.periodTotalChange)
+        }`}
         tooltip={`Total value change over ${timeframe}`}
       />
       <KpiCard
         title="Unrealized P/L"
-        value={`${metrics.currentUnrealizedPL >= 0 ? "+" : ""}${formatCurrency(metrics.currentUnrealizedPL)
-          }`}
-        // changePercent={metrics.periodTotalReturnPercent}
+        value={`${metrics.currentUnrealizedPL >= 0 ? "+" : ""}${
+          formatCurrency(metrics.currentUnrealizedPL)
+        }`}
         icon={metrics.currentUnrealizedPL >= 0 ? ArrowUp : ArrowDown}
         positiveChange={metrics.currentUnrealizedPL >= 0}
-        // additionalInfo={`Over ${timeframe}`}
         tooltip="Current unrealized profit/loss including dividends"
       />
       <KpiCard

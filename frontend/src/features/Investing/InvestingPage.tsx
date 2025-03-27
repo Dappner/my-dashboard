@@ -38,8 +38,9 @@ export default function InvestingPage() {
   );
 
   const recentTransactions = transactions?.slice(0, 5);
+
   return (
-    <div className="mx-auto space-y-6 p-4">
+    <div className="mx-auto space-y-6 sm:p-4">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">
           Investment Dashboard
@@ -60,7 +61,7 @@ export default function InvestingPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <main className="lg:col-span-2 space-y-6">
           <section>
-            <div className="flex flex-row items-center justify-between mb-2 h-8">
+            <div className="flex flex-row items-center justify-between mb-2 h-8 gap-2">
               <h2 className="text-lg font-semibold text-gray-900">
                 Portfolio Performance
               </h2>

@@ -1,6 +1,11 @@
-import { ArrowUp, ArrowDown } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ArrowDown, ArrowUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface KpiCardProps {
   title: string;
@@ -21,29 +26,33 @@ export default function KpiCard({
   percent,
   icon: Icon,
   positiveChange = true,
-  additionalInfo = '',
+  additionalInfo = "",
   percentOnly = false,
-  tooltip = ''
+  tooltip = "",
 }: KpiCardProps) {
   const formatPercent = (val?: number): string =>
-    val !== undefined ? `${val >= 0 ? '+' : ''}${val.toFixed(2)}%` : '';
+    val !== undefined ? `${val >= 0 ? "+" : ""}${val.toFixed(2)}%` : "";
 
   const content = (
-    <Card className="hover:shadow-md transition-shadow duration-300 border">
+    <Card className="hover:shadow-md transition-shadow duration-300 border h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <CardTitle className="text-xs font-medium text-muted-foreground truncate max-w-[80%]">
+          {title}
+        </CardTitle>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <div className="flex items-center gap-2 text-xs mt-1">
+      <CardContent className="pt-0">
+        <div className="text-lg font-bold truncate">{value}</div>
+        <div className="flex items-center gap-1 text-[10px] mt-1">
           {!percentOnly && changePercent !== undefined && (
-            <span className={positiveChange ? "text-green-600 flex items-center" : "text-red-600 flex items-center"}>
-              {positiveChange ? (
-                <ArrowUp className="h-3 w-3 mr-1" />
-              ) : (
-                <ArrowDown className="h-3 w-3 mr-1" />
-              )}
+            <span
+              className={`${
+                positiveChange ? "text-green-600" : "text-red-600"
+              } flex items-center`}
+            >
+              {positiveChange
+                ? <ArrowUp className="h-2.5 w-2.5 mr-0.5" />
+                : <ArrowDown className="h-2.5 w-2.5 mr-0.5" />}
               {formatPercent(changePercent)}
             </span>
           )}
@@ -52,7 +61,8 @@ export default function KpiCard({
               {percent.toFixed(1)}% {additionalInfo}
             </span>
           )}
-          {!percentOnly && changePercent === undefined && percent === undefined && (
+          {!percentOnly && changePercent === undefined &&
+            percent === undefined && (
             <span className="text-muted-foreground">{additionalInfo}</span>
           )}
         </div>
@@ -60,14 +70,16 @@ export default function KpiCard({
     </Card>
   );
 
-  return tooltip ? (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>{content}</TooltipTrigger>
-        <TooltipContent>
-          <p>{tooltip}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  ) : content;
+  return tooltip
+    ? (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>{content}</TooltipTrigger>
+          <TooltipContent>
+            <p>{tooltip}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+    : content;
 }

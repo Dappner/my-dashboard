@@ -1,34 +1,38 @@
-import { Button } from "@/components/ui/button";
-
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 type ChartType = "absolute" | "percentual";
-
 
 export default function ChartTypeControls({ chartType, onChartTypeChange }: {
   chartType: ChartType;
   onChartTypeChange: (type: ChartType) => void;
 }) {
-
+  const handleValueChange = (value: string) => {
+    if (value === "absolute" || value === "percentual") {
+      onChartTypeChange(value);
+    }
+  };
 
   return (
-    <>
-      <div className="flex gap-2">
-        <Button
-          variant={chartType === "absolute" ? "default" : "outline"}
-          size="sm"
-          onClick={() => onChartTypeChange("absolute")}
-        >
-          Absolute
-        </Button>
-        <Button
-          variant={chartType === "percentual" ? "default" : "outline"}
-          size="sm"
-          onClick={() => onChartTypeChange("percentual")}
-        >
-          Percent
-        </Button>
-      </div>
-
-    </>
-  )
+    <ToggleGroup
+      type="single" // Ensures only one item can be selected
+      variant="outline" // Gives the group a nice outline style
+      size="sm" // Makes the buttons small
+      value={chartType} // The currently selected value
+      onValueChange={handleValueChange} // Function to call when selection changes
+      aria-label="Chart value type" // Accessibility label for the group
+    >
+      <ToggleGroupItem
+        value="absolute"
+        aria-label="Show absolute values" // Accessibility label
+      >
+        Absolute
+      </ToggleGroupItem>
+      <ToggleGroupItem
+        value="percentual"
+        aria-label="Show percentage values" // Accessibility label
+      >
+        Percent
+      </ToggleGroupItem>
+    </ToggleGroup>
+  );
 }
