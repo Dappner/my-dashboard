@@ -47,8 +47,8 @@ export default function Layout() {
             <Outlet />
           </main>
 
-          <SheetContainer />
           <Toaster richColors position="top-right" />
+          <SheetContainer />
         </SidebarInset>
       </div>
     </SidebarProvider>

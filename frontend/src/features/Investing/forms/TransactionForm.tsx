@@ -154,7 +154,7 @@ export function TransactionForm({
             />
 
             {!isCashTransaction && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="ticker_id"
@@ -205,7 +205,7 @@ export function TransactionForm({
             )}
 
             {/* Common Fields for All Transactions */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4">
               <FormField
                 control={form.control}
                 name="transaction_date"
