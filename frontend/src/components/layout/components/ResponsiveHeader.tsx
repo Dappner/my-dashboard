@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, RouteObject, useMatches } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useHeader } from "@/contexts/HeaderContext";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Breadcrumb,
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { useTransactionSheet } from "@/contexts/SheetContext";
+import { Plus } from "lucide-react";
 
 interface AppRouteHandle {
   crumb?: (data?: any) => React.ReactNode;
@@ -125,8 +125,11 @@ export function ResponsiveHeader({ className }: ResponsiveHeaderProps) {
       {/* Right Section renders actions from context */}
       <div className="flex flex-shrink-0 items-center gap-2">
         {showButton && (
-          <Button onClick={onClick}>
-            Add
+          <Button
+            variant="outline"
+            onClick={onClick}
+          >
+            <Plus />
           </Button>
         )}
       </div>
