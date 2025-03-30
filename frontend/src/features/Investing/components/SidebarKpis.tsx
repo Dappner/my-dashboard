@@ -82,8 +82,8 @@ export default function SidebarKpis(
       <div className="bg-white/80 backdrop-blur-sm sm:rounded-lg px-3 py-2 sm:border border-gray-200 shadow-sm">
         <div className="text-xs text-gray-600 mb-1">Cash</div>
         <div className="flex items-center justify-between">
-          <div className="flex items-baseline gap-1">
-            <span className="text-lg font-semibold">
+          <div className="flex flex-col items-baseline mb-0">
+            <span className="text-lg font-semibold mb-0">
               {formatCurrency(metrics.currentCashBalance)}
             </span>
             <span className="text-xs text-gray-500">

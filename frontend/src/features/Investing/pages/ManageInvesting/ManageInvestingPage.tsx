@@ -20,6 +20,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { TickerSheet, useTickerSheet } from "../../sheets/TickerSheet";
+import { PageContainer } from "@/components/layout/components/PageContainer";
 
 const trackingFormSchema = z.object({
   ticker_id: z.string().min(1, "Please select a ticker"),
@@ -76,7 +77,7 @@ export default function ManageInvestingPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <PageContainer className="space-y-6">
       <Tabs defaultValue="tickers">
         <TabsList>
           <TabsTrigger value="tickers" className="cursor-pointer">
@@ -118,33 +119,33 @@ export default function ManageInvestingPage() {
               </div>
             )
             : filteredTickers && filteredTickers.length > 0
-            ? (
-              <div className="rounded-md border">
-                <TickerTable
-                  filteredTickers={filteredTickers}
-                  onEditTicker={openEditTicker}
-                />
-              </div>
-            )
-            : (
-              <div className="py-8 text-center">
-                <p className="text-muted-foreground">
-                  {searchQuery
-                    ? "No tickers matching your search"
-                    : "No tickers added yet"}
-                </p>
-                {!searchQuery && (
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={openAddTicker}
-                  >
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add your first ticker
-                  </Button>
-                )}
-              </div>
-            )}
+              ? (
+                <div className="rounded-md border">
+                  <TickerTable
+                    filteredTickers={filteredTickers}
+                    onEditTicker={openEditTicker}
+                  />
+                </div>
+              )
+              : (
+                <div className="py-8 text-center">
+                  <p className="text-muted-foreground">
+                    {searchQuery
+                      ? "No tickers matching your search"
+                      : "No tickers added yet"}
+                  </p>
+                  {!searchQuery && (
+                    <Button
+                      variant="outline"
+                      className="mt-4"
+                      onClick={openAddTicker}
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Add your first ticker
+                    </Button>
+                  )}
+                </div>
+              )}
         </TabsContent>
         <TabsContent value="tracking">
           <div className="space-y-4 max-w-md">
@@ -197,6 +198,6 @@ export default function ManageInvestingPage() {
         isOpen={isTickerSheetOpen}
         onClose={closeSheet}
       />
-    </div>
+    </PageContainer>
   );
 }

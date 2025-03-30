@@ -123,6 +123,7 @@ export function TransactionForm({
   const isCashTransaction = ["deposit", "withdraw"].includes(transactionType);
 
   const onSubmit = (values: TransactionFormValues) => {
+    console.log("CLICK");
     const formattedData = {
       ...values,
       transaction_date: format(values.transaction_date, "yyyy-MM-dd"),
@@ -131,6 +132,7 @@ export function TransactionForm({
     };
     const cleanedData = cleanEmptyStrings(formattedData);
 
+    console.log("SUBMITTING!");
     if (mode === "create") {
       addTransaction(cleanedData as InsertTransaction);
     } else {
@@ -250,8 +252,8 @@ export function TransactionForm({
                   </>
                 )
                 : mode === "update"
-                ? "Update Transaction"
-                : "Add Transaction"}
+                  ? "Update Transaction"
+                  : "Add Transaction"}
             </Button>
           </div>
         </div>

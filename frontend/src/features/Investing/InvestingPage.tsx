@@ -43,7 +43,7 @@ export default function InvestingPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* === Main Column (Chart, Mobile Holdings, Transactions) === */}
         <main className="lg:col-span-2 space-y-4">
-          <section>
+          <section className="space-y-2">
             {/* Desktop */}
             <div className="hidden md:flex md:justify-between md:mb-2 md:gap-4 md:items-end">
               <TotalValueDisplay timeframe={timeframe} />
@@ -68,7 +68,9 @@ export default function InvestingPage() {
                   onChartTypeChange={setChartType}
                 />
               </div>
-              <SidebarKpis timeframe={timeframe} />
+              <div className="md:hidden">
+                <SidebarKpis timeframe={timeframe} />
+              </div>
             </div>
 
             {/* Chart */}
@@ -83,6 +85,9 @@ export default function InvestingPage() {
             </div>
           </section>
 
+          <div className="hidden md:flex lg:hidden">
+            <SidebarKpis timeframe={timeframe} />
+          </div>
           {/* --- Holdings Section (MOBILE ONLY) --- */}
           <section className="block lg:hidden">
             <SectionHeader
