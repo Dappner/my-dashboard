@@ -10,19 +10,11 @@ import TickerEvents from "./components/TickerEvents";
 import TransactionTable from "./components/TransactionTable";
 import { useCalendarEvents } from "./hooks/useCalendarEvents";
 import { useTransactions } from "./hooks/useTransactions";
-import {
-  TransactionSheet,
-  useTransactionSheet,
-} from "./sheets/TransactionSheet";
 import TotalValueDisplay from "./components/TotalValueDisplay";
 import SidebarKpis from "./components/SidebarKpis";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 
 export default function InvestingPage() {
-  const {
-    isTransactionSheetOpen,
-    closeSheet,
-  } = useTransactionSheet();
   const { transactions, isLoading: transactionsLoading } = useTransactions();
   const {
     events,
@@ -145,11 +137,6 @@ export default function InvestingPage() {
             />
           </section>
         </aside>
-
-        <TransactionSheet
-          isOpen={isTransactionSheetOpen}
-          onClose={closeSheet}
-        />
       </div>
     </PageContainer>
   );

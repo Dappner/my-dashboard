@@ -6,39 +6,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Ticker } from "@/types/tickerTypes";
-import { useState } from "react";
 import { TickerForm } from "../forms/TickerForm";
-
-export const useTickerSheet = () => {
-  const [isTickerSheetOpen, setIsTickerSheetOpen] = useState(false);
-  const [selectedTicker, setSelectedTicker] = useState<
-    Ticker | null
-  >(null);
-
-  const openEditTicker = (ticker: Ticker) => {
-    setSelectedTicker(ticker);
-    setIsTickerSheetOpen(true);
-  };
-
-  const openAddTicker = () => {
-    setSelectedTicker(null);
-    setIsTickerSheetOpen(true);
-  };
-
-  const closeSheet = () => {
-    setSelectedTicker(null);
-    setIsTickerSheetOpen(false);
-  };
-
-  return {
-    isTickerSheetOpen,
-    selectedTicker,
-    openEditTicker,
-    openAddTicker,
-    closeSheet,
-    setIsTickerSheetOpen,
-  };
-};
 
 interface TickerSheetProps {
   isOpen: boolean;

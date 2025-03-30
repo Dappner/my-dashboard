@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { loginRoute, routeConfig } from "./routes";
+import { SheetProvider } from "./contexts/SheetContext";
 
 const router = createBrowserRouter([
   {
@@ -17,7 +18,9 @@ const router = createBrowserRouter([
 function App() {
   return (
     <div>
-      <RouterProvider router={router} />
+      <SheetProvider>
+        <RouterProvider router={router} />
+      </SheetProvider>
     </div>
   );
 }

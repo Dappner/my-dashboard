@@ -3,10 +3,6 @@ import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import TransactionTable from "../../components/TransactionTable";
 import { useTransactions } from "../../hooks/useTransactions";
-import {
-  TransactionSheet,
-  useTransactionSheet,
-} from "../../sheets/TransactionSheet";
 import PaginationControls from "./components/PaginationControls";
 import TransactionsFilters, {
   TransactionsFilters as TFilters,
@@ -14,15 +10,12 @@ import TransactionsFilters, {
 import TransactionKPIs from "./components/TransactionsKpis";
 import { filterTransactions } from "./components/utils";
 import { PageContainer } from "@/components/layout/components/PageContainer";
+import { useTransactionSheet } from "@/contexts/SheetContext";
 
 export default function TransactionsPage() {
   const itemsPerPage = 10;
   const {
-    isTransactionSheetOpen,
-    selectedTransaction,
-    openEditTransaction,
     openAddTransaction,
-    closeSheet,
   } = useTransactionSheet();
   const { transactions, isLoading, isError, refetch, deleteTransaction } =
     useTransactions();
@@ -128,7 +121,6 @@ export default function TransactionsPage() {
                     transactions={paginatedTrades!}
                     isLoading={isLoading}
                     actions
-                    onEditTransaction={openEditTransaction}
                     onDeleteTransaction={onDeleteTransaction}
                   />
                   <PaginationControls
@@ -142,11 +134,6 @@ export default function TransactionsPage() {
                 </>
               )}
       </div>
-      <TransactionSheet
-        isOpen={isTransactionSheetOpen}
-        onClose={closeSheet}
-        transaction={selectedTransaction}
-      />
     </PageContainer>
   );
 }

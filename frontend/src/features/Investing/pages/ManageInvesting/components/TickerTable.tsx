@@ -13,17 +13,17 @@ import { monthsShort } from "@/features/Investing/constants";
 import { useNavigate } from "react-router";
 import { formatIndustryName, formatSectorName } from "@/lib/formatting";
 import { useTicker } from "@/features/Investing/hooks/useTickers";
+import { useTickerSheet } from "@/contexts/SheetContext";
 
 interface TickerTableProps {
   filteredTickers: Ticker[];
-  onEditTicker: (ticker: Ticker) => void;
 }
 
 export default function TickerTable({
   filteredTickers,
-  onEditTicker,
 }: TickerTableProps) {
   const navigate = useNavigate();
+  const { openEditTicker } = useTickerSheet();
   const { deleteTicker } = useTicker();
 
   const onSymbolClick = (ticker: Ticker) => {
@@ -83,7 +83,7 @@ export default function TickerTable({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => onEditTicker(ticker)}
+                    onClick={() => openEditTicker(ticker)}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>

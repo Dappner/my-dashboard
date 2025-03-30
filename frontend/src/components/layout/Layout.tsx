@@ -5,9 +5,9 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { Toaster } from "../ui/sonner";
 import LoadingSpinner from "./components/LoadingSpinner";
 import useUser from "@/hooks/useUser";
-import { HeaderProvider } from "@/contexts/HeaderContext";
 import { ResponsiveHeader } from "./components/ResponsiveHeader";
 import { cn } from "@/lib/utils";
+import { SheetContainer } from "../SheetContainer";
 
 export default function Layout() {
   const { user: authUser, isLoading: authLoading } = useAuthContext();
@@ -29,30 +29,28 @@ export default function Layout() {
   }
 
   return (
-    <HeaderProvider>
-      <SidebarProvider>
-        <div className="flex h-dvh w-full">
-          <AppSidebar />
-          <SidebarInset
+    <SidebarProvider>
+      <div className="flex h-dvh w-full">
+        <AppSidebar />
+        <SidebarInset
+          className={cn(
+            "flex flex-1 flex-col overflow-hidden bg-gray-50",
+          )}
+        >
+          <ResponsiveHeader className="flex-shrink-0" />
+
+          <main
             className={cn(
-              "flex flex-1 flex-col overflow-hidden bg-gray-50",
+              "flex-1 overflow-y-auto p-0 ",
             )}
           >
-            <ResponsiveHeader className="flex-shrink-0" />
+            <Outlet />
+          </main>
 
-            <main
-              className={cn(
-                "flex-1 overflow-y-auto p-0 ",
-              )}
-            >
-              <Outlet />
-            </main>
-
-            {/* Toaster remains outside the scrollable area */}
-            <Toaster richColors position="top-right" />
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
-    </HeaderProvider>
+          <SheetContainer />
+          <Toaster richColors position="top-right" />
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 }

@@ -19,8 +19,8 @@ import useUser from "@/hooks/useUser";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { TickerSheet, useTickerSheet } from "../../sheets/TickerSheet";
 import { PageContainer } from "@/components/layout/components/PageContainer";
+import { useTickerSheet } from "@/contexts/SheetContext";
 
 const trackingFormSchema = z.object({
   ticker_id: z.string().min(1, "Please select a ticker"),
@@ -35,13 +35,7 @@ export default function ManageInvestingPage() {
     isLoading,
   } = useTicker({});
 
-  const {
-    isTickerSheetOpen,
-    selectedTicker,
-    openEditTicker,
-    openAddTicker,
-    closeSheet,
-  } = useTickerSheet();
+  const { openAddTicker } = useTickerSheet();
 
   const { user, updateUser } = useUser();
 
@@ -123,7 +117,6 @@ export default function ManageInvestingPage() {
                 <div className="rounded-md border">
                   <TickerTable
                     filteredTickers={filteredTickers}
-                    onEditTicker={openEditTicker}
                   />
                 </div>
               )
@@ -193,11 +186,6 @@ export default function ManageInvestingPage() {
           </div>
         </TabsContent>
       </Tabs>
-      <TickerSheet
-        ticker={selectedTicker}
-        isOpen={isTickerSheetOpen}
-        onClose={closeSheet}
-      />
     </PageContainer>
   );
 }

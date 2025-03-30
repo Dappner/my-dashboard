@@ -12,6 +12,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { TradeView, TransactionType } from "@/types/transactionsTypes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useTransactionSheet } from "@/contexts/SheetContext";
 
 export const getTradeTypeStyles = (type: TransactionType) => {
   switch (type) {
@@ -49,7 +50,6 @@ export const getCashflowStyles = (type: TransactionType) => {
 interface TransactionTableProps {
   transactions: TradeView[];
   isLoading: boolean;
-  onEditTransaction?: (trade: TradeView) => void;
   onDeleteTransaction?: (id: string) => void;
   actions?: boolean;
   isGlobal?: boolean;
@@ -58,11 +58,11 @@ interface TransactionTableProps {
 export default function TransactionTable({
   transactions,
   isLoading,
-  onEditTransaction,
   onDeleteTransaction,
   actions = false,
   isGlobal = true,
 }: TransactionTableProps) {
+  const { openEditTransaction } = useTransactionSheet();
   if (isLoading) {
     return (
       <div className="bg-white flex justify-center align-middle h-64 border rounded-md shadow-sm overflow-x-auto">
@@ -156,7 +156,7 @@ export default function TransactionTable({
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => onEditTransaction!(trade)}
+                        onClick={() => openEditTransaction(trade)}
                         className="hover:bg-muted rounded-full"
                       >
                         <Pencil className="h-4 w-4 text-muted-foreground" />

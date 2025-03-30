@@ -11,6 +11,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { useTransactionSheet } from "@/contexts/SheetContext";
 
 interface AppRouteHandle {
   crumb?: (data?: any) => React.ReactNode;
@@ -48,18 +50,23 @@ interface ResponsiveHeaderProps {
 }
 
 export function ResponsiveHeader({ className }: ResponsiveHeaderProps) {
-  // 1. Get title override AND actions configuration from context
-  const { title: contextTitle, actions: contextActions } = useHeader();
   const matches = useMatches();
 
-  // 2. Get static title from the last matched route's handle (fallback)
+  const { openAddTransaction } = useTransactionSheet();
+
   const lastMatch = matches.length > 0 ? matches[matches.length - 1] : null;
   const routeHandle = lastMatch?.handle as AppRouteHandle | undefined;
   const routeHandleTitle = routeHandle?.title;
 
-  // 3. Determine the final display title
-  const displayTitle = contextTitle ?? routeHandleTitle ?? " ";
-  const displayActions = contextActions;
+  const displayTitle = routeHandleTitle ?? " ";
+
+  const showButton = location.pathname.includes("/transactions");
+
+  const onClick = () => {
+    if (location.pathname.includes("/transactions")) {
+      openAddTransaction();
+    }
+  };
 
   const crumbs = React.useMemo(() => {
     return matches
@@ -88,7 +95,7 @@ export function ResponsiveHeader({ className }: ResponsiveHeaderProps) {
         );
       })
       .filter(Boolean);
-  }, [matches]); // <-- DEPEND ONLY ON MATCHES
+  }, [matches]);
 
   return (
     <header
@@ -117,7 +124,11 @@ export function ResponsiveHeader({ className }: ResponsiveHeaderProps) {
 
       {/* Right Section renders actions from context */}
       <div className="flex flex-shrink-0 items-center gap-2">
-        {displayActions}
+        {showButton && (
+          <Button onClick={onClick}>
+            Add
+          </Button>
+        )}
       </div>
     </header>
   );
