@@ -42,9 +42,8 @@ export const getTradeTypeStyles = (type: TransactionType | null) => {
 export const getCashflowStyles = (type: TransactionType | null) => {
   if (type === "buy" || type === "withdraw") {
     return "text-red-600";
-  } else {
-    return "";
   }
+  return "";
 };
 
 interface TransactionTableProps {
@@ -105,12 +104,13 @@ export default function TransactionTable({
         </TableHeader>
         <TableBody>
           {transactions.map((trade) => {
-            const typeStyles = getTradeTypeStyles(trade.transaction_type!);
-            const cashFlowStyles = getCashflowStyles(trade.transaction_type!);
+            const transactionType = trade.transaction_type ?? null;
+            const typeStyles = getTradeTypeStyles(transactionType);
+            const cashFlowStyles = getCashflowStyles(transactionType);
 
             return (
               <TableRow
-                key={trade.id}
+                key={trade.id ?? "unknown-id"} // Fallback for missing id
                 className="hover:bg-muted/20 transition-colors"
               >
                 <TableCell>
@@ -122,22 +122,24 @@ export default function TransactionTable({
                       !actions && "text-xs px-2",
                     )}
                   >
-                    {trade.transaction_type?.toUpperCase()}
+                    {transactionType?.toUpperCase() ?? "UNKNOWN"}
                   </Badge>
                 </TableCell>
                 <TableCell className={cn(!actions && "text-sm")}>
-                  {format(parseISO(trade.transaction_date!), "MMM dd, yyyy")}
+                  {trade.transaction_date
+                    ? format(parseISO(trade.transaction_date), "MMM dd, yyyy")
+                    : "N/A"}
                 </TableCell>
                 {isGlobal && (
                   <TableCell className={cn(!actions && "text-sm")}>
-                    {trade.symbol}
+                    {trade.symbol ?? "N/A"}
                   </TableCell>
                 )}
                 <TableCell className={cn("text-right", !actions && "text-sm")}>
-                  {trade.shares!.toFixed(2)}
+                  {(trade.shares ?? 0).toFixed(2)}
                 </TableCell>
                 <TableCell className={cn("text-right", !actions && "text-sm")}>
-                  ${trade.price_per_share!.toFixed(2)}
+                  ${(trade.price_per_share ?? 0).toFixed(2)}
                 </TableCell>
                 <TableCell
                   className={cn(
@@ -146,7 +148,7 @@ export default function TransactionTable({
                     !actions && "text-sm",
                   )}
                 >
-                  ${trade.total_cost_basis?.toFixed(2)}
+                  ${(trade.total_cost_basis ?? 0).toFixed(2)}
                 </TableCell>
                 {actions && (
                   <TableCell className="text-right">
@@ -162,8 +164,10 @@ export default function TransactionTable({
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => onDeleteTransaction!(trade.id!)}
+                        onClick={() =>
+                          trade.id && onDeleteTransaction?.(trade.id)}
                         className="hover:bg-muted rounded-full"
+                        disabled={!trade.id || !onDeleteTransaction}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
@@ -175,6 +179,7 @@ export default function TransactionTable({
           })}
         </TableBody>
       </Table>
+      {" "}
     </div>
   );
 }

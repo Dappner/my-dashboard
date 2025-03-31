@@ -142,7 +142,7 @@ export default function PortfolioChart({
 
       const benchmarkPriceMap = new Map<string, number>();
       if (historicalPrices) {
-        historicalPrices.forEach((hp) => {
+        for (const hp of historicalPrices) {
           const dateKey = formatDateKey(parseDateSafe(hp.date));
           if (
             dateKey &&
@@ -151,7 +151,7 @@ export default function PortfolioChart({
           ) {
             benchmarkPriceMap.set(dateKey, hp.close_price);
           }
-        });
+        }
       }
       if (benchmarkPriceMap.size === 0 && shouldFetchHistorical) {
         console.warn("Benchmark data map is empty.");
