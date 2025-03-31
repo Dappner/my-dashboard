@@ -253,8 +253,10 @@ class TickerProcessor:
                     ticker_id, symbol, info, backfill
                 ):
                     updates.add("tickers")
+
                 if self.data_saver.save_finance_data(ticker_id, symbol, info):
                     updates.add("yh_finance_daily")
+
                 quote_type = info.get("quoteType", "EQUITY")
                 if quote_type in ["MUTUALFUND", "ETF"] and yf_ticker:
                     updates.update(self.process_fund_data(ticker_id, symbol, yf_ticker))

@@ -5,8 +5,9 @@ from src.models.data_models import PriceData, TickerInfo, FinanceData, CalendarE
 from pydantic import ValidationError
 from src.core.logging_config import setup_logging
 from src.core.util import get_value
+import logging
 
-logger = setup_logging(name="data_saver")
+logger = setup_logging(name="data_saver", level=logging.DEBUG)
 
 
 class DataSaver:

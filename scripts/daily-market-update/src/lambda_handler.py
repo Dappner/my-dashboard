@@ -37,9 +37,6 @@ def process_tickers(
     for ticker in tickers:
         symbol = ticker["symbol"]
         try:
-            logger.info(
-                f"Starting processing for {symbol}", extra={"ticker_id": ticker["id"]}
-            )
             updates = processor.process_ticker(ticker)
             result.successful.append(symbol)
             result.updated_tables[symbol] = list(updates)
@@ -55,7 +52,6 @@ def lambda_handler(event, context):
     """Main Lambda Entry Point"""
     logger.info("Lambda execution started", extra={"event": event or {}})
 
-    # Initializing
     try:
         ticker_fetcher, ticker_processor = initialize_components()
     except Exception as e:
