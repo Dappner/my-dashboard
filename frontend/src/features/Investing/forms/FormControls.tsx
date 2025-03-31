@@ -29,19 +29,29 @@ import type { ControllerRenderProps } from "react-hook-form";
 import type { TransactionFormValues } from "./TransactionForm";
 
 interface TickerSelectProps {
+  field: {
+    value: string | undefined;
+    onChange: (value: string) => void;
+  };
   isLoading: boolean;
-  tickers: Ticker[];
-  field: ControllerRenderProps<TransactionFormValues, "ticker_id">;
+  tickers: Ticker[] | undefined;
+  onValueChange?: (value: string) => void;
 }
-
 export const TickerSelect = ({
   field,
   isLoading,
   tickers,
+  onValueChange,
 }: TickerSelectProps) => (
   <FormItem>
     <FormLabel>Ticker *</FormLabel>
-    <Select onValueChange={field.onChange} value={field.value ?? ""}>
+    <Select
+      onValueChange={(value) => {
+        field.onChange(value);
+        onValueChange?.(value); // Call optional onValueChange if provided
+      }}
+      value={field.value ?? ""}
+    >
       <FormControl>
         <SelectTrigger>
           <SelectValue placeholder="Select Ticker" />
@@ -54,7 +64,7 @@ export const TickerSelect = ({
               Loading tickers...
             </SelectItem>
           )
-          : tickers.length === 0
+          : !tickers || tickers.length === 0
           ? (
             <SelectItem value="empty" disabled>
               No tickers found
@@ -72,7 +82,6 @@ export const TickerSelect = ({
     <FormMessage />
   </FormItem>
 );
-
 interface TransactionTypeSelectProps {
   field: ControllerRenderProps<TransactionFormValues, "transaction_type">;
 }
