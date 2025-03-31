@@ -3,96 +3,97 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import OpenAI from "https://esm.sh/openai@4.20.1";
 
 function extractJSONFromString(str: string): any {
-  try {
-    return JSON.parse(str);
-  } catch {
-    try {
-      const jsonString = str.replace(/```json\n?|\n?```/g, "").trim();
-      return JSON.parse(jsonString);
-    } catch (e) {
-      throw new Error(`Failed to parse JSON from OpenAI response: ${str}`);
-    }
-  }
+	try {
+		return JSON.parse(str);
+	} catch {
+		try {
+			const jsonString = str.replace(/```json\n?|\n?```/g, "").trim();
+			return JSON.parse(jsonString);
+		} catch (e) {
+			throw new Error(`Failed to parse JSON from OpenAI response: ${str}`);
+		}
+	}
 }
 
 serve(async (req) => {
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type",
-  };
+	const corsHeaders = {
+		"Access-Control-Allow-Origin": "*",
+		"Access-Control-Allow-Headers":
+			"authorization, x-client-info, apikey, content-type",
+	};
 
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+	if (req.method === "OPTIONS") {
+		return new Response("ok", { headers: corsHeaders });
+	}
 
-  try {
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { autoRefreshToken: false, persistSession: false } },
-    );
+	try {
+		const supabaseClient = createClient(
+			Deno.env.get("SUPABASE_URL") ?? "",
+			Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+			{ auth: { autoRefreshToken: false, persistSession: false } },
+		);
 
-    const { receipt_id, image_url } = await req.json();
+		const { receipt_id, image_url } = await req.json();
 
-    if (!receipt_id || !image_url) {
-      throw new Error("Missing required fields: receipt_id or image_url");
-    }
+		if (!receipt_id || !image_url) {
+			throw new Error("Missing required fields: receipt_id or image_url");
+		}
 
-    // Verify receipt exists
-    const { data: receipt, error: receiptError } = await supabaseClient
-      .schema("grocery")
-      .from("receipts")
-      .select("id, user_id")
-      .eq("id", receipt_id)
-      .single();
+		// Verify receipt exists
+		const { data: receipt, error: receiptError } = await supabaseClient
+			.schema("grocery")
+			.from("receipts")
+			.select("id, user_id")
+			.eq("id", receipt_id)
+			.single();
 
-    if (receiptError || !receipt) {
-      throw new Error(
-        `Receipt verification failed: ${receiptError?.message || "Receipt not found"
-        }`,
-      );
-    }
+		if (receiptError || !receipt) {
+			throw new Error(
+				`Receipt verification failed: ${
+					receiptError?.message || "Receipt not found"
+				}`,
+			);
+		}
 
-    const { data: categories, error: categoriesError } = await supabaseClient
-      .schema("grocery")
-      .from("categories")
-      .select("id, name");
+		const { data: categories, error: categoriesError } = await supabaseClient
+			.schema("grocery")
+			.from("categories")
+			.select("id, name");
 
-    if (categoriesError) {
-      throw new Error(`Failed to fetch categories: ${categoriesError.message}`);
-    }
+		if (categoriesError) {
+			throw new Error(`Failed to fetch categories: ${categoriesError.message}`);
+		}
 
-    const openai = new OpenAI({
-      apiKey: Deno.env.get("OPENAI_API_KEY"),
-    });
+		const openai = new OpenAI({
+			apiKey: Deno.env.get("OPENAI_API_KEY"),
+		});
 
-    const availableCurrencyCodes = ["USD", "EUR", "GBP", "JPY", "CAD", "AUD"];
-    const currentDate = new Date().toISOString().split("T")[0]; // e.g., "2025-03-19"
+		const availableCurrencyCodes = ["USD", "EUR", "GBP", "JPY", "CAD", "AUD"];
+		const currentDate = new Date().toISOString().split("T")[0]; // e.g., "2025-03-19"
 
-    // First OpenAI call: Extract receipt data with discount info and date context
-    const ocrResponse = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `
+		// First OpenAI call: Extract receipt data with discount info and date context
+		const ocrResponse = await openai.chat.completions.create({
+			model: "gpt-4o",
+			messages: [
+				{
+					role: "user",
+					content: [
+						{
+							type: "text",
+							text: `
                 Extract receipt data and categorize items using ONLY these existing categories:
                 ${JSON.stringify(
-                categories.map((c) => ({ id: c.id, name: c.name })),
-              )
-                }
+									categories.map((c) => ({ id: c.id, name: c.name })),
+								)}
 
                 Currency Detection Instructions:
                 1. Look for explicit currency symbols (€, $, ¥, £, etc.) or codes (EUR, USD, JPY, GBP, etc.) on the receipt
                 2. Analyze the store name and any address information for location context
                 3. Look for standard receipt elements that might indicate currency (tax codes like VAT, GST, MwSt, etc.)
                 4. Return the most likely currency code based on the evidence found
-                5. Use only these currency codes if possible: ${availableCurrencyCodes.join(", ")
-                }
+                5. Use only these currency codes if possible: ${availableCurrencyCodes.join(
+									", ",
+								)}
 
                 Date Detection Instructions:
                 1. Extract the purchase date from the receipt
@@ -125,90 +126,87 @@ serve(async (req) => {
                   }>
                 }
               `,
-            },
-            {
-              type: "image_url",
-              image_url: { url: image_url },
-            },
-          ],
-        },
-      ],
-      max_tokens: 2000,
-    });
+						},
+						{
+							type: "image_url",
+							image_url: { url: image_url },
+						},
+					],
+				},
+			],
+			max_tokens: 2000,
+		});
 
-    if (!ocrResponse.choices[0]?.message?.content) {
-      throw new Error("No OCR results returned from OpenAI");
-    }
+		if (!ocrResponse.choices[0]?.message?.content) {
+			throw new Error("No OCR results returned from OpenAI");
+		}
 
-    const extractedData = extractJSONFromString(
-      ocrResponse.choices[0].message.content,
-    );
+		const extractedData = extractJSONFromString(
+			ocrResponse.choices[0].message.content,
+		);
 
-    // Fetch existing item translations to include in context
-    const { data: existingTranslations, error: translationsError } =
-      await supabaseClient
-        .schema("grocery")
-        .from("item_translations")
-        .select("original_name, readable_name, category_id");
+		// Fetch existing item translations to include in context
+		const { data: existingTranslations, error: translationsError } =
+			await supabaseClient
+				.schema("grocery")
+				.from("item_translations")
+				.select("original_name, readable_name, category_id");
 
-    if (translationsError) {
-      throw new Error(
-        `Failed to fetch item translations: ${translationsError.message}`,
-      );
-    }
+		if (translationsError) {
+			throw new Error(
+				`Failed to fetch item translations: ${translationsError.message}`,
+			);
+		}
 
-    const translationMap = new Map<
-      string,
-      { readable_name: string; category_id: string | null }
-    >(
-      existingTranslations.map((t) => [
-        t.original_name,
-        { readable_name: t.readable_name, category_id: t.category_id },
-      ]),
-    );
-    const readableNameMap = new Map<
-      string,
-      { original_name: string; category_id: string | null }
-    >(
-      existingTranslations.map((t) => [
-        t.readable_name,
-        { original_name: t.original_name, category_id: t.category_id },
-      ]),
-    );
+		const translationMap = new Map<
+			string,
+			{ readable_name: string; category_id: string | null }
+		>(
+			existingTranslations.map((t) => [
+				t.original_name,
+				{ readable_name: t.readable_name, category_id: t.category_id },
+			]),
+		);
+		const readableNameMap = new Map<
+			string,
+			{ original_name: string; category_id: string | null }
+		>(
+			existingTranslations.map((t) => [
+				t.readable_name,
+				{ original_name: t.original_name, category_id: t.category_id },
+			]),
+		);
 
-    // Second OpenAI call: Clean and translate item names to English
-    const translationResponse = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "user",
-          content: `
+		// Second OpenAI call: Clean and translate item names to English
+		const translationResponse = await openai.chat.completions.create({
+			model: "gpt-4o",
+			messages: [
+				{
+					role: "user",
+					content: `
             Process the following item names from a receipt to:
             1. Correct potential OCR errors or misspellings (e.g., "Gat0rade" -> "Gatorade").
             2. Translate each corrected name into an accurate, specific English name (e.g., "Gatorade Frost Glacier" instead of "GTRD FRST BOISS").
             Use the provided categories and existing translations for context, but do NOT prefix the readable name with the category.
 
             Categories available (for context only): ${JSON.stringify(
-            categories.map((c) => ({ id: c.id, name: c.name })),
-          )
-            }
+							categories.map((c) => ({ id: c.id, name: c.name })),
+						)}
 
             Existing translations (use these for consistency where applicable):
             ${JSON.stringify(
-              existingTranslations.map((t) => ({
-                original_name: t.original_name,
-                readable_name: t.readable_name,
-              })),
-            )
-            }
+							existingTranslations.map((t) => ({
+								original_name: t.original_name,
+								readable_name: t.readable_name,
+							})),
+						)}
 
             Items to process: ${JSON.stringify(
-              extractedData.items.map((item: any) => ({
-                name: item.name,
-                category_id: item.category_id,
-              })),
-            )
-            }
+							extractedData.items.map((item: any) => ({
+								name: item.name,
+								category_id: item.category_id,
+							})),
+						)}
 
             Instructions:
             - If an item's corrected name matches an existing "original_name", use the corresponding "readable_name".
@@ -230,170 +228,169 @@ serve(async (req) => {
               }>
             }
           `,
-        },
-      ],
-      max_tokens: 1000,
-    });
+				},
+			],
+			max_tokens: 1000,
+		});
 
-    if (!translationResponse.choices[0]?.message?.content) {
-      throw new Error("No translation results returned from OpenAI");
-    }
+		if (!translationResponse.choices[0]?.message?.content) {
+			throw new Error("No translation results returned from OpenAI");
+		}
 
-    const translationData = extractJSONFromString(
-      translationResponse.choices[0].message.content,
-    );
+		const translationData = extractJSONFromString(
+			translationResponse.choices[0].message.content,
+		);
 
-    // Combine extracted data with translations
-    const cleanedItems = extractedData.items.map((item: any) => {
-      const translation = translationData.translations.find(
-        (t: any) => t.original_name === item.name,
-      ) || { corrected_name: item.name, readable_name: item.name };
-      return {
-        ...item,
-        corrected_name: translation.corrected_name,
-        readable_name: translation.readable_name,
-      };
-    });
+		// Combine extracted data with translations
+		const cleanedItems = extractedData.items.map((item: any) => {
+			const translation = translationData.translations.find(
+				(t: any) => t.original_name === item.name,
+			) || { corrected_name: item.name, readable_name: item.name };
+			return {
+				...item,
+				corrected_name: translation.corrected_name,
+				readable_name: translation.readable_name,
+			};
+		});
 
-    // Identify new translations, avoiding duplicates by readable_name
-    const newTranslations = cleanedItems
-      .filter(
-        (item: any) =>
-          !translationMap.has(item.corrected_name) &&
-          !readableNameMap.has(item.readable_name),
-      )
-      .map((item: any) => ({
-        original_name: item.corrected_name,
-        readable_name: item.readable_name,
-        category_id: item.category_id || null,
-      }));
+		// Identify new translations, avoiding duplicates by readable_name
+		const newTranslations = cleanedItems
+			.filter(
+				(item: any) =>
+					!translationMap.has(item.corrected_name) &&
+					!readableNameMap.has(item.readable_name),
+			)
+			.map((item: any) => ({
+				original_name: item.corrected_name,
+				readable_name: item.readable_name,
+				category_id: item.category_id || null,
+			}));
 
-    if (newTranslations.length > 0) {
-      const { error: insertTranslationsError } = await supabaseClient
-        .schema("grocery")
-        .from("item_translations")
-        .insert(newTranslations);
+		if (newTranslations.length > 0) {
+			const { error: insertTranslationsError } = await supabaseClient
+				.schema("grocery")
+				.from("item_translations")
+				.insert(newTranslations);
 
-      if (insertTranslationsError) {
-        console.warn(
-          `Failed to insert new translations: ${insertTranslationsError.message}`,
-        );
-      } else {
-        newTranslations.forEach((t) => {
-          translationMap.set(t.original_name, {
-            readable_name: t.readable_name,
-            category_id: t.category_id,
-          });
-          readableNameMap.set(t.readable_name, {
-            original_name: t.original_name,
-            category_id: t.category_id,
-          });
-        });
-      }
-    }
+			if (insertTranslationsError) {
+				console.warn(
+					`Failed to insert new translations: ${insertTranslationsError.message}`,
+				);
+			} else {
+				newTranslations.forEach((t) => {
+					translationMap.set(t.original_name, {
+						readable_name: t.readable_name,
+						category_id: t.category_id,
+					});
+					readableNameMap.set(t.readable_name, {
+						original_name: t.original_name,
+						category_id: t.category_id,
+					});
+				});
+			}
+		}
 
-    // Parse and validate the date, ensuring it's recent
-    let formattedDate;
-    try {
-      const dateParts = extractedData.purchase_date.split(/[-/]/); // Split by "-" or "/"
-      if (dateParts.length === 3) {
-        let year = dateParts[0].length === 4 ? dateParts[0] : dateParts[2]; // Handle YYYY-MM-DD or DD/MM/YYYY
-        let month = dateParts[1];
-        let day = dateParts[0].length === 4 ? dateParts[2] : dateParts[0];
+		// Parse and validate the date, ensuring it's recent
+		let formattedDate;
+		try {
+			const dateParts = extractedData.purchase_date.split(/[-/]/); // Split by "-" or "/"
+			if (dateParts.length === 3) {
+				let year = dateParts[0].length === 4 ? dateParts[0] : dateParts[2]; // Handle YYYY-MM-DD or DD/MM/YYYY
+				const month = dateParts[1];
+				const day = dateParts[0].length === 4 ? dateParts[2] : dateParts[0];
 
-        if (year.length === 2) {
-          year = `20${year}`; // Assume 21st century
-        }
+				if (year.length === 2) {
+					year = `20${year}`; // Assume 21st century
+				}
 
-        const parsedDate = new Date(
-          `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
-        );
-        const fiveYearsAgo = new Date();
-        fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+				const parsedDate = new Date(
+					`${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
+				);
+				const fiveYearsAgo = new Date();
+				fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
 
-        // If date is older than 5 years or invalid, default to today
-        if (isNaN(parsedDate.getTime()) || parsedDate < fiveYearsAgo) {
-          console.warn(
-            `Invalid or implausible date detected: ${extractedData.purchase_date}. Defaulting to today.`,
-          );
-          formattedDate = currentDate;
-        } else {
-          formattedDate = parsedDate.toISOString().split("T")[0];
-        }
-      } else {
-        console.warn(
-          `Unrecognized date format: ${extractedData.purchase_date}. Defaulting to today.`,
-        );
-        formattedDate = currentDate;
-      }
-    } catch (e) {
-      console.error("Date parsing error:", e);
-      formattedDate = currentDate; // Default to today on error
-    }
+				// If date is older than 5 years or invalid, default to today
+				if (isNaN(parsedDate.getTime()) || parsedDate < fiveYearsAgo) {
+					console.warn(
+						`Invalid or implausible date detected: ${extractedData.purchase_date}. Defaulting to today.`,
+					);
+					formattedDate = currentDate;
+				} else {
+					formattedDate = parsedDate.toISOString().split("T")[0];
+				}
+			} else {
+				console.warn(
+					`Unrecognized date format: ${extractedData.purchase_date}. Defaulting to today.`,
+				);
+				formattedDate = currentDate;
+			}
+		} catch (e) {
+			console.error("Date parsing error:", e);
+			formattedDate = currentDate; // Default to today on error
+		}
 
-    // Update receipt with currency information
-    const { error: updateError } = await supabaseClient
-      .schema("grocery")
-      .from("receipts")
-      .update({
-        store_name: extractedData.store_name,
-        purchase_date: formattedDate,
-        total_amount: extractedData.total_amount,
-        currency_code: extractedData.currency_code || "EUR",
-        currency_evidence: extractedData.currency_evidence ||
-          "No evidence provided",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", receipt_id);
+		// Update receipt with currency information
+		const { error: updateError } = await supabaseClient
+			.schema("grocery")
+			.from("receipts")
+			.update({
+				store_name: extractedData.store_name,
+				purchase_date: formattedDate,
+				total_amount: extractedData.total_amount,
+				currency_code: extractedData.currency_code || "EUR",
+				currency_evidence:
+					extractedData.currency_evidence || "No evidence provided",
+				updated_at: new Date().toISOString(),
+			})
+			.eq("id", receipt_id);
 
-    if (updateError) {
-      throw new Error(`Failed to update receipt: ${updateError.message}`);
-    }
+		if (updateError) {
+			throw new Error(`Failed to update receipt: ${updateError.message}`);
+		}
 
-    // Map items with cleaned data, including discount fields
-    const items = cleanedItems.map((item: any) => {
-      const translation = translationMap.get(item.corrected_name);
-      return {
-        receipt_id,
-        item_name: item.name, // Original OCR name for reference
-        readable_name: translation?.readable_name || item.readable_name,
-        unit_price: item.unit_price,
-        quantity: item.quantity || 1,
-        category_id: translation?.category_id || item.category_id || null,
-        discount_amount: item.discount_amount || 0,
-        original_unit_price: item.original_unit_price || null,
-      };
-    });
+		// Map items with cleaned data, including discount fields
+		const items = cleanedItems.map((item: any) => {
+			const translation = translationMap.get(item.corrected_name);
+			return {
+				receipt_id,
+				item_name: item.name, // Original OCR name for reference
+				readable_name: translation?.readable_name || item.readable_name,
+				unit_price: item.unit_price,
+				quantity: item.quantity || 1,
+				category_id: translation?.category_id || item.category_id || null,
+				discount_amount: item.discount_amount || 0,
+				original_unit_price: item.original_unit_price || null,
+			};
+		});
 
-    if (items.length > 0) {
-      const { error: itemsError } = await supabaseClient
-        .schema("grocery")
-        .from("receipt_items")
-        .insert(items);
+		if (items.length > 0) {
+			const { error: itemsError } = await supabaseClient
+				.schema("grocery")
+				.from("receipt_items")
+				.insert(items);
 
-      if (itemsError) {
-        throw new Error(`Failed to insert items: ${itemsError.message}`);
-      }
-    }
+			if (itemsError) {
+				throw new Error(`Failed to insert items: ${itemsError.message}`);
+			}
+		}
 
-    return new Response(
-      JSON.stringify({ success: true, receipt_id, data: extractedData }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
-  } catch (error) {
-    console.error("Function error:", error);
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: error instanceof Error
-          ? error.message
-          : "Unknown error occurred",
-        details: error instanceof Error ? error.stack : undefined,
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      },
-    );
-  }
+		return new Response(
+			JSON.stringify({ success: true, receipt_id, data: extractedData }),
+			{ headers: { ...corsHeaders, "Content-Type": "application/json" } },
+		);
+	} catch (error) {
+		console.error("Function error:", error);
+		return new Response(
+			JSON.stringify({
+				success: false,
+				error:
+					error instanceof Error ? error.message : "Unknown error occurred",
+				details: error instanceof Error ? error.stack : undefined,
+			}),
+			{
+				headers: { ...corsHeaders, "Content-Type": "application/json" },
+				status: 400,
+			},
+		);
+	}
 });

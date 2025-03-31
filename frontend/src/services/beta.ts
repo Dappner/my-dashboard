@@ -1,4 +1,3 @@
-
 /**
  * Calculates Beta, a measure of an investment's volatility relative to the market.
  *
@@ -12,31 +11,37 @@
  * @returns The Beta of the investment.
  */
 export const calculateBeta = (
-  investmentReturns: number[],
-  marketReturns: number[]
+	investmentReturns: number[],
+	marketReturns: number[],
 ): number => {
-  if (investmentReturns.length !== marketReturns.length || investmentReturns.length < 2) {
-    return 0; // Ensure there are enough data points and equal lengths
-  }
+	if (
+		investmentReturns.length !== marketReturns.length ||
+		investmentReturns.length < 2
+	) {
+		return 0; // Ensure there are enough data points and equal lengths
+	}
 
-  const investmentMean = investmentReturns.reduce((a, b) => a + b, 0) / investmentReturns.length;
-  const marketMean = marketReturns.reduce((a, b) => a + b, 0) / marketReturns.length;
+	const investmentMean =
+		investmentReturns.reduce((a, b) => a + b, 0) / investmentReturns.length;
+	const marketMean =
+		marketReturns.reduce((a, b) => a + b, 0) / marketReturns.length;
 
-  let covariance = 0;
-  for (let i = 0; i < investmentReturns.length; i++) {
-    covariance += (investmentReturns[i] - investmentMean) * (marketReturns[i] - marketMean);
-  }
-  covariance /= investmentReturns.length;
+	let covariance = 0;
+	for (let i = 0; i < investmentReturns.length; i++) {
+		covariance +=
+			(investmentReturns[i] - investmentMean) * (marketReturns[i] - marketMean);
+	}
+	covariance /= investmentReturns.length;
 
-  let marketVariance = 0;
-  for (let i = 0; i < marketReturns.length; i++) {
-    marketVariance += (marketReturns[i] - marketMean) ** 2;
-  }
-  marketVariance /= marketReturns.length;
+	let marketVariance = 0;
+	for (let i = 0; i < marketReturns.length; i++) {
+		marketVariance += (marketReturns[i] - marketMean) ** 2;
+	}
+	marketVariance /= marketReturns.length;
 
-  if (marketVariance === 0) {
-    return 0; // Avoid division by zero
-  }
+	if (marketVariance === 0) {
+		return 0; // Avoid division by zero
+	}
 
-  return covariance / marketVariance;
+	return covariance / marketVariance;
 };

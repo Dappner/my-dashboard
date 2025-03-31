@@ -1,4 +1,3 @@
-
 /**
  * Calculates the Time-Weighted Return (TWR) of a portfolio.
  *
@@ -18,17 +17,17 @@
  * @returns The TWR as a percentage.
  */
 export const calculateTimeWeightedReturn = (
-  periods: { startValue: number; endValue: number; cashFlow: number }[]
+	periods: { startValue: number; endValue: number; cashFlow: number }[],
 ): number => {
-  let product = 1;
-  for (const period of periods) {
-    const { startValue, endValue, cashFlow } = period;
-    if (startValue === 0) {
-      continue; // Skip periods with zero start value to avoid division by zero.
-    }
-    const periodReturn = (endValue - startValue - cashFlow) / startValue;
-    product *= 1 + periodReturn;
-  }
+	let product = 1;
+	for (const period of periods) {
+		const { startValue, endValue, cashFlow } = period;
+		if (startValue === 0) {
+			continue; // Skip periods with zero start value to avoid division by zero.
+		}
+		const periodReturn = (endValue - startValue - cashFlow) / startValue;
+		product *= 1 + periodReturn;
+	}
 
-  return (product - 1) * 100;
+	return (product - 1) * 100;
 };

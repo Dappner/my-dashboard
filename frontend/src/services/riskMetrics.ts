@@ -9,14 +9,14 @@
  * @returns The Sharpe Ratio.
  */
 export const calculateSharpeRatio = (
-  portfolioReturn: number,
-  riskFreeRate: number,
-  portfolioStdDev: number
+	portfolioReturn: number,
+	riskFreeRate: number,
+	portfolioStdDev: number,
 ): number => {
-  if (portfolioStdDev === 0) {
-    return 0; // Or Infinity, depending on the desired behavior
-  }
-  return (portfolioReturn - riskFreeRate) / portfolioStdDev;
+	if (portfolioStdDev === 0) {
+		return 0; // Or Infinity, depending on the desired behavior
+	}
+	return (portfolioReturn - riskFreeRate) / portfolioStdDev;
 };
 
 /**
@@ -31,14 +31,14 @@ export const calculateSharpeRatio = (
  * @returns The Sortino Ratio.
  */
 export const calculateSortinoRatio = (
-  portfolioReturn: number,
-  riskFreeRate: number,
-  downsideStdDev: number
+	portfolioReturn: number,
+	riskFreeRate: number,
+	downsideStdDev: number,
 ): number => {
-  if (downsideStdDev === 0) {
-    return 0; // Or Infinity, depending on the desired behavior
-  }
-  return (portfolioReturn - riskFreeRate) / downsideStdDev;
+	if (downsideStdDev === 0) {
+		return 0; // Or Infinity, depending on the desired behavior
+	}
+	return (portfolioReturn - riskFreeRate) / downsideStdDev;
 };
 
 /**
@@ -49,16 +49,16 @@ export const calculateSortinoRatio = (
  * @returns The maximum drawdown as a percentage.
  */
 export const calculateMaxDrawdown = (values: number[]): number => {
-  let peak = values[0];
-  let maxDrawdown = 0;
+	let peak = values[0];
+	let maxDrawdown = 0;
 
-  for (const value of values) {
-    if (value > peak) {
-      peak = value;
-    }
-    const drawdown = (peak - value) / peak;
-    maxDrawdown = Math.max(maxDrawdown, drawdown);
-  }
+	for (const value of values) {
+		if (value > peak) {
+			peak = value;
+		}
+		const drawdown = (peak - value) / peak;
+		maxDrawdown = Math.max(maxDrawdown, drawdown);
+	}
 
-  return maxDrawdown * 100;
+	return maxDrawdown * 100;
 };

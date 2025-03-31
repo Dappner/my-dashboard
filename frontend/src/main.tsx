@@ -6,20 +6,20 @@ import { AuthProvider } from "./contexts/AuthContext.tsx";
 import "./index.css";
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      refetchOnWindowFocus: false,
-    },
-  },
+	defaultOptions: {
+		queries: {
+			retry: 2,
+			refetchOnWindowFocus: false,
+		},
+	},
 });
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </QueryClientProvider>
-  </StrictMode>,
+	<StrictMode>
+		<QueryClientProvider client={queryClient}>
+			<AuthProvider>
+				<App />
+			</AuthProvider>
+		</QueryClientProvider>
+	</StrictMode>,
 );

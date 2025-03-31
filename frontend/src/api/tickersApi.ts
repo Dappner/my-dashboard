@@ -1,81 +1,84 @@
 import { supabase } from "@/lib/supabase";
-import { InsertTicker, Ticker, UpdateTicker } from "@/types/tickerTypes";
-
+import type { InsertTicker, Ticker, UpdateTicker } from "@/types/tickerTypes";
 
 export const tickersApiKeys = {
-  all: ['tickers'] as const,
-  ticker: (exchange: string, symbol: string) => [...tickersApiKeys.all, exchange, symbol] as const,
-}
+	all: ["tickers"] as const,
+	ticker: (exchange: string, symbol: string) =>
+		[...tickersApiKeys.all, exchange, symbol] as const,
+};
 
 export const tickersApi = {
-  async getTickers() {
-    const { data } = await supabase.from("tickers").select().order("symbol");
+	async getTickers() {
+		const { data } = await supabase.from("tickers").select().order("symbol");
 
-    return data as Ticker[];
-  },
+		return data as Ticker[];
+	},
 
-  async getTicker(exchange: string, symbol: string) {
-    const { data, error } = await supabase.from("tickers").select()
-      .eq("symbol", symbol)
-      .eq("exchange", exchange)
-      .single();
-    if (error) throw error;
+	async getTicker(exchange: string, symbol: string) {
+		const { data, error } = await supabase
+			.from("tickers")
+			.select()
+			.eq("symbol", symbol)
+			.eq("exchange", exchange)
+			.single();
+		if (error) throw error;
 
-    return data as Ticker;
-  },
-  async getTickerById(tickerId: string) {
-    const { data, error } = await supabase.from("tickers").select()
-      .eq("id", tickerId)
-      .single();
-    if (error) throw error;
+		return data as Ticker;
+	},
+	async getTickerById(tickerId: string) {
+		const { data, error } = await supabase
+			.from("tickers")
+			.select()
+			.eq("id", tickerId)
+			.single();
+		if (error) throw error;
 
-    return data as Ticker;
-  },
+		return data as Ticker;
+	},
 
-  async addTicker(newTicker: InsertTicker): Promise<Ticker> {
-    const { data, error } = await supabase
-      .from("tickers")
-      .insert([newTicker])
-      .select("*")
-      .single();
+	async addTicker(newTicker: InsertTicker): Promise<Ticker> {
+		const { data, error } = await supabase
+			.from("tickers")
+			.insert([newTicker])
+			.select("*")
+			.single();
 
-    if (error) {
-      if (error.code === "23505") {
-        throw new Error("This ticker already exists in the database");
-      }
-      throw error;
-    }
+		if (error) {
+			if (error.code === "23505") {
+				throw new Error("This ticker already exists in the database");
+			}
+			throw error;
+		}
 
-    return data;
-  },
+		return data;
+	},
 
-  async updateTicker(ticker: UpdateTicker): Promise<Ticker> {
-    const { id, ...tickerData } = ticker;
-    const { data, error } = await supabase
-      .from("tickers")
-      .update({ ...tickerData, updated_at: new Date().toISOString() })
-      .eq("id", id!)
-      .select("*")
-      .single();
+	async updateTicker(ticker: UpdateTicker): Promise<Ticker> {
+		const { id, ...tickerData } = ticker;
+		const { data, error } = await supabase
+			.from("tickers")
+			.update({ ...tickerData, updated_at: new Date().toISOString() })
+			.eq("id", id!)
+			.select("*")
+			.single();
 
-    if (error) {
-      if (error.code === "23505") {
-        throw new Error("This ticker symbol and exchange combination already exists");
-      }
-      throw error;
-    }
+		if (error) {
+			if (error.code === "23505") {
+				throw new Error(
+					"This ticker symbol and exchange combination already exists",
+				);
+			}
+			throw error;
+		}
 
-    return data;
-  },
+		return data;
+	},
 
-  async deleteTicker(id: string): Promise<void> {
-    const { error } = await supabase
-      .from("tickers")
-      .delete()
-      .eq("id", id);
+	async deleteTicker(id: string): Promise<void> {
+		const { error } = await supabase.from("tickers").delete().eq("id", id);
 
-    if (error) {
-      throw error;
-    }
-  }
-}
+		if (error) {
+			throw error;
+		}
+	},
+};

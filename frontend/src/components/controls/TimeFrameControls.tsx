@@ -1,44 +1,46 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { timeframes } from "@/constants";
-import { Timeframe } from "@/types/portfolioDailyMetricTypes";
+import type { Timeframe } from "@/types/portfolioDailyMetricTypes";
 
 export default function TimeframeControls({
-  timeframe,
-  onTimeframeChange,
+	timeframe,
+	onTimeframeChange,
 }: {
-  timeframe: Timeframe;
-  onTimeframeChange: (period: Timeframe) => void;
+	timeframe: Timeframe;
+	onTimeframeChange: (period: Timeframe) => void;
 }) {
-  // Handler ensures only valid Timeframe values are passed up
-  const handleValueChange = (value: string) => {
-    // Check if the selected value is a valid timeframe and actually changed
-    if (
-      value && value !== timeframe && timeframes.includes(value as Timeframe)
-    ) {
-      onTimeframeChange(value as Timeframe);
-    }
-    // If value is empty (clicked active item), do nothing to prevent deselection
-  };
+	// Handler ensures only valid Timeframe values are passed up
+	const handleValueChange = (value: string) => {
+		// Check if the selected value is a valid timeframe and actually changed
+		if (
+			value &&
+			value !== timeframe &&
+			timeframes.includes(value as Timeframe)
+		) {
+			onTimeframeChange(value as Timeframe);
+		}
+		// If value is empty (clicked active item), do nothing to prevent deselection
+	};
 
-  return (
-    <ToggleGroup
-      type="single"
-      size="sm"
-      value={timeframe}
-      onValueChange={handleValueChange}
-      className="flex flex-wrap justify-center bg-white shadow-xs"
-      aria-label="Select time frame"
-    >
-      {timeframes.map((period) => (
-        <ToggleGroupItem
-          key={period}
-          value={period}
-          aria-label={`Select ${period} timeframe`}
-          className="data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 px-4 sm:px-3 cursor-pointer"
-        >
-          {period}
-        </ToggleGroupItem>
-      ))}
-    </ToggleGroup>
-  );
+	return (
+		<ToggleGroup
+			type="single"
+			size="sm"
+			value={timeframe}
+			onValueChange={handleValueChange}
+			className="flex flex-wrap justify-center bg-white shadow-xs"
+			aria-label="Select time frame"
+		>
+			{timeframes.map((period) => (
+				<ToggleGroupItem
+					key={period}
+					value={period}
+					aria-label={`Select ${period} timeframe`}
+					className="data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 px-4 sm:px-3 cursor-pointer"
+				>
+					{period}
+				</ToggleGroupItem>
+			))}
+		</ToggleGroup>
+	);
 }
