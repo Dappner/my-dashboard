@@ -1,5 +1,4 @@
-ignoredBuiltDependencies:
-  - '@biomejs/biome'
 onlyBuiltDependencies:
+  - '@biomejs/biome'
   - esbuild
   - supabase

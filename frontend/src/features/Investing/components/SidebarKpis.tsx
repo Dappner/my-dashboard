@@ -28,7 +28,7 @@ export default function SidebarKpis({
 
 	if (isLoading) {
 		return (
-			<div className={`space-y-3 ${className}`}>
+			<div className={`${className} flex flex-row gap-x-2`}>
 				<Skeleton className="h-16 w-full rounded-md" />
 				<Skeleton className="h-16 w-full rounded-md" />
 				<Skeleton className="h-16 w-full rounded-md" />

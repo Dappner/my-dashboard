@@ -23,55 +23,35 @@
   - E.g. average holding time of current shares. Average dividends received per share during holding period
     Unrealized P/L, Unrealized P/L per share net of dividends (% and ABS)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# FORMULAS USED
 
-Currently, two official plugins are available:
+1. Formula Used for daily_investment_twrr_percent
+   The formula implemented in the SQL view to calculate the daily Time-Weighted Rate of Return (TWRR) focused on invested assets is:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Daily Investment TWRR (%) = [ (EMV + D) / (BMV + NCI) - 1 ] \* 100
+Use code with caution.
+Where:
 
-## Expanding the ESLint configuration
+EMV (Ending Market Value): The market value of the securities (excluding cash) at the end of the day.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+In the SQL: ld.portfolio_value
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-});
-```
+D (Dividends Received): The total cash amount of dividends received during the day.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+In the SQL: ld.daily_dividend_cash
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+BMV (Beginning Market Value): The market value of the securities (excluding cash) at the end of the previous day.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    "react-x": reactX,
-    "react-dom": reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs["recommended-typescript"].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-});
-```
+In the SQL: ld.previous_day_portfolio_value
+
+NCI (Net Cash Invested): The net amount of cash that flowed into the securities pool due to trading activities (buys minus sells) during the day.
+
+Calculated as: SUM(ABS(cash_flow) WHERE type='buy') - SUM(cash_flow WHERE type='sell')
+
+In the SQL (simplified): ld.net_cash_invested_today (derived from -SUM(cash_flow WHERE type IN ('buy', 'sell')) in the CTE).
+
+Important Notes from the SQL Implementation:
+
+First Day: If previous_day_portfolio_value is NULL (meaning it's the first day for that user in the dataset), the TWRR is set to 0.
+
+Denominator Check: If the denominator (BMV + NCI) is less than or equal to 0, the TWRR is set to 0 to prevent division errors.

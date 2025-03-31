@@ -8,7 +8,8 @@
 		"build": "tsc && vite build",
 		"lint": "eslint .",
 		"preview": "vite preview",
-		"update-types": "npx supabase gen types typescript --project-id wwzyziohidsxmjfkoowh --schema public --schema grocery > src/types/supabase.ts"
+		"update-types": "npx supabase gen types typescript --project-id wwzyziohidsxmjfkoowh --schema public --schema grocery > src/types/supabase.ts",
+		"format": "pnpm biome format --write ./"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^4.1.3",
@@ -53,9 +54,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@biomejs/cli-darwin-arm64": "^1.9.4",
 		"@eslint/js": "^9.23.0",
-		"@tailwindcss/oxide-darwin-arm64": "^4.0.17",
 		"@types/d3": "^7.4.3",
 		"@types/node": "^22.13.13",
 		"@types/react": "^19.0.12",
@@ -69,5 +68,15 @@
 		"typescript": "^5.8.2",
 		"typescript-eslint": "^8.28.0",
 		"vite": "^6.2.3"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"@biomejs/biome",
+			"esbuild",
+			"supabase",
+			"tailwindcss",
+			"@tailwindcss/oxide",
+			"lightningcss"
+		]
 	}
 }

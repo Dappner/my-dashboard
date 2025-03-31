@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 export function useTickerHistoricalPrices(
 	tickerId: string,
 	timeframe: Timeframe,
+	enabled: boolean,
 ) {
 	const {
 		data: historicalPrices,
@@ -14,7 +15,7 @@ export function useTickerHistoricalPrices(
 		queryKey: tickerPricesApiKeys.timeframe(tickerId, timeframe),
 		queryFn: async () =>
 			tickerPricesApi.getTickerHistoricalPrices(tickerId, timeframe),
-		enabled: !!tickerId,
+		enabled: enabled,
 	});
 
 	return {

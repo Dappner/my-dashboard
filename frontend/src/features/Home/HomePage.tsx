@@ -11,6 +11,7 @@ export default function HomePage() {
 		return Array(3)
 			.fill(0)
 			.map((_, i) => (
+				// biome-ignore lint/suspicious/noArrayIndexKey: This is a loading state -- fine
 				<Card key={i} className="h-32 animate-pulse bg-gray-200" />
 			));
 	}
