@@ -2,6 +2,7 @@ import { chartColors } from "@/constants";
 import {
 	Cell,
 	Legend,
+	type LegendProps,
 	Pie,
 	PieChart,
 	ResponsiveContainer,
@@ -70,15 +71,18 @@ export default function CustomPieChart({
 		return null;
 	};
 
-	const CustomLegend: React.FC<any> = (props) => {
-		const { payload } = props;
+	const CustomLegend: React.FC<LegendProps> = ({ payload }) => {
+		if (!payload) {
+			return null;
+		}
 		return (
 			<ul className="text-xs space-y-1 mt-2 max-h-24 overflow-y-auto">
-				{payload.map((entry: any, index: number) => {
+				{payload?.map((entry, index: number) => {
 					const itemValue = data.find(
-						(d: DataItem) => d.label === entry.value,
+						(d: PieChartDataItem) => d.label === entry.value,
 					)?.value;
 					return (
+						// biome-ignore lint/suspicious/noArrayIndexKey: Fine for the legend
 						<li key={`legend-${index}`} className="flex items-center">
 							<div
 								className="w-3 h-3 mr-2 flex-shrink-0"
@@ -120,9 +124,9 @@ export default function CustomPieChart({
 									}
 									labelLine={false}
 								>
-									{processedData.map((_entry, index) => (
+									{processedData.map((entry, index) => (
 										<Cell
-											key={`cell-${index}`}
+											key={`${entry.label}`}
 											fill={colorPalette[index % colorPalette.length]}
 											stroke={colorPalette[index % colorPalette.length]}
 										/>

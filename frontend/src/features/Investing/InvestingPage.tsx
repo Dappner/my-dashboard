@@ -98,7 +98,7 @@ export default function InvestingPage() {
 							linkText="View All"
 						/>
 						<TransactionTable
-							transactions={recentTransactions!}
+							transactions={recentTransactions || []}
 							isLoading={transactionsLoading}
 							actions={false}
 						/>

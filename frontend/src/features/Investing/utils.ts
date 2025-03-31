@@ -1,6 +1,4 @@
-import type { PieChartDataItem } from "@/components/charts/CustomPieChart";
-import { formatIndustryName, formatSectorName } from "@/lib/formatting";
-import type { Holding, HoldingAllocation } from "@/types/holdingsTypes";
+import type { Holding } from "@/types/holdingsTypes";
 import { monthsShort } from "./constants";
 export interface AssetClass {
 	asset_class: string;
@@ -14,137 +12,32 @@ export interface SectorWeighting {
 	date: string;
 }
 
-export const prepareSectorData = (
-	holdings: HoldingAllocation[],
-): PieChartDataItem[] => {
-	const sectorMap = new Map<string, number>();
-
-	holdings.forEach((holding) => {
-		const marketValue = holding.current_market_value || 0;
-		if (holding.quote_type === "EQUITY" && holding.stock_sector) {
-			sectorMap.set(
-				holding.stock_sector,
-				(sectorMap.get(holding.stock_sector) || 0) + marketValue,
-			);
-		} else if (holding.sector_weightings) {
-			// For ETFs/funds, distribute market value across weighted sectors
-			(holding.sector_weightings as unknown as SectorWeighting[]).forEach(
-				(sector) => {
-					const sectorValue = marketValue * (sector.weight / 100);
-					sectorMap.set(
-						sector.sector_name,
-						(sectorMap.get(sector.sector_name) || 0) + sectorValue,
-					);
-				},
-			);
-		} else {
-			// Fallback for holdings without sector data
-			sectorMap.set("Unknown", (sectorMap.get("Unknown") || 0) + marketValue);
-		}
-	});
-
-	return Array.from(sectorMap.entries()).map(([label, value]) => ({
-		label: formatSectorName(label),
-		value,
-	}));
-};
-
-// Process data for the industry allocation pie chart
-export const prepareIndustryData = (holdings: Holding[]) => {
-	if (!holdings || holdings.length === 0) return [];
-
-	// Group by industry and calculate total value
-	const industryMap = new Map<string, number>();
-
-	holdings.forEach((holding) => {
-		const industry = holding.industry || holding.quote_type;
-		const value = (holding.shares || 0) * (holding.average_cost_basis || 0);
-
-		if (industryMap.has(industry)) {
-			industryMap.set(industry, (industryMap.get(industry) || 0) + value);
-		} else {
-			industryMap.set(industry, value);
-		}
-	});
-
-	// Convert to array for the pie chart
-	return Array.from(industryMap.entries())
-		.map(([label, value]) => ({
-			label: formatIndustryName(label),
-			value: Number(value.toFixed(2)),
-		}))
-		.sort((a, b) => b.value - a.value);
-};
-export const prepareAllocationData = (
-	holdings: Holding[],
-	cash_balance: number,
-) => {
-	const equities = holdings
-		.map((holding) => holding.current_market_value!)
-		.reduce((a, b) => a + b);
-
-	return [
-		{
-			label: "Equities",
-			value: equities,
-		},
-		{
-			label: "Cash",
-			value: cash_balance,
-		},
-	];
-};
-
-export const prepareHoldingData = (holdings: Holding[]) => {
-	return holdings.map((holding) => {
-		return {
-			label: holding.symbol!,
-			value: holding.current_market_value!,
-		};
-	});
-};
-
-// DIVIDEND UTILS
-/**
- * Calculates total annual dividend income from all holdings
- * @param {Array} holdings - Array of holding objects
- * @returns {Number} - Total annual dividend income
- */
 export function calculateTotalAnnualDividend(holdings: Holding[]): number {
 	if (!holdings || holdings.length === 0) return 0;
 
-	return holdings.reduce((total, holding) => {
-		return total + (holding.annual_dividend_amount || 0);
-	}, 0);
+	return holdings.reduce(
+		(total, holding) => total + (holding.annual_dividend_amount ?? 0),
+		0,
+	);
 }
 
-/**
- * Calculates average dividend yield across all holdings (weighted by position value)
- * @param {Array} holdings - Array of holding objects
- * @returns {Number} - Weighted average yield percentage
- */
 export function calculateAverageYield(holdings: Holding[]): number {
 	if (!holdings || holdings.length === 0) return 0;
 
 	let totalValue = 0;
 	let weightedYieldSum = 0;
 
-	holdings.forEach((holding) => {
+	for (const holding of holdings) {
 		const positionValue =
-			(holding.average_cost_basis || 0) * (holding.shares || 0);
+			(holding.average_cost_basis ?? 0) * (holding.shares ?? 0);
 		totalValue += positionValue;
 		weightedYieldSum +=
-			(holding.cost_basis_dividend_yield_percent || 0) * positionValue;
-	});
+			(holding.cost_basis_dividend_yield_percent ?? 0) * positionValue;
+	}
 
 	return totalValue > 0 ? weightedYieldSum / totalValue : 0;
 }
 
-/**
- * Calculates monthly average dividend income
- * @param {Array} holdings - Array of holding objects
- * @returns {Number} - Average monthly income
- */
 export function calculateMonthlyAverage(holdings: Holding[]): number {
 	const annualTotal = calculateTotalAnnualDividend(holdings);
 	return annualTotal / 12;
@@ -157,11 +50,6 @@ interface NextDividendInfo {
 	displayDate: string;
 }
 
-/**
- * Finds the next upcoming dividend payment
- * @param {Array} holdings - Array of holding objects
- * @returns {Object|null} - Next dividend payment info or null
- */
 export function findNextDividendPayment(
 	holdings: Holding[],
 ): NextDividendInfo | null {
@@ -172,25 +60,19 @@ export function findNextDividendPayment(
 	const currentYear = currentDate.getFullYear();
 
 	let nextDividendInfo: NextDividendInfo | null = null;
-	let closestMonthDiff = 13; // More than maximum possible
+	let closestMonthDiff = 13;
 
-	holdings.forEach((holding) => {
-		if (!holding.dividend_months || holding.dividend_months.length === 0)
-			return;
+	for (const holding of holdings) {
+		const dividendMonths = holding.dividend_months ?? [];
+		if (dividendMonths.length === 0) continue;
 
-		holding.dividend_months.forEach((monthNum) => {
-			// Normalize month index to 0-based
+		for (const monthNum of dividendMonths) {
 			const month = monthNum > 11 ? 0 : monthNum;
-
-			// Calculate months from now (handling year boundary)
 			let monthsFromNow = month - currentMonth;
 			if (monthsFromNow <= 0) monthsFromNow += 12;
 
-			// Found a closer dividend
 			if (monthsFromNow < closestMonthDiff) {
 				closestMonthDiff = monthsFromNow;
-
-				// For display, we'll use 15th as an approximate day if actual day is unknown
 				const nextDate = new Date(
 					month < currentMonth ? currentYear + 1 : currentYear,
 					month,
@@ -198,25 +80,20 @@ export function findNextDividendPayment(
 				);
 
 				nextDividendInfo = {
-					symbol: holding.symbol || "Unknown",
+					symbol: holding.symbol ?? "Unknown",
 					month: monthsShort[month],
 					date: nextDate,
-					displayDate: `${monthsShort[month]} ${nextDate.getDate()}, ${nextDate.getFullYear()}`,
+					displayDate: `${
+						monthsShort[month]
+					} ${nextDate.getDate()}, ${nextDate.getFullYear()}`,
 				};
 			}
-		});
-	});
+		}
+	}
 
 	return nextDividendInfo;
 }
 
-/**
- * Sorts holdings by a specific property
- * @param {Array} holdings - Array of holding objects
- * @param {String} property - Property to sort by
- * @param {Boolean} desc - Sort descending if true
- * @returns {Array} - Sorted holdings array
- */
 export function sortHoldingsByProperty<T extends keyof Holding>(
 	holdings: Holding[] | undefined,
 	property: T,
@@ -225,83 +102,45 @@ export function sortHoldingsByProperty<T extends keyof Holding>(
 	if (!holdings) return [];
 
 	return [...holdings].sort((a, b) => {
-		const valueA = (a[property] as number) || 0;
-		const valueB = (b[property] as number) || 0;
-
+		const valueA = (a[property] as number | undefined) ?? 0;
+		const valueB = (b[property] as number | undefined) ?? 0;
 		return desc ? valueB - valueA : valueA - valueB;
 	});
 }
+interface DividendChartData {
+	name: string;
+	month: number;
+	total: number;
+	[key: string]: number | string; // Allow dynamic symbol keys
+}
 
-export const prepareDividendChartData = (holdings?: Holding[]) => {
-	if (!holdings || holdings.length === 0) return [];
+export const prepareDividendChartData = (
+	holdings: Holding[] = [],
+): DividendChartData[] => {
+	if (holdings.length === 0) return [];
 
-	// Initialize monthly data
-	const monthlyData = monthsShort.map((month, index) => ({
+	const monthlyData: DividendChartData[] = monthsShort.map((month, index) => ({
 		name: month,
 		month: index,
 		total: 0,
 	}));
 
-	// Calculate dividend amount per month for each holding
-	holdings.forEach((holding) => {
+	for (const holding of holdings) {
 		const { symbol, dividend_amount, dividend_months, shares } = holding;
 
-		if (dividend_amount && dividend_months && shares) {
+		if (symbol && dividend_amount && dividend_months && shares) {
 			const monthlyDividend = dividend_amount * shares;
 
-			dividend_months.forEach((monthIndex: number) => {
-				// Need to ensure monthIndex is valid
+			for (const monthIndex of dividend_months) {
 				if (monthIndex >= 0 && monthIndex < monthsShort.length) {
-					// Add this holding's dividend to the month
-					// Need to use indexing with bracket notation since we're adding dynamic property
-					const symbolKey = symbol as string;
-					(monthlyData[monthIndex] as any)[symbolKey] =
-						((monthlyData[monthIndex] as any)[symbolKey] || 0) +
-						monthlyDividend;
-
-					// Update total for the month
-					monthlyData[monthIndex].total += monthlyDividend;
+					const monthData = monthlyData[monthIndex];
+					monthData[symbol] =
+						((monthData[symbol] as number) ?? 0) + monthlyDividend;
+					monthData.total += monthlyDividend;
 				}
-			});
+			}
 		}
-	});
+	}
 
 	return monthlyData;
 };
-
-export function calculateGeographicExposure(holdings?: Holding[] | null) {
-	if (!holdings) return null;
-	const regionExposure = holdings.reduce((acc, holding) => {
-		const marketValue = holding.current_market_value;
-
-		// Handle null or undefined region
-		const region = !holding.region
-			? "Unknown"
-			: holding.region === "US"
-				? "United States"
-				: ["GB", "DE", "FR", "IT", "NL"].includes(holding.region)
-					? "Europe"
-					: ["JP", "CN", "KR", "TW", "IN"].includes(holding.region)
-						? "Asia"
-						: "Other";
-
-		acc[region] = (acc[region] || 0) + marketValue;
-		return acc;
-	}, {});
-
-	const totalMarketValue = Object.values(regionExposure).reduce(
-		(a, b) => a + b,
-		0,
-	);
-
-	return Object.entries(regionExposure)
-		.map(([region, value]) => ({
-			region,
-			value,
-			percentage: ((value / totalMarketValue) * 100).toFixed(2),
-		}))
-		.sort(
-			(a, b) =>
-				Number.parseFloat(b.percentage) - Number.parseFloat(a.percentage),
-		);
-}
