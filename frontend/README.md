@@ -22,6 +22,8 @@
 - better portfolio analytics
   - E.g. average holding time of current shares. Average dividends received per share during holding period
     Unrealized P/L, Unrealized P/L per share net of dividends (% and ABS)
+- Lambda function that fetches data for ticker once it is added to the tickers table / the backfill is set to true.
+  - Maybe a button to "run lambda for that ticker"
 
 # FORMULAS USED
 

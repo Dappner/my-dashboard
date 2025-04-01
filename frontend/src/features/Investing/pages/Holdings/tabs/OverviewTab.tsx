@@ -4,10 +4,13 @@ import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 import useUser from "@/hooks/useUser";
 import DetailedHoldingsTable from "../components/DetailedHoldingsTable";
 import { prepareAllocationData, prepareHoldingData } from "../utils";
+import { usePortfolioMetrics } from "@/features/Investing/hooks/usePortfolioMetrics";
 
 export default function OverviewTab() {
 	const { holdings } = useHoldings();
 	const { user } = useUser();
+	const { metrics } = usePortfolioMetrics("ALL");
+
 	if (!holdings || !user) {
 		return;
 	}
@@ -38,7 +41,10 @@ export default function OverviewTab() {
 					<CustomPieChart
 						title="Asset Class"
 						prefix="$"
-						data={prepareAllocationData(holdings, user.cash_balance)}
+						data={prepareAllocationData(
+							holdings,
+							metrics?.currentCashBalance || 0,
+						)}
 						inputType="Absolute"
 						outputType="Percentage"
 						colors={chartColors}

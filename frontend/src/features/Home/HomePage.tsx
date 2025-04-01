@@ -7,16 +7,15 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import { usePortfolioDailyMetrics } from "@/features/Investing/hooks/usePortfolioDailyMetrics";
 import useUser from "@/hooks/useUser";
 import { supabase } from "@/lib/supabase";
-import { calculatePortfolioMetrics } from "@/services/portfolioMetrics";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { CheckSquare, DollarSign, GitCommit, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import PortfolioChart from "../Investing/components/PortfolioChart";
+import { usePortfolioMetrics } from "../Investing/hooks/usePortfolioMetrics";
 
 const useSpendingMetrics = (userId?: string) => {
   return useQuery<
@@ -259,10 +258,7 @@ const CompactHabitsTracker: React.FC<{ habitsData: HabitsData }> = ({
 export default function HomePage() {
   const { user } = useUser();
   const userId = user?.id;
-
-  const { dailyMetrics, isLoading: metricsLoading } = usePortfolioDailyMetrics(
-    "ALL",
-  );
+  const { metrics, isLoading: metricsLoading } = usePortfolioMetrics("ALL");
   const { data: spendingMetrics, isLoading: spendingLoading } =
     useSpendingMetrics(userId);
   const { data: habitsData, isLoading: habitsLoading } = useHabitsData(userId);
@@ -271,7 +267,6 @@ export default function HomePage() {
 
   if (isLoading) return <LoadingSpinner />;
 
-  const metrics = calculatePortfolioMetrics(dailyMetrics || [], "ALL");
   const today = new Date();
   const currentMonth = format(today, "MMMM yyyy");
 
@@ -292,7 +287,7 @@ export default function HomePage() {
             <KpiCard
               title="Portfolio Value"
               value={`$${
-                metrics.currentTotalValue.toLocaleString(undefined, {
+                metrics?.currentTotalValue.toLocaleString(undefined, {
                   maximumFractionDigits: 0,
                 })
               }`}
@@ -302,9 +297,12 @@ export default function HomePage() {
             <KpiCard
               title="Gain/Loss"
               value={`$${
-                metrics.currentUnrealizedPL.toLocaleString(undefined, {
-                  maximumFractionDigits: 0,
-                })
+                metrics?.currentUnrealizedPL.toLocaleString(
+                  undefined,
+                  {
+                    maximumFractionDigits: 0,
+                  },
+                )
               }`}
               icon={TrendingUp}
               // compact

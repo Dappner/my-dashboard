@@ -74,8 +74,11 @@ export function formatCategoryName(name?: string | null, nullSub?: string) {
 	return capitalized;
 }
 
-export const formatCurrency = (value: number): string =>
-	`$${value.toLocaleString("en-US", {
+export const formatCurrency = (value?: number): string => {
+	if (!value) return "0";
+
+	return `$${value.toLocaleString("en-US", {
 		minimumFractionDigits: 2,
 		maximumFractionDigits: 2,
 	})}`;
+};

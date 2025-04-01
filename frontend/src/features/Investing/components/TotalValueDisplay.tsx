@@ -1,11 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatPercent } from "@/lib/formatting";
 import { cn } from "@/lib/utils";
-import { calculatePortfolioMetrics } from "@/services/portfolioMetrics";
 import type { Timeframe } from "@/types/portfolioDailyMetricTypes";
-import { useHoldings } from "../hooks/useHoldings";
-import { usePortfolioDailyMetrics } from "../hooks/usePortfolioDailyMetrics";
-import { useTransactions } from "../hooks/useTransactions";
+import { usePortfolioMetrics } from "../hooks/usePortfolioMetrics";
 
 interface TotalValueDisplayProps {
 	timeframe: Timeframe;
@@ -35,15 +32,7 @@ export default function TotalValueDisplay({
 	timeframe,
 	className,
 }: TotalValueDisplayProps) {
-	const {
-		dailyMetrics,
-		isLoading: metricsLoading,
-		error: metricsError,
-	} = usePortfolioDailyMetrics(timeframe);
-	const { transactions, isLoading: transactionsLoading } = useTransactions();
-	const { holdings, isLoading: holdingsLoading } = useHoldings();
-
-	const isLoading = metricsLoading || transactionsLoading || holdingsLoading;
+	const { metrics, isLoading, error } = usePortfolioMetrics(timeframe);
 
 	if (isLoading) {
 		return (
@@ -58,7 +47,7 @@ export default function TotalValueDisplay({
 		);
 	}
 
-	if (metricsError || !dailyMetrics) {
+	if (error) {
 		return (
 			<div className={`text-red-600 ${className} py-4`}>
 				Error loading portfolio value.
@@ -66,14 +55,10 @@ export default function TotalValueDisplay({
 		);
 	}
 
-	const metrics = calculatePortfolioMetrics(
-		dailyMetrics,
-		timeframe,
-		transactions,
-		holdings,
-	);
+	const isPositiveChange = metrics?.periodTotalChangePercent
+		? metrics.periodTotalChangePercent > 0
+		: true;
 
-	const isPositiveChange = metrics.periodTotalChangePercent >= 0;
 	const changeText = timeframeToText(timeframe);
 
 	return (
@@ -82,7 +67,7 @@ export default function TotalValueDisplay({
 				Value
 			</div>
 			<div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-0.5">
-				{formatCurrency(metrics.currentTotalValue)}
+				{formatCurrency(metrics?.currentTotalValue)}
 			</div>
 
 			<div
@@ -92,10 +77,10 @@ export default function TotalValueDisplay({
 			>
 				<span className="font-medium">
 					{isPositiveChange ? "+" : ""}
-					{formatCurrency(metrics.periodTotalChange)}
+					{formatCurrency(metrics?.periodTotalChange)}
 				</span>
 				<span className="font-medium">
-					({formatPercent(metrics.periodTotalChangePercent)})
+					({formatPercent(metrics?.periodTotalChangePercent)})
 				</span>
 				<span className="text-gray-500">{changeText}</span>
 			</div>
