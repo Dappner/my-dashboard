@@ -8,13 +8,13 @@
  * @returns The ROI as a percentage.
  */
 export const calculateROI = (
-  currentValue: number,
-  initialInvestment: number,
+	currentValue: number,
+	initialInvestment: number,
 ): number => {
-  if (initialInvestment === 0) {
-    return 0; // Avoid division by zero
-  }
-  return ((currentValue - initialInvestment) / initialInvestment) * 100;
+	if (initialInvestment === 0) {
+		return 0; // Avoid division by zero
+	}
+	return ((currentValue - initialInvestment) / initialInvestment) * 100;
 };
 
 /**
@@ -30,13 +30,13 @@ export const calculateROI = (
  * @returns The annualized ROI as a percentage.
  */
 export const calculateAnnualizedROI = (
-  currentValue: number,
-  initialInvestment: number,
-  years: number,
+	currentValue: number,
+	initialInvestment: number,
+	years: number,
 ): number => {
-  if (initialInvestment === 0 || years === 0) {
-    return 0; // Avoid division by zero
-  }
-  const roi = calculateROI(currentValue, initialInvestment) / 100;
-  return (1 + roi) ** (1 / years - 1) * 100;
+	if (initialInvestment === 0 || years === 0) {
+		return 0; // Avoid division by zero
+	}
+	const roi = calculateROI(currentValue, initialInvestment) / 100;
+	return (1 + roi) ** (1 / years - 1) * 100;
 };

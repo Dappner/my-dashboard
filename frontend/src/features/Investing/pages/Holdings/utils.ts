@@ -5,279 +5,279 @@ import type { Holding, HoldingAllocation } from "@/types/holdingsTypes";
 import type { PieData } from "./components/DividendPieChart";
 
 export interface DividendMonthData {
-  name: string;
-  total: number;
-  [key: string]: number | string;
+	name: string;
+	total: number;
+	[key: string]: number | string;
 }
 
 export function prepareDividendChartData(
-  holdings: Holding[] | undefined,
+	holdings: Holding[] | undefined,
 ): DividendMonthData[] {
-  if (!holdings || holdings.length === 0) {
-    return generateEmptyMonthsData();
-  }
+	if (!holdings || holdings.length === 0) {
+		return generateEmptyMonthsData();
+	}
 
-  const monthsData = generateEmptyMonthsData();
+	const monthsData = generateEmptyMonthsData();
 
-  for (const holding of holdings) {
-    if (!holding.symbol || !holding.dividend_months) {
-      continue; // Skip if symbol or dividend_months is missing
-    }
+	for (const holding of holdings) {
+		if (!holding.symbol || !holding.dividend_months) {
+			continue; // Skip if symbol or dividend_months is missing
+		}
 
-    for (const [month, amount] of Object.entries(holding.dividend_months)) {
-      const monthIndex = getMonthIndex(month);
-      if (monthIndex === -1 || typeof amount !== "number" || amount == null) {
-        continue; // Skip invalid month or amount
-      }
+		for (const [month, amount] of Object.entries(holding.dividend_months)) {
+			const monthIndex = getMonthIndex(month);
+			if (monthIndex === -1 || typeof amount !== "number" || amount == null) {
+				continue; // Skip invalid month or amount
+			}
 
-      // Initialize the stock symbol entry if not present
-      if (!(holding.symbol in monthsData[monthIndex])) {
-        monthsData[monthIndex][holding.symbol] = 0;
-      }
+			// Initialize the stock symbol entry if not present
+			if (!(holding.symbol in monthsData[monthIndex])) {
+				monthsData[monthIndex][holding.symbol] = 0;
+			}
 
-      // Add the dividend amount
-      monthsData[monthIndex][holding.symbol] =
-        (monthsData[monthIndex][holding.symbol] as number) + amount;
+			// Add the dividend amount
+			monthsData[monthIndex][holding.symbol] =
+				(monthsData[monthIndex][holding.symbol] as number) + amount;
 
-      // Update the total
-      monthsData[monthIndex].total += amount;
-    }
-  }
+			// Update the total
+			monthsData[monthIndex].total += amount;
+		}
+	}
 
-  return monthsData;
+	return monthsData;
 }
 /**
  * Generates empty data structure for all months
  */
 
 function generateEmptyMonthsData(): DividendMonthData[] {
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+	const months = [
+		"January",
+		"February",
+		"March",
+		"April",
+		"May",
+		"June",
+		"July",
+		"August",
+		"September",
+		"October",
+		"November",
+		"December",
+	];
 
-  return months.map((month) => ({
-    name: month,
-    total: 0,
-  }));
+	return months.map((month) => ({
+		name: month,
+		total: 0,
+	}));
 }
 
 /**
  * Gets the index of a month (0-11) from its name
  */
 function getMonthIndex(month: string): number {
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+	const months = [
+		"January",
+		"February",
+		"March",
+		"April",
+		"May",
+		"June",
+		"July",
+		"August",
+		"September",
+		"October",
+		"November",
+		"December",
+	];
 
-  const normalizedMonth = month.charAt(0).toUpperCase() +
-    month.slice(1).toLowerCase();
-  return months.indexOf(normalizedMonth);
+	const normalizedMonth =
+		month.charAt(0).toUpperCase() + month.slice(1).toLowerCase();
+	return months.indexOf(normalizedMonth);
 }
 
 /**
  * Generates colors for stock symbols
  */
 export function getStockColors(
-  holdings: Holding[] | undefined,
+	holdings: Holding[] | undefined,
 ): Record<string, string> {
-  const result: Record<string, string> = {};
+	const result: Record<string, string> = {};
 
-  if (holdings) {
-    holdings.forEach((holding: Holding, index: number) => {
-      if (holding.symbol) {
-        result[holding.symbol] = chartColors[index % chartColors.length];
-      }
-    });
-  }
+	if (holdings) {
+		holdings.forEach((holding: Holding, index: number) => {
+			if (holding.symbol) {
+				result[holding.symbol] = chartColors[index % chartColors.length];
+			}
+		});
+	}
 
-  return result;
+	return result;
 }
 
 export const prepareDividendPieData = (
-  holdings: Holding[] | undefined,
+	holdings: Holding[] | undefined,
 ): PieData[] => {
-  if (!holdings || holdings.length === 0) return [];
+	if (!holdings || holdings.length === 0) return [];
 
-  // Filter holdings to only include those with dividends
-  const dividendHoldings = holdings.filter(
-    (h) => (h.annual_dividend_amount || 0) > 0,
-  );
+	// Filter holdings to only include those with dividends
+	const dividendHoldings = holdings.filter(
+		(h) => (h.annual_dividend_amount || 0) > 0,
+	);
 
-  // Group by ticker and calculate total annual dividend contribution
-  const data = dividendHoldings.map((holding) => ({
-    name: holding.symbol || "Unknown",
-    value: holding.annual_dividend_amount || 0,
-  }));
+	// Group by ticker and calculate total annual dividend contribution
+	const data = dividendHoldings.map((holding) => ({
+		name: holding.symbol || "Unknown",
+		value: holding.annual_dividend_amount || 0,
+	}));
 
-  // Sort by value (highest first)
-  data.sort((a, b) => b.value - a.value);
+	// Sort by value (highest first)
+	data.sort((a, b) => b.value - a.value);
 
-  // Take top 5, combine the rest as "Other"
-  let result: PieData[] = [];
+	// Take top 5, combine the rest as "Other"
+	let result: PieData[] = [];
 
-  if (data.length <= 5) {
-    result = data.map((item, index) => ({
-      ...item,
-      color: chartColors[index % chartColors.length],
-    }));
-  } else {
-    const top5 = data.slice(0, 5);
-    const others = data.slice(5).reduce((acc, item) => acc + item.value, 0);
+	if (data.length <= 5) {
+		result = data.map((item, index) => ({
+			...item,
+			color: chartColors[index % chartColors.length],
+		}));
+	} else {
+		const top5 = data.slice(0, 5);
+		const others = data.slice(5).reduce((acc, item) => acc + item.value, 0);
 
-    result = [
-      ...top5.map((item, index) => ({
-        ...item,
-        color: chartColors[index],
-      })),
-      {
-        name: "Others",
-        value: others,
-        color: chartColors[5],
-      },
-    ];
-  }
+		result = [
+			...top5.map((item, index) => ({
+				...item,
+				color: chartColors[index],
+			})),
+			{
+				name: "Others",
+				value: others,
+				color: chartColors[5],
+			},
+		];
+	}
 
-  return result;
+	return result;
 };
 
 export const prepareSectorData = (
-  holdings: HoldingAllocation[],
+	holdings: HoldingAllocation[],
 ): PieChartDataItem[] => {
-  const sectorMap = new Map<string, number>();
+	const sectorMap = new Map<string, number>();
 
-  for (const holding of holdings) {
-    const marketValue = holding.current_market_value ?? 0;
-    if (holding.quote_type === "EQUITY" && holding.stock_sector) {
-      sectorMap.set(
-        holding.stock_sector,
-        (sectorMap.get(holding.stock_sector) ?? 0) + marketValue,
-      );
-    } else if (holding.sector_weightings) {
-      for (const sector of holding.sector_weightings) {
-        const sectorValue = marketValue * (sector.weight / 100);
-        sectorMap.set(
-          sector.sector_name,
-          (sectorMap.get(sector.sector_name) ?? 0) + sectorValue,
-        );
-      }
-    } else {
-      sectorMap.set("Unknown", (sectorMap.get("Unknown") ?? 0) + marketValue);
-    }
-  }
+	for (const holding of holdings) {
+		const marketValue = holding.current_market_value ?? 0;
+		if (holding.quote_type === "EQUITY" && holding.stock_sector) {
+			sectorMap.set(
+				holding.stock_sector,
+				(sectorMap.get(holding.stock_sector) ?? 0) + marketValue,
+			);
+		} else if (holding.sector_weightings) {
+			for (const sector of holding.sector_weightings) {
+				const sectorValue = marketValue * (sector.weight / 100);
+				sectorMap.set(
+					sector.sector_name,
+					(sectorMap.get(sector.sector_name) ?? 0) + sectorValue,
+				);
+			}
+		} else {
+			sectorMap.set("Unknown", (sectorMap.get("Unknown") ?? 0) + marketValue);
+		}
+	}
 
-  return Array.from(sectorMap.entries()).map(([label, value]) => ({
-    label: formatSectorName(label) || "N/A",
-    value,
-  }));
+	return Array.from(sectorMap.entries()).map(([label, value]) => ({
+		label: formatSectorName(label) || "N/A",
+		value,
+	}));
 };
 
 export const prepareIndustryData = (
-  holdings: Holding[],
+	holdings: Holding[],
 ): PieChartDataItem[] => {
-  if (!holdings || holdings.length === 0) return [];
+	if (!holdings || holdings.length === 0) return [];
 
-  const industryMap = new Map<string, number>();
+	const industryMap = new Map<string, number>();
 
-  for (const holding of holdings) {
-    const industry = holding.industry ?? holding.quote_type ?? "Unknown";
-    const value = (holding.shares ?? 0) * (holding.average_cost_basis ?? 0);
+	for (const holding of holdings) {
+		const industry = holding.industry ?? holding.quote_type ?? "Unknown";
+		const value = (holding.shares ?? 0) * (holding.average_cost_basis ?? 0);
 
-    industryMap.set(industry, (industryMap.get(industry) ?? 0) + value);
-  }
+		industryMap.set(industry, (industryMap.get(industry) ?? 0) + value);
+	}
 
-  return Array.from(industryMap.entries())
-    .map(([label, value]) => ({
-      label: formatIndustryName(label),
-      value: Number(value.toFixed(2)),
-    }))
-    .sort((a, b) => b.value - a.value);
+	return Array.from(industryMap.entries())
+		.map(([label, value]) => ({
+			label: formatIndustryName(label),
+			value: Number(value.toFixed(2)),
+		}))
+		.sort((a, b) => b.value - a.value);
 };
 
 export const prepareAllocationData = (
-  holdings: Holding[],
-  cash_balance: number,
+	holdings: Holding[],
+	cash_balance: number,
 ): PieChartDataItem[] => {
-  const equities = holdings.reduce(
-    (sum, holding) => sum + (holding.current_market_value ?? 0),
-    0,
-  );
+	const equities = holdings.reduce(
+		(sum, holding) => sum + (holding.current_market_value ?? 0),
+		0,
+	);
 
-  return [
-    { label: "Equities", value: equities },
-    { label: "Cash", value: cash_balance },
-  ];
+	return [
+		{ label: "Equities", value: equities },
+		{ label: "Cash", value: cash_balance },
+	];
 };
 
 export const prepareHoldingData = (holdings: Holding[]): PieChartDataItem[] => {
-  return holdings.map((holding) => ({
-    label: holding.symbol ?? "Unknown",
-    value: holding.current_market_value ?? 0,
-  }));
+	return holdings.map((holding) => ({
+		label: holding.symbol ?? "Unknown",
+		value: holding.current_market_value ?? 0,
+	}));
 };
 
 interface GeographicExposure {
-  region: string;
-  value: number;
-  percentage: string;
+	region: string;
+	value: number;
+	percentage: string;
 }
 
 export function calculateGeographicExposure(
-  holdings: Holding[] | null | undefined,
+	holdings: Holding[] | null | undefined,
 ): GeographicExposure[] | null {
-  if (!holdings || holdings.length === 0) return null;
+	if (!holdings || holdings.length === 0) return null;
 
-  const regionExposure: Record<string, number> = {};
+	const regionExposure: Record<string, number> = {};
 
-  for (const holding of holdings) {
-    const marketValue = holding.current_market_value ?? 0;
-    const region = holding.region
-      ? holding.region === "US"
-        ? "United States"
-        : ["GB", "DE", "FR", "IT", "NL"].includes(holding.region)
-          ? "Europe"
-          : ["JP", "CN", "KR", "TW", "IN"].includes(holding.region)
-            ? "Asia"
-            : "Other"
-      : "Unknown";
+	for (const holding of holdings) {
+		const marketValue = holding.current_market_value ?? 0;
+		const region = holding.region
+			? holding.region === "US"
+				? "United States"
+				: ["GB", "DE", "FR", "IT", "NL"].includes(holding.region)
+					? "Europe"
+					: ["JP", "CN", "KR", "TW", "IN"].includes(holding.region)
+						? "Asia"
+						: "Other"
+			: "Unknown";
 
-    regionExposure[region] = (regionExposure[region] ?? 0) + marketValue;
-  }
+		regionExposure[region] = (regionExposure[region] ?? 0) + marketValue;
+	}
 
-  const totalMarketValue = Object.values(regionExposure).reduce(
-    (a, b) => a + b,
-    0,
-  );
+	const totalMarketValue = Object.values(regionExposure).reduce(
+		(a, b) => a + b,
+		0,
+	);
 
-  return Object.entries(regionExposure)
-    .map(([region, value]) => ({
-      region,
-      value,
-      percentage: ((value / totalMarketValue) * 100).toFixed(2),
-    }))
-    .sort(
-      (a, b) =>
-        Number.parseFloat(b.percentage) - Number.parseFloat(a.percentage),
-    );
+	return Object.entries(regionExposure)
+		.map(([region, value]) => ({
+			region,
+			value,
+			percentage: ((value / totalMarketValue) * 100).toFixed(2),
+		}))
+		.sort(
+			(a, b) =>
+				Number.parseFloat(b.percentage) - Number.parseFloat(a.percentage),
+		);
 }

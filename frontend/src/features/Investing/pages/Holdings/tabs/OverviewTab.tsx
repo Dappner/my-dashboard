@@ -1,10 +1,10 @@
 import CustomPieChart from "@/components/charts/CustomPieChart";
 import { chartColors } from "@/constants";
 import { useHoldings } from "@/features/Investing/hooks/useHoldings";
+import { usePortfolioMetrics } from "@/features/Investing/hooks/usePortfolioMetrics";
 import useUser from "@/hooks/useUser";
 import DetailedHoldingsTable from "../components/DetailedHoldingsTable";
 import { prepareAllocationData, prepareHoldingData } from "../utils";
-import { usePortfolioMetrics } from "@/features/Investing/hooks/usePortfolioMetrics";
 
 export default function OverviewTab() {
 	const { holdings } = useHoldings();

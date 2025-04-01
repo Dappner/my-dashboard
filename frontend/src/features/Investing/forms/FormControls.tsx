@@ -22,9 +22,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import type { Ticker } from "@/types/tickerTypes";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import type { Ticker } from "@/types/tickerTypes";
 import type { ControllerRenderProps } from "react-hook-form";
 import type { TransactionFormValues } from "./TransactionForm";
 

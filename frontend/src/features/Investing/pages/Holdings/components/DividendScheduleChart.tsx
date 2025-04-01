@@ -1,7 +1,7 @@
 import { holdingsApi, holdingsApiKeys } from "@/api/holdingsApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { prepareDividendChartData } from "@/features/Investing/utils";
 import type { DividendMonthData } from "@/features/Investing/pages/Holdings/utils";
+import { prepareDividendChartData } from "@/features/Investing/utils";
 import { formatCurrency } from "@/lib/formatting";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
