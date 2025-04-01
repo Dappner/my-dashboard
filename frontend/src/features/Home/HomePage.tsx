@@ -14,11 +14,10 @@ import { calculatePortfolioMetrics } from "@/services/portfolioMetrics";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { CheckSquare, DollarSign, GitCommit, TrendingUp } from "lucide-react";
-import { Link } from "react-router-dom"; // Assuming React Router for navigation
+import { Link } from "react-router-dom";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import PortfolioChart from "../Investing/components/PortfolioChart";
 
-// Spending metrics hook adapted from SpendingOverview
 const useSpendingMetrics = (userId?: string) => {
   return useQuery<
     {
@@ -88,7 +87,7 @@ const useSpendingMetrics = (userId?: string) => {
         0;
       const monthlyTrend = previousMonthTotal > 0
         ? ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) *
-        100
+          100
         : 0;
 
       const { data: categoryData, error: categoryError } = await supabase
@@ -127,7 +126,7 @@ const useSpendingMetrics = (userId?: string) => {
         categories,
       };
     },
-    enabled: !!userId, // Only run query if userId exists
+    enabled: !!userId,
   });
 };
 
@@ -214,11 +213,12 @@ const CompactHabitsTracker: React.FC<{ habitsData: HabitsData }> = ({
           <span className="text-xs">Chess: {chessStreak}d</span>
         </div>
         <div className="flex mt-1">
-          {habitsData.chess.map((day, i) => (
+          {habitsData.chess.map((day) => (
             <div
               key={day.date}
-              className={`w-2 h-2 mx-0.5 rounded-sm ${day.played ? "bg-green-500" : "bg-gray-200"
-                }`}
+              className={`w-2 h-2 mx-0.5 rounded-sm ${
+                day.played ? "bg-green-500" : "bg-gray-200"
+              }`}
               title={day.date}
             />
           ))}
@@ -230,21 +230,22 @@ const CompactHabitsTracker: React.FC<{ habitsData: HabitsData }> = ({
           <span className="text-xs">Commits: {commitsThisWeek}</span>
         </div>
         <div className="flex mt-1">
-          {habitsData.commits.map((day, i) => (
+          {habitsData.commits.map((day) => (
             <div
               key={day.date}
               className="flex flex-col items-center mx-0.5"
               title={day.date}
             >
               <div
-                className={`w-2 h-2 rounded-sm ${day.count === 0
+                className={`w-2 h-2 rounded-sm ${
+                  day.count === 0
                     ? "bg-gray-200"
                     : day.count < 3
-                      ? "bg-green-200"
-                      : day.count < 5
-                        ? "bg-green-400"
-                        : "bg-green-600"
-                  }`}
+                    ? "bg-green-200"
+                    : day.count < 5
+                    ? "bg-green-400"
+                    : "bg-green-600"
+                }`}
               />
               <span className="text-[9px]">{day.count}</span>
             </div>
@@ -290,27 +291,29 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-2">
             <KpiCard
               title="Portfolio Value"
-              value={`$${metrics.currentTotalValue.toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-              })
-                }`}
+              value={`$${
+                metrics.currentTotalValue.toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                })
+              }`}
               icon={TrendingUp}
-            // compact
+              // compact
             />
             <KpiCard
               title="Gain/Loss"
-              value={`$${metrics.currentUnrealizedPL.toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-              })
-                }`}
+              value={`$${
+                metrics.currentUnrealizedPL.toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                })
+              }`}
               icon={TrendingUp}
-            // compact
+              // compact
             />
             <div className="col-span-2">
               <PortfolioChart
                 timeframe="1M"
                 type="absolute"
-              // isDashboard={true}
+                // isDashboard={true}
               />
             </div>
           </div>
@@ -334,14 +337,15 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-2">
             <KpiCard
               title="Total Spent"
-              value={`$${spendingMetrics?.totalSpent.toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-              })
-                }`}
+              value={`$${
+                spendingMetrics?.totalSpent.toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                })
+              }`}
               changePercent={spendingMetrics?.monthlyTrend || 0}
               icon={DollarSign}
               positiveChange={(spendingMetrics?.monthlyTrend || 0) <= 0}
-            // compact
+              // compact
             />
             <KpiCard
               title="Receipts"
@@ -349,7 +353,7 @@ export default function HomePage() {
               changePercent={0} // Add logic if needed
               icon={DollarSign}
               positiveChange={true}
-            // compact
+              // compact
             />
             <div className="col-span-2">
               <Card>
