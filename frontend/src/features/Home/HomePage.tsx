@@ -1,21 +1,16 @@
 import KpiCard from "@/components/customs/KpiCard";
 import { PageContainer } from "@/components/layout/components/PageContainer";
-import { Card } from "@/components/ui/card";
 import { calculatePortfolioMetrics } from "@/services/portfolioMetrics";
 import { TrendingUp } from "lucide-react";
 import { usePortfolioDailyMetrics } from "../Investing/hooks/usePortfolioDailyMetrics";
+import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 
 export default function HomePage() {
 	const { dailyMetrics, isLoading } = usePortfolioDailyMetrics("ALL");
-	if (isLoading || !dailyMetrics || dailyMetrics.length === 0) {
-		return Array(3)
-			.fill(0)
-			.map((_, i) => (
-				// biome-ignore lint/suspicious/noArrayIndexKey: This is a loading state -- fine
-				<Card key={i} className="h-32 animate-pulse bg-gray-200" />
-			));
-	}
-	const metrics = calculatePortfolioMetrics(dailyMetrics, "ALL");
+
+	if (isLoading) return <LoadingSpinner />;
+
+	const metrics = calculatePortfolioMetrics(dailyMetrics || [], "ALL");
 
 	return (
 		<PageContainer>
