@@ -10,8 +10,8 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select"; // Add Select component from Shadcn/UI
-import { cn } from "@/lib/utils"; // Assuming you have this utility from Shadcn/UI
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { endOfMonth, format, startOfMonth } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
@@ -32,7 +32,7 @@ const MonthRangePicker = () => {
 			to: newRange.to,
 		});
 		if (newRange.to) {
-			setIsOpen(false); // Close popover when range is complete
+			setIsOpen(false);
 		}
 	};
 
@@ -131,7 +131,7 @@ function MonthRangeSelector({ selected, onSelect }: MonthRangeSelectorProps) {
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				{/* From Selector */}
 				<div className="space-y-2">
-					<label className="text-sm font-medium">From</label>
+					<span className="text-sm font-medium">From</span>
 					<div className="flex gap-2">
 						<Select
 							onValueChange={(month) =>
@@ -172,7 +172,7 @@ function MonthRangeSelector({ selected, onSelect }: MonthRangeSelectorProps) {
 
 				{/* To Selector */}
 				<div className="space-y-2">
-					<label className="text-sm font-medium">To (optional)</label>
+					<span className="text-sm font-medium">To (optional)</span>
 					<div className="flex gap-2">
 						<Select
 							onValueChange={(month) =>

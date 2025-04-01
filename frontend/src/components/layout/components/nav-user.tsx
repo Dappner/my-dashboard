@@ -26,10 +26,8 @@ export function NavUser() {
 
 	if (!user) return;
 
-	const fullName = (user.first_name || "") + " " + (user.last_name || "");
-	// TODO: Object is possibly undefined
-	const initials =
-		user.first_name?.charAt(0) + user.last_name?.charAt(0) || "JS";
+	const fullName = `${user.first_name || ""} ${user.last_name || ""}`;
+	const initials = user.first_name || "N".charAt(0) + user.last_name?.charAt(0);
 
 	return (
 		<SidebarMenu>

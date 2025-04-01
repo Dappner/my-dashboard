@@ -24,7 +24,7 @@ export function LoginForm({
 			const { error } = await signIn(email, password);
 
 			if (error) {
-				toast.error("Login failed: " + error.message);
+				toast.error(`Login failed: ${error.message}`);
 			} else {
 				toast.success("Successfully logged in!");
 				navigate("/");
@@ -59,12 +59,12 @@ export function LoginForm({
 								<div className="grid gap-2">
 									<div className="flex items-center">
 										<Label htmlFor="password">Password</Label>
-										<a
-											href="#"
-											className="ml-auto text-sm underline-offset-4 hover:underline"
-										>
-											Forgot your password?
-										</a>
+										{/* <a */}
+										{/* TODO: Forgot your password */}
+										{/* 	className="ml-auto text-sm underline-offset-4 hover:underline" */}
+										{/* > */}
+										{/* 	Forgot your password? */}
+										{/* </a> */}
 									</div>
 									<Input
 										id="password"
@@ -82,10 +82,6 @@ export function LoginForm({
 					</form>
 				</CardContent>
 			</Card>
-			<div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-				By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-				and <a href="#">Privacy Policy</a>.
-			</div>
 		</div>
 	);
 }

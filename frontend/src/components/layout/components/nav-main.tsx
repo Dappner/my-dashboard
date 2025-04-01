@@ -25,6 +25,7 @@ import {
 	Settings2Icon,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router";
+import type { MouseEvent } from "react";
 
 type NavBarItem = {
 	title: string;
@@ -112,8 +113,7 @@ export function NavMain() {
 	const location = useLocation();
 	const { open } = useSidebar();
 
-	// Handler for icon clicks in collapsed mode
-	const handleClick = (e: MouseEvent, url: string) => {
+	const handleClick = (e: MouseEvent<HTMLButtonElement>, url: string) => {
 		if (!open) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -132,7 +132,7 @@ export function NavMain() {
 				<SidebarMenuItem key={"Home"}>
 					<SidebarMenuButton
 						className={
-							location.pathname == "/"
+							location.pathname === "/"
 								? "bg-gray-200 rounded-md hover:bg-gray-200"
 								: ""
 						}
