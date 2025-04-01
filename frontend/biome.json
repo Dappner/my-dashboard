@@ -9,7 +9,8 @@
     "ignoreUnknown": false,
     "ignore": [
       "dist/*",
-      "src/components/ui/*"
+      "src/components/ui/*",
+      "src/types/supabase.ts"
     ],
     "include": [
       "src/**"
