@@ -1,4 +1,7 @@
-# React + TypeScript + Vite
+# My Dashboard
+
+[![Code quality](https://github.com/Dappner/my-dashboard/actions/workflows/code-quality.yml/badge.svg)](https://github.com/Dappner/my-dashboard/actions/workflows/code-quality.yml)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/2542d931-6a38-4e4f-8b38-780505245f2a/deploy-status)](https://app.netlify.com/sites/astorian/deploys)
 
 ## TODOS
 
