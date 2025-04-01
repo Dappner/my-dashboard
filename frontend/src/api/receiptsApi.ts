@@ -48,8 +48,10 @@ export const receiptsApi = {
     // Group items by receipt
     const receiptMap = new Map<string, ReceiptWithItems>();
     for (const row of data as ReceiptsWithItemsRow[]) {
-      const receiptId = row.receipt_id!;
-      if (!receiptMap.has(receiptId)) {
+      const receiptId = row.receipt_id;
+      if (!receiptId) continue;
+
+      if (!receiptMap.has(receiptId || "")) {
         let signedImageUrl: string | null = null;
         if (row.receipt_image_path) {
           const { data: signedUrlData, error: signedUrlError } = await supabase
@@ -68,11 +70,13 @@ export const receiptsApi = {
 
         receiptMap.set(receiptId, {
           receipt_id: receiptId,
-          store_name: row.store_name, // Keep nullability
-          purchase_date: new Date(row.purchase_date!), // Non-null in DB but TypeScript needs assertion
-          total_amount: row.total_amount!, // Non-null in DB
-          total_discount: row.total_discount!,
-          currency_code: row.currency_code!, // Non-null in DB with default
+          store_name: row.store_name, // Nullable in DB
+          purchase_date: row.purchase_date
+            ? new Date(row.purchase_date)
+            : new Date(), // Fallback to current date if null
+          total_amount: row.total_amount ?? 0, // Fallback if null
+          total_discount: row.total_discount ?? 0, // Fallback if null
+          currency_code: row.currency_code ?? "USD", // Fallback to a default currency
           receipt_image_path: row.receipt_image_path,
           imageUrl: signedImageUrl,
           items: [],
@@ -80,18 +84,21 @@ export const receiptsApi = {
       }
 
       if (row.item_id) {
-        receiptMap.get(receiptId)!.items.push({
-          item_id: row.item_id,
-          item_name: row.item_name!, // Non-null in DB
-          readable_name: row.readable_name!,
-          quantity: row.quantity ?? 1, // Default to 1 if null
-          unit_price: row.unit_price!, // Non-null in DB
-          original_unit_price: row.original_unit_price || 0,
-          discount_amount: row.discount_amount || 0,
-          is_discounted: row.is_discounted!,
-          total_price: row.total_price, // Nullable in DB
-          category_name: row.category_name,
-        });
+        const receipt = receiptMap.get(receiptId);
+        if (receipt) {
+          receipt.items.push({
+            item_id: row.item_id,
+            item_name: row.item_name ?? "Unknown Item", // Fallback if null
+            readable_name: row.readable_name ?? "Unknown Item", // Fallback if null
+            quantity: row.quantity ?? 1, // Default to 1 if null
+            unit_price: row.unit_price ?? 0, // Fallback if null
+            original_unit_price: row.original_unit_price ?? 0, // Fallback if null
+            discount_amount: row.discount_amount ?? 0, // Fallback if null
+            is_discounted: row.is_discounted ?? false, // Fallback if null
+            total_price: row.total_price ?? null, // Nullable in DB
+            category_name: row.category_name, // Nullable in DB
+          });
+        }
       }
     }
 
