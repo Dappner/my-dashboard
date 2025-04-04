@@ -1,147 +1,162 @@
 import { supabase } from "@/lib/supabase";
+import type { Receipt } from "./receiptsApi";
 
 interface MonthlyData {
-	month: string;
-	amount: number;
+  month: string;
+  amount: number;
 }
 
 interface CategoryData {
-	name: string;
-	amount: number;
+  name: string;
+  amount: number;
 }
 
-interface SpendingMetrics {
-	totalSpent: number;
-	receiptCount: number;
-	monthlyTrend: number;
-	monthlyData: MonthlyData[];
-	categories: CategoryData[];
+export interface SpendingMetrics {
+  totalSpent: number;
+  receiptCount: number;
+  monthlyTrend: number;
+  monthlyData: MonthlyData[];
+  categories: CategoryData[];
 }
+
+const getUTCDate = (year: number, month: number, day: number): string => {
+  return new Date(Date.UTC(year, month, day)).toISOString().split("T")[0];
+};
 
 export const spendingMetricsApiKeys = {
-	all: ["spendingMetrics"] as const,
-	overview: () => [...spendingMetricsApiKeys.all, "overview"] as const,
+  all: ["spendingMetrics"] as const,
+  currentMonth: (date: string) =>
+    [...spendingMetricsApiKeys.all, "currentMonth", date] as const,
+  lastMonth: (date: string) =>
+    [...spendingMetricsApiKeys.all, "lastMonth", date] as const,
+  monthlyData: (date: string) =>
+    [...spendingMetricsApiKeys.all, "monthlyData", date] as const,
+  categories: (date: string) =>
+    [...spendingMetricsApiKeys.all, "categories", date] as const,
 };
 
 export const spendingMetricsApi = {
-	async getSpendingMetrics(): Promise<SpendingMetrics> {
-		const today = new Date();
-		const currentMonthStart = new Date(
-			today.getFullYear(),
-			today.getMonth(),
-			1,
-		).toISOString();
-		const lastMonthStart = new Date(
-			today.getFullYear(),
-			today.getMonth() - 1,
-			1,
-		).toISOString();
-		const sixMonthsAgo = new Date(
-			today.setMonth(today.getMonth() - 6),
-		).toISOString();
+  async getRecentReceipts(selectedDate: Date) {
+    const year = selectedDate.getUTCFullYear();
+    const month = selectedDate.getUTCMonth();
+    const monthStart = new Date(Date.UTC(year, month, 1))
+      .toISOString()
+      .split("T")[0];
+    const nextMonthStart = new Date(Date.UTC(year, month + 1, 1))
+      .toISOString()
+      .split("T")[0];
+    const { data, error } = await supabase
+      .schema("grocery")
+      .from("receipts")
+      .select("id, purchase_date, total_amount, store_name")
+      .gte("purchase_date", monthStart)
+      .lt("purchase_date", nextMonthStart)
+      .order("purchase_date", { ascending: false })
+      .limit(5);
 
-		// Fetch total spent and receipt count for current month
-		const { data: currentMonthData, error: currentError } = await supabase
-			.schema("grocery")
-			.from("receipts")
-			.select("total_amount, id")
-			.gte("purchase_date", currentMonthStart);
+    if (error) throw new Error("Error fetching receipts");
 
-		if (currentError) {
-			throw new Error(
-				`Failed to fetch current month data: ${currentError.message}`,
-			);
-		}
+    return data as Receipt[];
+  },
 
-		const totalSpent =
-			currentMonthData?.reduce(
-				(sum, receipt) => sum + (receipt.total_amount || 0),
-				0,
-			) || 0;
-		const receiptCount = currentMonthData?.length || 0;
+  async getCurrentMonth(selectedDate: Date) {
+    const year = selectedDate.getUTCFullYear();
+    const month = selectedDate.getUTCMonth();
+    const monthStart = getUTCDate(year, month, 1);
+    const nextMonthStart = getUTCDate(year, month + 1, 1);
 
-		// Fetch last month's total for trend calculation
-		const { data: lastMonthData, error: lastMonthError } = await supabase
-			.schema("grocery")
-			.from("receipts")
-			.select("total_amount")
-			.gte("purchase_date", lastMonthStart)
-			.lt("purchase_date", currentMonthStart);
+    const { data, error } = await supabase
+      .schema("grocery")
+      .from("receipts")
+      .select("total_amount, id")
+      .gte("purchase_date", monthStart)
+      .lt("purchase_date", nextMonthStart);
 
-		if (lastMonthError) {
-			throw new Error(
-				`Failed to fetch last month data: ${lastMonthError.message}`,
-			);
-		}
+    if (error) throw new Error(`Current month data error: ${error.message}`);
 
-		const lastMonthTotal =
-			lastMonthData?.reduce(
-				(sum, receipt) => sum + (receipt.total_amount || 0),
-				0,
-			) || 0;
-		const monthlyTrend =
-			lastMonthTotal > 0
-				? ((totalSpent - lastMonthTotal) / lastMonthTotal) * 100
-				: 0;
+    return {
+      totalSpent:
+        data?.reduce((sum, receipt) => sum + (receipt.total_amount || 0), 0) ||
+        0,
+      receiptCount: data?.length || 0,
+    };
+  },
 
-		// Fetch 6 months of data for trend chart
-		const { data: monthlyDataRaw, error: monthlyError } = await supabase
-			.schema("grocery")
-			.from("receipts")
-			.select("purchase_date, total_amount")
-			.gte("purchase_date", sixMonthsAgo)
-			.order("purchase_date", { ascending: true });
+  async getLastMonth(selectedDate: Date) {
+    const year = selectedDate.getUTCFullYear();
+    const month = selectedDate.getUTCMonth();
+    const lastMonthStart = getUTCDate(year, month - 1, 1);
+    const monthStart = getUTCDate(year, month, 1);
 
-		if (monthlyError) {
-			throw new Error(`Failed to fetch monthly data: ${monthlyError.message}`);
-		}
+    const { data, error } = await supabase
+      .schema("grocery")
+      .from("receipts")
+      .select("total_amount")
+      .gte("purchase_date", lastMonthStart)
+      .lt("purchase_date", monthStart);
 
-		const monthlyData = Object.entries(
-			monthlyDataRaw?.reduce(
-				(acc, receipt) => {
-					const month = new Date(receipt.purchase_date).toLocaleString(
-						"default",
-						{ month: "short", year: "numeric" },
-					);
-					acc[month] = (acc[month] || 0) + (receipt.total_amount || 0);
-					return acc;
-				},
-				{} as Record<string, number>,
-			) || {},
-		).map(([month, amount]) => ({ month, amount }));
+    if (error) throw new Error(`Last month data error: ${error.message}`);
 
-		// Fetch category breakdown
-		const { data: categoryDataRaw, error: categoryError } = await supabase
-			.schema("grocery")
-			.from("receipt_items")
-			.select("categories(name), total_price")
-			.gte("created_at", currentMonthStart)
-			.not("category_id", "is", null);
+    return (
+      data?.reduce((sum, receipt) => sum + (receipt.total_amount || 0), 0) || 0
+    );
+  },
 
-		if (categoryError) {
-			throw new Error(
-				`Failed to fetch category data: ${categoryError.message}`,
-			);
-		}
+  async getMonthlyData(selectedDate: Date) {
+    const year = selectedDate.getUTCFullYear();
+    const month = selectedDate.getUTCMonth();
+    const sixMonthsAgo = getUTCDate(year, month - 6, 1);
 
-		const categories = Object.entries(
-			categoryDataRaw?.reduce(
-				(acc, item) => {
-					const categoryName = item.categories?.name || "Uncategorized";
-					acc[categoryName] =
-						(acc[categoryName] || 0) + (item.total_price || 0);
-					return acc;
-				},
-				{} as Record<string, number>,
-			) || {},
-		).map(([name, amount]) => ({ name, amount }));
+    const { data, error } = await supabase
+      .schema("grocery")
+      .from("receipts")
+      .select("purchase_date, total_amount")
+      .gte("purchase_date", sixMonthsAgo)
+      .order("purchase_date", { ascending: true });
 
-		return {
-			totalSpent,
-			receiptCount,
-			monthlyTrend,
-			monthlyData,
-			categories,
-		};
-	},
+    if (error) throw new Error(`Monthly data error: ${error.message}`);
+
+    return Object.entries(
+      data?.reduce(
+        (acc, receipt) => {
+          const date = new Date(receipt.purchase_date);
+          const monthKey = date.toLocaleString("default", {
+            month: "short",
+            year: "numeric",
+            timeZone: "UTC",
+          });
+          acc[monthKey] = (acc[monthKey] || 0) + (receipt.total_amount || 0);
+          return acc;
+        },
+        {} as Record<string, number>,
+      ) || {},
+    ).map(([month, amount]) => ({ month, amount }));
+  },
+
+  async getCategories(selectedDate: Date) {
+    const year = selectedDate.getUTCFullYear();
+    const month = selectedDate.getUTCMonth();
+    const monthStart = getUTCDate(year, month, 1);
+
+    const { data, error } = await supabase
+      .schema("grocery")
+      .from("receipt_items")
+      .select("categories(name), total_price")
+      .gte("created_at", monthStart)
+      .not("category_id", "is", null);
+
+    if (error) throw new Error(`Category data error: ${error.message}`);
+
+    return Object.entries(
+      data?.reduce(
+        (acc, item) => {
+          const categoryName = item.categories?.name || "Uncategorized";
+          acc[categoryName] = (acc[categoryName] || 0) +
+            (item.total_price || 0);
+          return acc;
+        },
+        {} as Record<string, number>,
+      ) || {},
+    ).map(([name, amount]) => ({ name, amount }));
+  },
 };

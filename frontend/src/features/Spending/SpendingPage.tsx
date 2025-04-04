@@ -1,254 +1,346 @@
 import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format } from "date-fns";
-import { ArrowDownIcon, ArrowUpIcon, CalendarIcon } from "lucide-react";
+import { addMonths, format, isAfter, startOfMonth, subMonths } from "date-fns";
 import {
-	Bar,
-	BarChart,
-	CartesianGrid,
-	Line,
-	LineChart,
-	ResponsiveContainer,
-	Tooltip,
-	XAxis,
-	YAxis,
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Receipt as ReceiptIcon,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 import { useSpendingMetrics } from "./hooks/useSpendingMetrics";
+import { Button } from "@/components/ui/button";
+import { PageContainer } from "@/components/layout/components/PageContainer";
+import type { Receipt } from "@/api/receiptsApi";
+import { useQuery } from "@tanstack/react-query";
+import { spendingMetricsApi } from "@/api/spendingApi";
+
+const LoadingState: React.FC = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <p>Loading spending data...</p>
+  </div>
+);
+
+interface ErrorStateProps {
+  error: Error;
+}
+
+const ErrorState: React.FC<ErrorStateProps> = ({ error }) => (
+  <div className="flex items-center justify-center min-h-screen text-red-500">
+    Error loading spending data: {error.message}
+  </div>
+);
+
+const NoDataState: React.FC = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    No spending data available
+  </div>
+);
+
+const TrendIndicator: React.FC<{ trend: number }> = ({ trend }) => (
+  <p className="text-xs text-muted-foreground flex items-center">
+    {trend > 0
+      ? (
+        <span className="flex items-center text-red-500">
+          <ArrowUpIcon className="mr-1 h-3 w-3" />
+          {trend.toFixed(1)}%
+        </span>
+      )
+      : (
+        <span className="flex items-center text-green-500">
+          <ArrowDownIcon className="mr-1 h-3 w-3" />
+          {Math.abs(trend).toFixed(1)}%
+        </span>
+      )}
+  </p>
+);
+
+const ChartContainer: React.FC<{
+  title: string;
+  children: React.ReactNode;
+  height: number;
+}> = ({ title, children, height }) => (
+  <Card className="hover:shadow-md transition-shadow">
+    <CardHeader className="pb-2">
+      <CardTitle className="text-lg">{title}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <ResponsiveContainer width="100%" height={height}>
+        {children}
+      </ResponsiveContainer>
+    </CardContent>
+  </Card>
+);
+
+const ActivityFeed: React.FC<{ receipts: Receipt[] }> = ({ receipts }) => (
+  <Card className="hover:shadow-md transition-shadow">
+    <CardHeader className="pb-2">
+      <CardTitle className="text-lg">Recent Activity</CardTitle>
+      <CardDescription>Last 5 Receipts</CardDescription>
+    </CardHeader>
+    <CardContent>
+      {receipts.length === 0
+        ? (
+          <p className="text-sm text-muted-foreground">
+            No receipts this month.
+          </p>
+        )
+        : (
+          <ul className="space-y-3">
+            {receipts.map((receipt) => (
+              <li
+                key={receipt.id}
+                className="flex items-center justify-between"
+              >
+                <div className="flex items-center">
+                  <ReceiptIcon className="h-5 w-5 text-muted-foreground mr-2" />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {receipt.store_name || "Unknown Store"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(receipt.purchase_date), "MMM d, yyyy")}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-sm font-semibold">
+                  ${receipt.total_amount.toFixed(2)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+    </CardContent>
+  </Card>
+);
+
+const TopCategory: React.FC<{
+  categories: { name: string; amount: number }[];
+}> = ({ categories }) => {
+  const topCategory = categories.reduce(
+    (max, category) => (category.amount > max.amount ? category : max),
+    categories[0] || { name: "None", amount: 0 },
+  );
+
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Top Category</CardTitle>
+        <CardDescription>This Month</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="text-xl font-bold">{topCategory.name}</div>
+        <p className="text-sm text-muted-foreground">
+          ${topCategory.amount.toFixed(2)}
+        </p>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default function SpendingOverview() {
-	const today = new Date();
-	const currentMonth = format(today, "MMMM yyyy");
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
 
-	const { spendingMetrics, isLoading, error } = useSpendingMetrics();
+  // Memoize the date to ensure stable query keys
+  const queryDate = useMemo(() => {
+    const date = new Date(selectedDate);
+    date.setDate(1); // Use local day setter
+    date.setHours(0, 0, 0, 0); // Use local time setter
+    return date;
+  }, [selectedDate]);
+  const { spendingMetrics, isLoading, error } = useSpendingMetrics(queryDate);
 
-	if (isLoading) {
-		return (
-			<div className="flex items-center justify-center min-h-screen p-4">
-				<p className="text-base">Loading spending data...</p>
-			</div>
-		);
-	}
+  const { data: recentReceipts, isLoading: receiptsLoading } = useQuery({
+    queryKey: ["recentReceipts", selectedDate],
+    queryFn: () => spendingMetricsApi.getRecentReceipts(selectedDate),
+  });
 
-	if (error) {
-		return (
-			<div className="flex items-center justify-center min-h-screen p-4 text-red-500">
-				Error loading spending data: {error.message}
-			</div>
-		);
-	}
+  const currentMonthStart = startOfMonth(new Date());
 
-	if (!spendingMetrics) {
-		return (
-			<div className="flex items-center justify-center min-h-screen p-4">
-				No spending data available
-			</div>
-		);
-	}
+  const isNextDisabled = !isAfter(currentMonthStart, queryDate);
+  const handlePrevMonth = () => setSelectedDate((prev) => subMonths(prev, 1));
 
-	return (
-		<div className="">
-			<div className="container mx-auto px-4 py-6 space-y-6">
-				<header className="space-y-2">
-					<h1 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
-						Spending Overview
-					</h1>
-					<p className="text-xs text-muted-foreground sm:text-sm">
-						Track and analyze your spending habits
-					</p>
-				</header>
+  const handleNextMonth = () =>
+    setSelectedDate((prev) => {
+      const nextMonthDate = addMonths(prev, 1);
+      const nextMonthStart = startOfMonth(nextMonthDate);
 
-				<Tabs defaultValue="overview" className="w-full">
-					<TabsList className="flex flex-wrap gap-2 mb-4">
-						<TabsTrigger
-							value="overview"
-							className="flex-1 min-w-[80px] text-xs sm:text-sm"
-						>
-							Overview
-						</TabsTrigger>
-						<TabsTrigger
-							value="monthly"
-							className="flex-1 min-w-[80px] text-xs sm:text-sm"
-						>
-							Monthly
-						</TabsTrigger>
-						<TabsTrigger
-							value="categories"
-							className="flex-1 min-w-[80px] text-xs sm:text-sm"
-						>
-							Categories
-						</TabsTrigger>
-					</TabsList>
+      if (isAfter(nextMonthStart, currentMonthStart)) {
+        return prev;
+      }
+      return nextMonthDate; // Okay to update
+    });
 
-					<TabsContent value="overview" className="space-y-4">
-						<div className="grid gap-4">
-							<div className="grid grid-cols-2 gap-4">
-								<Card>
-									<CardHeader className="pb-2">
-										<CardTitle className="text-xs sm:text-sm">
-											Total Spent
-										</CardTitle>
-										<CardDescription className="text-xs">
-											{currentMonth}
-										</CardDescription>
-									</CardHeader>
-									<CardContent className="pt-0">
-										<div className="text-lg font-bold sm:text-xl">
-											${spendingMetrics.totalSpent.toFixed(2)}
-										</div>
-										<p className="text-[10px] sm:text-xs text-muted-foreground flex items-center mt-1">
-											{spendingMetrics.monthlyTrend > 0 ? (
-												<span className="flex items-center text-red-500">
-													<ArrowUpIcon className="mr-1 h-3 w-3" />
-													{spendingMetrics.monthlyTrend.toFixed(1)}%
-												</span>
-											) : (
-												<span className="flex items-center text-green-500">
-													<ArrowDownIcon className="mr-1 h-3 w-3" />
-													{Math.abs(spendingMetrics.monthlyTrend).toFixed(1)}%
-												</span>
-											)}
-										</p>
-									</CardContent>
-								</Card>
+  const currentMonth = format(queryDate, "MMMM yyyy");
+  console.log(currentMonth);
 
-								<Card>
-									<CardHeader className="pb-2">
-										<CardTitle className="text-xs sm:text-sm">
-											Receipts
-										</CardTitle>
-										<CardDescription className="text-xs">
-											This Month
-										</CardDescription>
-									</CardHeader>
-									<CardContent className="pt-0">
-										<div className="text-lg font-bold sm:text-xl">
-											{spendingMetrics.receiptCount}
-										</div>
-										<p className="text-[10px] sm:text-xs text-muted-foreground flex items-center mt-1">
-											<CalendarIcon className="mr-1 h-3 w-3" />
-											{currentMonth}
-										</p>
-									</CardContent>
-								</Card>
-							</div>
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState error={error} />;
+  if (!spendingMetrics) return <NoDataState />;
 
-							<Card>
-								<CardHeader className="pb-2">
-									<CardTitle className="text-xs sm:text-sm">
-										Daily Average
-									</CardTitle>
-									<CardDescription className="text-[10px] sm:text-xs">
-										$
-										{(
-											spendingMetrics.totalSpent /
-											new Date(
-												today.getFullYear(),
-												today.getMonth() + 1,
-												0,
-											).getDate()
-										).toFixed(2)}
-										/day
-									</CardDescription>
-								</CardHeader>
-								<CardContent className="pt-0 h-64">
-									<ResponsiveContainer width="100%" height="100%">
-										<LineChart data={spendingMetrics.monthlyData}>
-											<CartesianGrid strokeDasharray="3 3" />
-											<XAxis
-												dataKey="month"
-												tick={{ fontSize: 10 }}
-												interval="preserveStartEnd"
-											/>
-											<YAxis tick={{ fontSize: 10 }} />
-											<Tooltip formatter={(value) => [`$${value}`, "Amount"]} />
-											<Line
-												type="monotone"
-												dataKey="amount"
-												stroke="#8884d8"
-												strokeWidth={2}
-												dot={false}
-											/>
-										</LineChart>
-									</ResponsiveContainer>
-								</CardContent>
-							</Card>
-						</div>
-					</TabsContent>
+  return (
+    <PageContainer className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-6">
+        <header className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              Spending Overview
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Track and analyze your spending habits
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePrevMonth}
+              className="p-2 hover:bg-gray-100 rounded-full"
+              aria-label="Previous month"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <span className="text-sm font-medium min-w-[120px] text-center">
+              {currentMonth}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleNextMonth}
+              className="p-2 hover:bg-gray-100 rounded-full disabled:opacity-50"
+              aria-label="Next month"
+              disabled={isNextDisabled}
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
+        </header>
 
-					<TabsContent value="monthly" className="space-y-4">
-						<Card>
-							<CardHeader className="pb-2">
-								<CardTitle className="text-xs sm:text-sm">
-									Monthly Trend
-								</CardTitle>
-								<CardDescription className="text-[10px] sm:text-xs">
-									Past 6 months
-								</CardDescription>
-							</CardHeader>
-							<CardContent className="pt-0 h-72">
-								<ResponsiveContainer width="100%" height="100%">
-									<BarChart data={spendingMetrics.monthlyData}>
-										<CartesianGrid strokeDasharray="3 3" />
-										<XAxis
-											dataKey="month"
-											tick={{ fontSize: 10 }}
-											interval="preserveStartEnd"
-										/>
-										<YAxis tick={{ fontSize: 10 }} />
-										<Tooltip formatter={(value) => [`$${value}`, "Amount"]} />
-										<Bar
-											dataKey="amount"
-											fill="#8884d8"
-											radius={[4, 4, 0, 0]}
-										/>
-									</BarChart>
-								</ResponsiveContainer>
-							</CardContent>
-						</Card>
-					</TabsContent>
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+          {/* KPI Cards - Compact */}
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Total Spent</CardTitle>
+              <CardDescription className="text-xs">
+                {currentMonth}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">
+                ${spendingMetrics.totalSpent.toFixed(2)}
+              </div>
+              <TrendIndicator trend={spendingMetrics.monthlyTrend} />
+            </CardContent>
+          </Card>
 
-					<TabsContent value="categories" className="space-y-4">
-						<Card>
-							<CardHeader className="pb-2">
-								<CardTitle className="text-xs sm:text-sm">Categories</CardTitle>
-								<CardDescription className="text-[10px] sm:text-xs">
-									This month
-								</CardDescription>
-							</CardHeader>
-							<CardContent className="pt-0 h-72">
-								<ResponsiveContainer width="100%" height="100%">
-									<BarChart layout="vertical" data={spendingMetrics.categories}>
-										<CartesianGrid strokeDasharray="3 3" />
-										<XAxis
-											type="number"
-											tick={{ fontSize: 10 }}
-											domain={[0, "dataMax"]}
-										/>
-										<YAxis
-											dataKey="name"
-											type="category"
-											tick={{ fontSize: 10 }}
-											width={60}
-										/>
-										<Tooltip formatter={(value) => [`$${value}`, "Amount"]} />
-										<Bar
-											dataKey="amount"
-											fill="#82ca9d"
-											radius={[0, 4, 4, 0]}
-										/>
-									</BarChart>
-								</ResponsiveContainer>
-							</CardContent>
-						</Card>
-					</TabsContent>
-				</Tabs>
-			</div>
-		</div>
-	);
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Receipts</CardTitle>
+              <CardDescription className="text-xs">This Month</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">
+                {spendingMetrics.receiptCount}
+              </div>
+              <p className="text-xs text-muted-foreground flex items-center">
+                <CalendarIcon className="mr-1 h-3 w-3" /> {currentMonth}
+              </p>
+            </CardContent>
+          </Card>
+
+          <TopCategory categories={spendingMetrics.categories} />
+
+          {/* Charts */}
+          <div className="md:col-span-2 lg:col-span-4">
+            <Tabs defaultValue="daily" className="w-full">
+              <TabsList className="grid grid-cols-3 mb-4">
+                <TabsTrigger value="daily">Daily Average</TabsTrigger>
+                <TabsTrigger value="monthly">Monthly Trend</TabsTrigger>
+                <TabsTrigger value="categories">Categories</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="daily">
+                <ChartContainer title="Daily Average" height={250}>
+                  <LineChart data={spendingMetrics.monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value: number) => [`$${value}`, "Amount"]}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="amount"
+                      stroke="#8884d8"
+                      strokeWidth={2}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              </TabsContent>
+
+              <TabsContent value="monthly">
+                <ChartContainer title="Monthly Trend" height={250}>
+                  <BarChart data={spendingMetrics.monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value: number) => [`$${value}`, "Amount"]}
+                    />
+                    <Bar
+                      dataKey="amount"
+                      fill="#8884d8"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ChartContainer>
+              </TabsContent>
+
+              <TabsContent value="categories">
+                <ChartContainer title="Categories" height={250}>
+                  <BarChart layout="vertical" data={spendingMetrics.categories}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="name" type="category" width={100} />
+                    <Tooltip
+                      formatter={(value: number) => [`$${value}`, "Amount"]}
+                    />
+                    <Bar
+                      dataKey="amount"
+                      fill="#82ca9d"
+                      radius={[0, 4, 4, 0]}
+                    />
+                  </BarChart>
+                </ChartContainer>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Activity Feed */}
+          <div className="md:col-span-2 lg:col-span-2">
+            <ActivityFeed receipts={recentReceipts || []} />
+          </div>
+        </div>
+      </div>
+    </PageContainer>
+  );
 }

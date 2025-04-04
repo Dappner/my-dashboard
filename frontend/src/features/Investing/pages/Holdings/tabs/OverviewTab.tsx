@@ -17,7 +17,8 @@ export default function OverviewTab() {
 
 	return (
 		<div className="space-y-4">
-			<div className="grid grid-cols-3 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+				<div>Top Line KPIS? What's really important?</div>
 				<div className="col-span-1">
 					<CustomPieChart
 						title=""
@@ -28,15 +29,7 @@ export default function OverviewTab() {
 						colors={chartColors}
 					/>
 				</div>
-			</div>
 
-			<div className="grid grid-cols-3 gap-4">
-				<div className="col-span-2">
-					<div className="flex flex-row items-center justify-between mb-2 h-8">
-						<h2 className="text-lg font-semibold text-gray-900">Holdings</h2>
-					</div>
-					<DetailedHoldingsTable />
-				</div>
 				<div className="col-span-1">
 					<CustomPieChart
 						title="Asset Class"
@@ -49,6 +42,15 @@ export default function OverviewTab() {
 						outputType="Percentage"
 						colors={chartColors}
 					/>
+				</div>
+			</div>
+
+			<div className="grid grid-cols-3 gap-4">
+				<div className="col-span-3">
+					<div className="flex flex-row items-center justify-between mb-2 h-8">
+						<h2 className="text-lg font-semibold text-gray-900">Holdings</h2>
+					</div>
+					<DetailedHoldingsTable />
 				</div>
 			</div>
 		</div>
