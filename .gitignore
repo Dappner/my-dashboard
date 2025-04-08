@@ -2,6 +2,7 @@
 
 # Node modules
 /frontend/node_modules
+node_modules
 /scripts/daily-market-update/node_modules
 
 # Production Build

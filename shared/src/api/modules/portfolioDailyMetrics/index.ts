@@ -35,3 +35,5 @@ export function createDailyMetricsApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
+
+export * from "./types";

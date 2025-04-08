@@ -39,3 +39,5 @@ export function createHoldingsApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
+
+export * from "./types";

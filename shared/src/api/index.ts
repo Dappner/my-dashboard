@@ -3,7 +3,6 @@ import {
   calendarEventsApiKeys,
   createCalendarEventsApi,
 } from "./modules/calendarEvents";
-import { createFundApi, fundApiKeys } from "./modules/fund";
 import { createHoldingsApi, holdingsApiKeys } from "./modules/holdings";
 import {
   createDailyMetricsApi,
@@ -19,10 +18,11 @@ import {
   createTransactionsApi,
   transactionsApiKeys,
 } from "./modules/transactions";
+import { createFundsApi, fundsApiKeys } from "./modules/funds";
 
 export const queryKeys = {
   calendarEvents: calendarEventsApiKeys,
-  fund: fundApiKeys,
+  funds: fundsApiKeys,
   holdings: holdingsApiKeys,
   dailyMetrics: dailyMetricsApiKeys,
   tickerPrices: tickerPricesApiKeys,
@@ -33,7 +33,7 @@ export const queryKeys = {
 export function createApi(supabase: SupabaseClient<Database>) {
   return {
     calendarEvents: createCalendarEventsApi(supabase),
-    fund: createFundApi(supabase),
+    funds: createFundsApi(supabase),
     holdings: createHoldingsApi(supabase),
     dailyMetrics: createDailyMetricsApi(supabase),
     tickerPrices: createTickerPricesApi(supabase),
@@ -46,7 +46,7 @@ export type Api = ReturnType<typeof createApi>;
 
 // Re-export individual module types
 export * from "./modules/calendarEvents";
-export * from "./modules/fund";
+export * from "./modules/funds";
 export * from "./modules/holdings";
 export * from "./modules/portfolioDailyMetrics";
 export * from "./modules/tickerPrices";

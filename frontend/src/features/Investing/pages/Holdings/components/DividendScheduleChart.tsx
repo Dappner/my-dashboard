@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 import type { DividendMonthData } from "@/features/Investing/pages/Holdings/utils";
 import { prepareDividendChartData } from "@/features/Investing/utils";
 import { formatCurrency } from "@/lib/formatting";
@@ -15,7 +16,6 @@ import {
 	YAxis,
 } from "recharts";
 import { getStockColors } from "../utils";
-import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 
 interface CustomTooltipProps extends TooltipProps<number, string> {
 	active?: boolean;

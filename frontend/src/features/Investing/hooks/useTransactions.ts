@@ -1,6 +1,6 @@
 import { userApiKeys } from "@/api/usersApi";
 import { api } from "@/lib/api";
-import { queryKeys, type TradeView } from "@my-dashboard/shared";
+import { type TradeView, queryKeys } from "@my-dashboard/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 

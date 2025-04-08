@@ -41,3 +41,5 @@ export function createTickerPricesApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
+
+export * from "./types";

@@ -1,7 +1,6 @@
-import { Api } from "@/api";
 import { createPortfolioCalculationService } from "./portfolioCalculationService";
 
-export function createServices(api: Api) {
+export function createServices() {
   return {
     portfolioCalculation: createPortfolioCalculationService(),
   };
@@ -9,5 +8,4 @@ export function createServices(api: Api) {
 
 export type Services = ReturnType<typeof createServices>;
 
-// Re-export services
 export * from "./portfolioCalculationService";

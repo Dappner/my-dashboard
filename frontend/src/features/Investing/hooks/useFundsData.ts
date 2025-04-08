@@ -1,11 +1,11 @@
 import { api } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
 import {
 	type AssetClass,
-	queryKeys,
 	type SectorWeighting,
 	type TopHolding,
+	queryKeys,
 } from "@my-dashboard/shared";
+import { useQuery } from "@tanstack/react-query";
 
 interface FundsData {
 	topHoldings: TopHolding[];

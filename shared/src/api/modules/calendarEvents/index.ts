@@ -37,3 +37,5 @@ export function createCalendarEventsApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
+
+export * from "./types";

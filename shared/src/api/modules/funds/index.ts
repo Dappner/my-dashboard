@@ -2,17 +2,17 @@ import { Database } from "@/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { AssetClass, SectorWeighting, TopHolding } from "./types";
 
-export const fundApiKeys = {
+export const fundsApiKeys = {
   all: ["funds"] as const,
   topHoldings: (tickerId?: string) =>
-    [...fundApiKeys.all, "topHoldings", tickerId] as const,
+    [...fundsApiKeys.all, "topHoldings", tickerId] as const,
   sectorWeightings: (tickerId?: string) =>
-    [...fundApiKeys.all, "sectorWeightings", tickerId] as const,
+    [...fundsApiKeys.all, "sectorWeightings", tickerId] as const,
   assetClasses: (tickerId?: string) =>
-    [...fundApiKeys.all, "assetClasses", tickerId] as const,
+    [...fundsApiKeys.all, "assetClasses", tickerId] as const,
 };
 
-export function createFundApi(supabase: SupabaseClient<Database>) {
+export function createFundsApi(supabase: SupabaseClient<Database>) {
   return {
     async getTopHoldings(tickerId?: string): Promise<TopHolding[]> {
       if (!tickerId) return [];
@@ -63,3 +63,5 @@ export function createFundApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
+
+export * from "./types";

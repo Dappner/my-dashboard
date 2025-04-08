@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { queryKeys, type Timeframe } from "@my-dashboard/shared";
+import { type Timeframe, queryKeys } from "@my-dashboard/shared";
 import { useQuery } from "@tanstack/react-query";
 
 export function usePortfolioDailyMetrics(timeframe: Timeframe) {

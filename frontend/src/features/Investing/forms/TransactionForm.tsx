@@ -8,7 +8,12 @@ import {
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useTickers } from "@/features/Investing/hooks/useTickers";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type {
+	InsertTransaction,
+	UpdateTransaction,
+} from "@my-dashboard/shared";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -23,11 +28,6 @@ import {
 	TickerSelect,
 	TransactionTypeSelect,
 } from "./FormControls";
-import { useTickers } from "@/features/Investing/hooks/useTickers";
-import type {
-	InsertTransaction,
-	UpdateTransaction,
-} from "@my-dashboard/shared";
 
 const cleanEmptyStrings = <T extends object>(obj: T): Partial<T> => {
 	const cleaned = { ...obj };

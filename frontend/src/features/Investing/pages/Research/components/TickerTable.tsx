@@ -7,9 +7,9 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { formatIndustryName, formatSectorName } from "@/lib/formatting";
+import type { TickerDaily } from "@my-dashboard/shared";
 import { useNavigate } from "react-router";
 import { TableLoading } from "./TableLoading";
-import type { TickerDaily } from "@my-dashboard/shared";
 
 interface TickerTableProps {
 	filteredTickers?: TickerDaily[] | null;

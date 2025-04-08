@@ -86,3 +86,5 @@ export function createTickersApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
+
+export * from "./types";

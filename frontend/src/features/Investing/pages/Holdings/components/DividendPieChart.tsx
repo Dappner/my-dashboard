@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 import React from "react";
 import {
 	Cell,
@@ -11,7 +12,6 @@ import {
 	type TooltipProps,
 } from "recharts";
 import { prepareDividendPieData } from "../utils";
-import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 
 export type PieData = {
 	name: string;

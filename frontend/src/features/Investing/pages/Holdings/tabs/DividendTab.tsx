@@ -8,6 +8,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 import {
 	calculateAverageYield,
 	calculateMonthlyAverage,
@@ -18,7 +19,6 @@ import {
 import { TrendingUpIcon } from "lucide-react";
 import DividendPieChart from "../components/DividendPieChart";
 import DividendScheduleChart from "../components/DividendScheduleChart";
-import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 
 export default function DividendTab() {
 	const { holdings, isLoading, isError } = useHoldings();
