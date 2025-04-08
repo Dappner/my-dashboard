@@ -10,8 +10,6 @@ export default function TickerPage() {
   const { exchange, ticker: tickerSymbol } = useParams();
   if (!exchange || !tickerSymbol) return <>invalid</>;
 
-  console.log("Ticker: ", tickerSymbol);
-  console.log("Exchange:", exchange);
   const { ticker, holding, tickerTrades, isLoading } = useTickerData(
     exchange,
     tickerSymbol,
