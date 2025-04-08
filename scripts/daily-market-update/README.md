@@ -15,8 +15,7 @@ The `daily-market-update` is a serverless AWS Lambda function designed to fetch 
 9. [File Structure](#file-structure)
 10. [Usage](#usage)
 11. [Troubleshooting](#troubleshooting)
-12. [Contributing](#contributing)
-13. [License](#license)
+12. [License](#license)
 
 ## Overview
 
@@ -136,6 +135,7 @@ environment:
 
 ## Scheduling
 
+# TODO: This actually runs on different schedules now
 The function runs on two daily schedules, adjusted for Eastern Time (ET) with DST:
 
 - **5:30 PM ET (Post-Market Close)**:

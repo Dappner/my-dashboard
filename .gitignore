@@ -9,8 +9,8 @@ node_modules
 /frontend/dist
 
 # pnpm
-/frontend/pnpm-lock.yaml
-/scripts/daily-market-update/pnpm-lock.yaml
+*/pnpm-lock.yaml
+./pnpm-lock.yaml
 .pnpm
 
 #  Typescript compiled js files
