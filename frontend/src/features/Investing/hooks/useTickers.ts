@@ -1,65 +1,89 @@
-import { tickersApi, tickersApiKeys } from "@/api/tickersApi";
-import type { Ticker } from "@/types/tickerTypes";
+import { api } from "@/lib/api";
+import { queryKeys, type Ticker } from "@my-dashboard/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-interface UseTickerOptions {
+interface TickersQueryOptions {
+	staleTime?: number;
+	retry?: number | boolean;
+	enabled?: boolean;
+}
+
+interface UseTickersOptions {
+	queryOptions?: TickersQueryOptions;
 	onAddSuccess?: () => void;
 	onUpdateSuccess?: () => void;
 	onDeleteSuccess?: () => void;
 	onError?: (error: Error) => void;
 }
 
-export const useTicker = (options?: UseTickerOptions) => {
+export const useTickers = (options: UseTickersOptions = {}) => {
 	const queryClient = useQueryClient();
+	const {
+		queryOptions = {},
+		onAddSuccess,
+		onUpdateSuccess,
+		onDeleteSuccess,
+		onError,
+	} = options;
 
-	const { data: tickers, isLoading } = useQuery<Ticker[]>({
-		queryKey: tickersApiKeys.all,
-		queryFn: () => tickersApi.getTickers(),
+	const {
+		data: tickers = [], // Default to empty array if no data
+		isLoading,
+		isError,
+		refetch,
+	} = useQuery<Ticker[]>({
+		queryKey: queryKeys.tickers.all,
+		queryFn: () => api.tickers.getTickers(),
+		staleTime: queryOptions.staleTime,
+		retry: queryOptions.retry,
+		enabled: queryOptions.enabled ?? true,
 	});
 
 	const addTickerMutation = useMutation({
-		mutationFn: tickersApi.addTicker,
+		mutationFn: api.tickers.addTicker,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: tickersApiKeys.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.tickers.all });
 			toast.success("Ticker added successfully");
-			options?.onAddSuccess?.(); // Call the success callback if provided
+			onAddSuccess?.();
 		},
 		onError: (error: Error) => {
 			toast.error(error.message || "Failed to add ticker");
-			options?.onError?.(error); // Call the error callback if provided
+			onError?.(error);
 		},
 	});
 
 	const updateTickerMutation = useMutation({
-		mutationFn: tickersApi.updateTicker,
+		mutationFn: api.tickers.updateTicker,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: tickersApiKeys.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.tickers.all });
 			toast.success("Ticker updated successfully");
-			options?.onUpdateSuccess?.(); // Call the success callback if provided
+			onUpdateSuccess?.();
 		},
 		onError: (error: Error) => {
 			toast.error(error.message || "Failed to update ticker");
-			options?.onError?.(error); // Call the error callback if provided
+			onError?.(error);
 		},
 	});
 
 	const deleteTickerMutation = useMutation({
-		mutationFn: tickersApi.deleteTicker,
+		mutationFn: api.tickers.deleteTicker,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: tickersApiKeys.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.tickers.all });
 			toast.success("Ticker deleted successfully");
-			options?.onDeleteSuccess?.(); // Call the success callback if provided
+			onDeleteSuccess?.();
 		},
 		onError: (error: Error) => {
-			toast.error("Failed to delete ticker");
-			options?.onError?.(error); // Call the error callback if provided
+			toast.error(error.message || "Failed to delete ticker");
+			onError?.(error);
 		},
 	});
 
 	return {
 		tickers,
 		isLoading,
+		isError,
+		refetch,
 		addTicker: addTickerMutation.mutate,
 		updateTicker: updateTickerMutation.mutate,
 		deleteTicker: deleteTickerMutation.mutate,

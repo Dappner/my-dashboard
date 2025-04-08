@@ -1,5 +1,5 @@
-import { tickerPricesApi, tickerPricesApiKeys } from "@/api/tickerPricesApi";
-import type { Timeframe } from "@/types/portfolioDailyMetricTypes";
+import { api } from "@/lib/api";
+import { queryKeys, type Timeframe } from "@my-dashboard/shared";
 import { useQuery } from "@tanstack/react-query";
 
 export function useTickerHistoricalPrices(
@@ -12,9 +12,9 @@ export function useTickerHistoricalPrices(
 		isLoading: historicalPricesLoading,
 		error: historicalPricesError,
 	} = useQuery({
-		queryKey: tickerPricesApiKeys.timeframe(tickerId, timeframe),
+		queryKey: queryKeys.tickerPrices.timeframe(tickerId, timeframe),
 		queryFn: async () =>
-			tickerPricesApi.getTickerHistoricalPrices(tickerId, timeframe),
+			api.tickerPrices.getTickerHistoricalPrices(tickerId, timeframe),
 		enabled: enabled,
 	});
 

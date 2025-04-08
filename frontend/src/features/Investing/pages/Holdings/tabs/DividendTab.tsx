@@ -1,4 +1,3 @@
-import { holdingsApi, holdingsApiKeys } from "@/api/holdingsApi";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -16,21 +15,13 @@ import {
 	findNextDividendPayment,
 	sortHoldingsByProperty,
 } from "@/features/Investing/utils";
-import { useQuery } from "@tanstack/react-query";
 import { TrendingUpIcon } from "lucide-react";
 import DividendPieChart from "../components/DividendPieChart";
 import DividendScheduleChart from "../components/DividendScheduleChart";
+import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 
 export default function DividendTab() {
-	const {
-		data: holdings,
-		isLoading,
-		isError,
-	} = useQuery({
-		queryFn: holdingsApi.getHoldings,
-		queryKey: holdingsApiKeys.all,
-	});
-
+	const { holdings, isLoading, isError } = useHoldings();
 	const annualIncome = holdings ? calculateTotalAnnualDividend(holdings) : 0;
 	const averageYield = holdings ? calculateAverageYield(holdings) : 0;
 	const monthlyAverage = holdings ? calculateMonthlyAverage(holdings) : 0;

@@ -1,4 +1,3 @@
-import { tickersApi, tickersApiKeys } from "@/api/tickersApi";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -9,12 +8,7 @@ import {
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { useAuthContext } from "@/contexts/AuthContext";
-import type {
-	InsertTransaction,
-	UpdateTransaction,
-} from "@/types/transactionsTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -29,6 +23,11 @@ import {
 	TickerSelect,
 	TransactionTypeSelect,
 } from "./FormControls";
+import { useTickers } from "@/features/Investing/hooks/useTickers";
+import type {
+	InsertTransaction,
+	UpdateTransaction,
+} from "@my-dashboard/shared";
 
 const cleanEmptyStrings = <T extends object>(obj: T): Partial<T> => {
 	const cleaned = { ...obj };
@@ -103,10 +102,7 @@ export function TransactionForm({
 	const { user } = useAuthContext();
 	const mode = tradeId ? "update" : "create";
 
-	const tickersQuery = useQuery({
-		queryKey: tickersApiKeys.all,
-		queryFn: tickersApi.getTickers,
-	});
+	const { tickers, isLoading: tickersLoading } = useTickers();
 
 	const { updateTransaction, isUpdating, isAdding, addTransaction } =
 		useTransactions({
@@ -169,8 +165,8 @@ export function TransactionForm({
 									render={({ field }) => (
 										<TickerSelect
 											field={field}
-											isLoading={tickersQuery.isLoading}
-											tickers={tickersQuery.data ?? []}
+											isLoading={tickersLoading}
+											tickers={tickers ?? []}
 										/>
 									)}
 								/>

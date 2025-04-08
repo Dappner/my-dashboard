@@ -10,12 +10,12 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import type { InsertTicker } from "@/types/tickerTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { InsertTicker } from "@my-dashboard/shared";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useTicker } from "../hooks/useTickers";
+import { useTickers } from "../hooks/useTickers";
 
 export const tickerFormSchema = z.object({
 	symbol: z.string().min(1, "Symbol is required").max(10),
@@ -54,7 +54,7 @@ export function TickerForm({
 }: TickerFormProps) {
 	const mode = tickerId ? "update" : "create";
 
-	const { updateTicker, isUpdating, isAdding, addTicker } = useTicker({
+	const { updateTicker, isUpdating, isAdding, addTicker } = useTickers({
 		onAddSuccess: () => {
 			onClose();
 		},

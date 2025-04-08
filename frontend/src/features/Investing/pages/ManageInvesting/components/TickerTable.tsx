@@ -9,9 +9,9 @@ import {
 } from "@/components/ui/table";
 import { useTickerSheet } from "@/contexts/SheetContext";
 import { monthsShort } from "@/features/Investing/constants";
-import { useTicker } from "@/features/Investing/hooks/useTickers";
+import { useTickers } from "@/features/Investing/hooks/useTickers";
 import { formatIndustryName, formatSectorName } from "@/lib/formatting";
-import type { Ticker } from "@/types/tickerTypes";
+import type { Ticker } from "@my-dashboard/shared";
 import { Pencil, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
 
@@ -22,7 +22,7 @@ interface TickerTableProps {
 export default function TickerTable({ filteredTickers }: TickerTableProps) {
 	const navigate = useNavigate();
 	const { openEditTicker } = useTickerSheet();
-	const { deleteTicker } = useTicker();
+	const { deleteTicker } = useTickers();
 
 	const onSymbolClick = (ticker: Ticker) => {
 		navigate(`/investing/stock/${ticker.exchange}/${ticker.symbol}`);

@@ -1,5 +1,6 @@
 import type { Holding } from "@/types/holdingsTypes";
 import { monthsShort } from "./constants";
+
 export interface AssetClass {
 	asset_class: string;
 	weight: number;

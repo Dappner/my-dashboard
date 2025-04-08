@@ -1,4 +1,3 @@
-import { tickersApi, tickersApiKeys } from "@/api/tickersApi";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -15,14 +14,15 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { useTickers } from "@/features/Investing/hooks/useTickers";
 import { cn } from "@/lib/utils";
-import type { TransactionType } from "@/types/transactionsTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import type { TransactionType } from "@my-dashboard/shared";
 import { format, startOfMonth, subYears } from "date-fns";
 import { Plus, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+
 export type ExtendedTransactionType = TransactionType | "all";
 
 export interface TransactionsFilters {
@@ -66,11 +66,7 @@ export default function TransactionsFilters({
 		defaultValues: filters,
 	});
 
-	const tickersQuery = useQuery({
-		queryKey: tickersApiKeys.all,
-		queryFn: tickersApi.getTickers,
-		staleTime: 5 * 60 * 1000,
-	});
+	const { tickers, isLoading: tickersLoading, isError } = useTickers();
 
 	const onFilterChange = (data: FilterFormValues) => {
 		setTransactionsFilters(data);
@@ -156,20 +152,20 @@ export default function TransactionsFilters({
 									</FormControl>
 									<SelectContent>
 										<SelectItem value="all">All Tickers</SelectItem>
-										{tickersQuery.isLoading ? (
+										{tickersLoading ? (
 											<SelectItem value="loading" disabled>
 												Loading tickers...
 											</SelectItem>
-										) : tickersQuery.isError ? (
+										) : isError ? (
 											<SelectItem value="error" disabled>
 												Error loading tickers
 											</SelectItem>
-										) : !tickersQuery.data?.length ? (
+										) : !tickers?.length ? (
 											<SelectItem value="empty" disabled>
 												No tickers found
 											</SelectItem>
 										) : (
-											tickersQuery.data.map((ticker) => (
+											tickers.map((ticker) => (
 												<SelectItem key={ticker.id} value={ticker.id}>
 													{ticker.symbol} ({ticker.exchange})
 												</SelectItem>

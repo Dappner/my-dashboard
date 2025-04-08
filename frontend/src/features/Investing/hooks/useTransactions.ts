@@ -1,35 +1,54 @@
-import { holdingsApiKeys } from "@/api/holdingsApi";
-import { transactionsApi, transactionsApiKeys } from "@/api/tradesApi";
 import { userApiKeys } from "@/api/usersApi";
-import type { TradeView } from "@/types/transactionsTypes";
+import { api } from "@/lib/api";
+import { queryKeys, type TradeView } from "@my-dashboard/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+interface TransactionQueryOptions {
+	ticker?: { exchange: string; tickerSymbol: string };
+	staleTime?: number;
+	retry?: number | boolean;
+}
+
 interface UseTransactionsOptions {
+	queryOptions?: TransactionQueryOptions;
 	onAddSuccess?: () => void;
 	onUpdateSuccess?: () => void;
 	onDeleteSuccess?: () => void;
 	onError?: (error: Error) => void;
 }
 
-export const useTransactions = (options?: UseTransactionsOptions) => {
+export const useTransactions = (options: UseTransactionsOptions = {}) => {
 	const queryClient = useQueryClient();
+	const { queryOptions = {} } = options;
+	const { ticker } = queryOptions;
+
+	const queryKey = ticker
+		? queryKeys.transactions.ticker(ticker.exchange, ticker.tickerSymbol)
+		: queryKeys.transactions.all;
+
+	const queryFn = ticker
+		? () =>
+				api.transactions.getTickerTrades(ticker.exchange, ticker.tickerSymbol)
+		: () => api.transactions.getTransactions();
 
 	const {
-		data: transactions,
+		data: transactions = [],
 		isLoading,
 		isError,
 		refetch,
 	} = useQuery<TradeView[]>({
-		queryFn: () => transactionsApi.getTransactions(),
-		queryKey: transactionsApiKeys.all,
+		queryFn,
+		queryKey,
+		staleTime: queryOptions.staleTime || 60 * 1000,
+		retry: queryOptions.retry ?? 2,
 	});
 
 	const addTransactionMutation = useMutation({
-		mutationFn: transactionsApi.addTransaction,
+		mutationFn: api.transactions.addTransaction,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: transactionsApiKeys.all });
-			queryClient.invalidateQueries({ queryKey: holdingsApiKeys.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.holdings.all });
 			queryClient.invalidateQueries({ queryKey: userApiKeys.all });
 
 			toast.success("Transaction added successfully");
@@ -42,10 +61,10 @@ export const useTransactions = (options?: UseTransactionsOptions) => {
 	});
 
 	const updateTransactionMutation = useMutation({
-		mutationFn: transactionsApi.updateTransaction,
+		mutationFn: api.transactions.updateTransaction,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: transactionsApiKeys.all });
-			queryClient.invalidateQueries({ queryKey: holdingsApiKeys.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.holdings.all });
 			queryClient.invalidateQueries({ queryKey: userApiKeys.all });
 			toast.success("Transcation updated successfully");
 			options?.onUpdateSuccess?.();
@@ -57,10 +76,10 @@ export const useTransactions = (options?: UseTransactionsOptions) => {
 	});
 
 	const deleteTransactionMutation = useMutation({
-		mutationFn: transactionsApi.deleteTransaction,
+		mutationFn: api.transactions.deleteTransaction,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: transactionsApiKeys.all });
-			queryClient.invalidateQueries({ queryKey: holdingsApiKeys.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.holdings.all });
 			queryClient.invalidateQueries({ queryKey: userApiKeys.all });
 
 			toast.success("Transaction deleted successfully");

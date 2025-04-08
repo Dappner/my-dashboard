@@ -1,10 +1,11 @@
-import { fundApi, fundApiKeys } from "@/api/fundsApi";
-import type {
-	AssetClass,
-	SectorWeighting,
-	TopHolding,
-} from "@/types/fundTypes";
+import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
+import {
+	type AssetClass,
+	queryKeys,
+	type SectorWeighting,
+	type TopHolding,
+} from "@my-dashboard/shared";
 
 interface FundsData {
 	topHoldings: TopHolding[];
@@ -15,20 +16,20 @@ interface FundsData {
 
 export const useFundsData = (tickerId?: string): FundsData => {
 	const { data: topHoldings = [], isLoading: holdingsLoading } = useQuery({
-		queryFn: () => fundApi.getTopHoldings(tickerId),
-		queryKey: fundApiKeys.topHoldings(tickerId),
+		queryFn: () => api.funds.getTopHoldings(tickerId),
+		queryKey: queryKeys.funds.topHoldings(tickerId),
 		enabled: !!tickerId,
 	});
 
 	const { data: sectorWeightings = [], isLoading: sectorsLoading } = useQuery({
-		queryFn: () => fundApi.getSectorWeightings(tickerId),
-		queryKey: fundApiKeys.sectorWeightings(tickerId),
+		queryFn: () => api.funds.getSectorWeightings(tickerId),
+		queryKey: queryKeys.funds.sectorWeightings(tickerId),
 		enabled: !!tickerId,
 	});
 
 	const { data: assetClasses = [], isLoading: assetClassesLoading } = useQuery({
-		queryFn: () => fundApi.getAssetClasses(tickerId),
-		queryKey: fundApiKeys.assetClasses(tickerId),
+		queryFn: () => api.funds.getAssetClasses(tickerId),
+		queryKey: queryKeys.funds.assetClasses(tickerId),
 		enabled: !!tickerId,
 	});
 

@@ -1,7 +1,5 @@
-import {
-	calendarEventsApi,
-	calendarEventsApiKeys,
-} from "@/api/calendarEventsApi";
+import { api } from "@/lib/api";
+import { queryKeys } from "@my-dashboard/shared";
 import { useQuery } from "@tanstack/react-query";
 
 export function useCalendarEvents(limit = 5, tickerId?: string) {
@@ -11,8 +9,8 @@ export function useCalendarEvents(limit = 5, tickerId?: string) {
 		isError,
 		error,
 	} = useQuery({
-		queryFn: () => calendarEventsApi.getUpcomingEvents(limit, tickerId),
-		queryKey: calendarEventsApiKeys.upcoming(limit, tickerId),
+		queryFn: () => api.calendarEvents.getUpcomingEvents(limit, tickerId),
+		queryKey: queryKeys.calendarEvents.upcoming(limit, tickerId),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
 

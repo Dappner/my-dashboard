@@ -1,12 +1,14 @@
-import { holdingsApi, holdingsApiKeys } from "@/api/holdingsApi";
-import { tickersApi, tickersApiKeys } from "@/api/tickersApi";
-import { transactionsApi, transactionsApiKeys } from "@/api/tradesApi";
+import { useHolding } from "@/features/Investing/hooks/useHolding";
+import { useTicker } from "@/features/Investing/hooks/useTicker";
+import { useTransactions } from "@/features/Investing/hooks/useTransactions";
 import { supabase } from "@/lib/supabase";
-import type { HistoricalPrice } from "@/types/historicalPricesTypes";
-import type { Holding } from "@/types/holdingsTypes";
-import type { Ticker } from "@/types/tickerTypes";
-import type { TradeView } from "@/types/transactionsTypes";
 import type { YahooFinanceDaily } from "@/types/yahooFinanceDaily";
+import type {
+	HistoricalPrice,
+	Holding,
+	Ticker,
+	TradeView,
+} from "@my-dashboard/shared";
 import { useQuery } from "@tanstack/react-query";
 
 interface TickerData {
@@ -20,27 +22,29 @@ interface TickerData {
 }
 
 export function useTickerData(exchange: string, tickerSymbol: string) {
-	// Ticker Data
-	const { data: ticker, isLoading: tickerLoading } = useQuery({
-		queryKey: tickersApiKeys.ticker(exchange, tickerSymbol),
-		queryFn: () => tickersApi.getTicker(exchange, tickerSymbol),
-		enabled: !!exchange && !!tickerSymbol,
+	const { ticker, isLoading: tickerLoading } = useTicker({
+		queryOptions: {
+			exchange: "NASDAQ",
+			tickerSymbol: "AAPL",
+			enabled: !!exchange && !!tickerSymbol,
+		},
 	});
 
-	// Holdings Data
-	const { data: holding, isLoading: holdingsLoading } = useQuery({
-		queryKey: holdingsApiKeys.ticker(exchange, tickerSymbol),
-		queryFn: () => holdingsApi.getTickerHolding(exchange, tickerSymbol),
-		enabled: !!exchange && !!tickerSymbol,
+	const { holding, isLoading: holdingsLoading } = useHolding({
+		queryOptions: {
+			exchange,
+			tickerSymbol,
+			enabled: !!exchange && !!tickerSymbol,
+		},
 	});
 
-	// Trades Data
-	const { data: tickerTrades = [], isLoading: tradesLoading } = useQuery({
-		queryKey: transactionsApiKeys.ticker(exchange, tickerSymbol),
-		queryFn: () => transactionsApi.getTickerTrades(exchange, tickerSymbol),
-		staleTime: 60 * 1000,
-		enabled: !!exchange && !!tickerSymbol,
-	});
+	// Transaction Data
+	const { transactions: tickerTrades = [], isLoading: tradesLoading } =
+		useTransactions({
+			queryOptions: {
+				ticker: { exchange, tickerSymbol },
+			},
+		});
 
 	// Yahoo Finance Data
 	const { data: yhFinanceData, isLoading: yhFinanceLoading } = useQuery({

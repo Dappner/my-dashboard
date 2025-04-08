@@ -1,9 +1,9 @@
-import { calculatePortfolioMetrics } from "@/services/portfolioMetrics";
-import type { Timeframe } from "@/types/portfolioDailyMetricTypes";
+import type { Timeframe } from "@my-dashboard/shared";
 import { useMemo } from "react";
 import { useHoldings } from "./useHoldings";
 import { usePortfolioDailyMetrics } from "./usePortfolioDailyMetrics";
 import { useTransactions } from "./useTransactions";
+import { services } from "@/lib/api";
 
 export const usePortfolioMetrics = (timeframe: Timeframe = "ALL") => {
 	const {
@@ -24,7 +24,7 @@ export const usePortfolioMetrics = (timeframe: Timeframe = "ALL") => {
 		if (isLoading || metricsError || !dailyMetrics) {
 			return null;
 		}
-		return calculatePortfolioMetrics(
+		return services.portfolioCalculation.calculatePortfolioMetrics(
 			dailyMetrics,
 			timeframe,
 			transactions,

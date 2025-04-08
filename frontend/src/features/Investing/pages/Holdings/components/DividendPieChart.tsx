@@ -1,6 +1,4 @@
-import { holdingsApi, holdingsApiKeys } from "@/api/holdingsApi";
 import { Card, CardContent } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import {
 	Cell,
@@ -13,6 +11,7 @@ import {
 	type TooltipProps,
 } from "recharts";
 import { prepareDividendPieData } from "../utils";
+import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 
 export type PieData = {
 	name: string;
@@ -21,10 +20,8 @@ export type PieData = {
 };
 
 export default function DividendPieChart() {
-	const { data: holdings, isLoading } = useQuery({
-		queryFn: holdingsApi.getHoldings,
-		queryKey: holdingsApiKeys.all,
-	});
+	const { holdings, isLoading } = useHoldings();
+
 	const data = React.useMemo(
 		() => prepareDividendPieData(holdings),
 		[holdings],

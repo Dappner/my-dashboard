@@ -1,11 +1,9 @@
-import { transactionsApi, transactionsApiKeys } from "@/api/tradesApi";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import TransactionTable from "@/features/Investing/components/TransactionTable";
-import type { Holding } from "@/types/holdingsTypes";
-import type { TradeView } from "@/types/transactionsTypes";
-import { useQuery } from "@tanstack/react-query";
+import { useTransactions } from "@/features/Investing/hooks/useTransactions";
+import type { Holding, TradeView } from "@my-dashboard/shared";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
@@ -26,12 +24,10 @@ export default function HoldingsPanel({
 	const [isExpanded, setIsExpanded] = useState(false);
 	const { state } = useSidebar();
 
-	const { data: transactions = [], isLoading: transactionsLoading } = useQuery({
-		queryKey: transactionsApiKeys.ticker(exchange, tickerSymbol),
-		queryFn: async () =>
-			transactionsApi.getTickerTrades(exchange, tickerSymbol),
-		staleTime: 60 * 1000,
-		retry: 2,
+	const { transactions, isLoading: transactionsLoading } = useTransactions({
+		queryOptions: {
+			ticker: { exchange, tickerSymbol },
+		},
 	});
 
 	if (!holding && !isLoading) return null;

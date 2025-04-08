@@ -10,41 +10,41 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import { ResponsiveHeader } from "./components/ResponsiveHeader";
 
 export default function Layout() {
-  const { user: authUser, isLoading: authLoading } = useAuthContext();
-  const { isLoading: userLoading } = useUser();
-  const location = useLocation();
+	const { user: authUser, isLoading: authLoading } = useAuthContext();
+	const { isLoading: userLoading } = useUser();
+	const location = useLocation();
 
-  const isLoading = authLoading || userLoading;
+	const isLoading = authLoading || userLoading;
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
+	if (isLoading) {
+		return (
+			<div className="flex min-h-screen items-center justify-center">
+				<LoadingSpinner />
+			</div>
+		);
+	}
 
-  if (!authUser) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
-  }
+	if (!authUser) {
+		return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+	}
 
-  return (
-    <SidebarProvider>
-      <div className="flex h-dvh w-full">
-        <AppSidebar />
-        <SidebarInset
-          className={cn("flex flex-1 flex-col overflow-hidden bg-gray-50")}
-        >
-          <ResponsiveHeader className="flex-shrink-0" />
+	return (
+		<SidebarProvider>
+			<div className="flex h-dvh w-full">
+				<AppSidebar />
+				<SidebarInset
+					className={cn("flex flex-1 flex-col overflow-hidden bg-gray-50")}
+				>
+					<ResponsiveHeader className="flex-shrink-0" />
 
-          <main className={cn("flex-1 overflow-y-auto p-0 ")}>
-            <Outlet />
-          </main>
+					<main className={cn("flex-1 overflow-y-auto p-0 ")}>
+						<Outlet />
+					</main>
 
-          <Toaster richColors position="top-right" />
-          <SheetContainer />
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
-  );
+					<Toaster richColors position="top-right" />
+					<SheetContainer />
+				</SidebarInset>
+			</div>
+		</SidebarProvider>
+	);
 }

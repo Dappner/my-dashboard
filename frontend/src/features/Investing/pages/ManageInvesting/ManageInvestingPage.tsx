@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTickerSheet } from "@/contexts/SheetContext";
-import { useTicker } from "@/features/Investing/hooks/useTickers";
+import { useTickers } from "@/features/Investing/hooks/useTickers";
 import useUser from "@/hooks/useUser";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, PlusCircle } from "lucide-react";
@@ -30,7 +30,7 @@ type TrackingFormValues = z.infer<typeof trackingFormSchema>;
 
 export default function ManageInvestingPage() {
 	const [searchQuery, setSearchQuery] = useState("");
-	const { tickers, isLoading } = useTicker({});
+	const { tickers, isLoading } = useTickers();
 
 	const { openAddTicker } = useTickerSheet();
 
