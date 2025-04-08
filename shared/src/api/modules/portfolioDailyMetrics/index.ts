@@ -1,8 +1,7 @@
-import { getDateRangeFilter } from "@/utils/dateRangeFilter";
 import { PortfolioDailyMetric } from "./types";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/supabase";
-import { Timeframe } from "@/types";
+import { convertTimeframeToDateRange, Timeframe } from "@/utils";
 
 export const dailyMetricsApiKeys = {
   all: ["dailyMetrics"] as const,
@@ -15,7 +14,7 @@ export function createDailyMetricsApi(supabase: SupabaseClient<Database>) {
     async getDailyMetrics(
       timeframe: Timeframe,
     ): Promise<PortfolioDailyMetric[]> {
-      const { startDate } = getDateRangeFilter(timeframe);
+      const { startDate } = convertTimeframeToDateRange(timeframe);
 
       let query = supabase
         .from("portfolio_daily_metrics")

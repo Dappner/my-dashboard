@@ -1,11 +1,11 @@
-import { Timeframe } from "@/types";
+export type Timeframe = "1W" | "1M" | "3M" | "YTD" | "1Y" | "ALL";
 
 export interface DateRange {
   startDate: string | null;
   endDate?: string;
 }
 
-export function getDateRangeFilter(timeframe: Timeframe): DateRange {
+export function convertTimeframeToDateRange(timeframe: Timeframe): DateRange {
   const now = new Date();
 
   switch (timeframe) {

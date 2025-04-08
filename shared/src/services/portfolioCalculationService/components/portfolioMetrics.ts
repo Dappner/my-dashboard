@@ -1,7 +1,7 @@
 import { Holding } from "@/api/modules/holdings/types";
 import { PortfolioDailyMetric } from "@/api/modules/portfolioDailyMetrics/types";
 import { TradeView } from "@/api/modules/transactions/types";
-import { Timeframe } from "@/types";
+import { Timeframe } from "@/utils";
 
 // Define interface with JSDoc documentation
 export interface PortfolioMetrics {

@@ -2,17 +2,19 @@
   "name": "@my-dashboard/shared",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
+    "build": "tsup src/index.ts --dts --format esm,cjs",
+    "watch": "tsup src/index.ts --dts --format esm,cjs --watch",
     "update-types": "npx supabase gen types typescript --project-id wwzyziohidsxmjfkoowh --schema public --schema grocery > src/supabase.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.x.x"
   },
   "devDependencies": {
+    "tsup": "^8.4.0",
     "typescript": "^5.x.x"
   }
 }
