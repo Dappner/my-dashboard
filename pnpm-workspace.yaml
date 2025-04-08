@@ -1,0 +1,9 @@
+packages:
+  - frontend
+  - mobile
+  - shared
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - esbuild
+  - lefthook
+  - supabase

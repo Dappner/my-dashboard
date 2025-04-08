@@ -82,3 +82,11 @@ logs/
 *.swp
 *.DS_Store
 
+node_modules/.modules.yaml
+node_modules/.pnpm-workspace-state.json
+shared/node_modules/.modules.yaml
+shared/node_modules/.pnpm-workspace-state.json
+shared/node_modules/typescript
+shared/node_modules/.bin/tsc
+shared/node_modules/.bin/tsserver
+shared/node_modules/@supabase/supabase-js
