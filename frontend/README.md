@@ -7,26 +7,50 @@
 
 ### Small Things
 
+**Investing**
+
 - Get mobile right for the Transactions Page
 - Figure out why bottom-0 not working for the fixed buttons on the bottom of page of the AddTransactionSheet
-- Figure out rough pages for Spending
-- Improve / Swap out sidebar component. If I'm in investing, that tab should be open etc...
 - Create better Date Range Picker for Transactions. (most granular is months )
 - Add Sheet for filters for Transactions?
-- Add + button to receipts in Spending
 - Fix the main Investing Home chart (relative spending)
+- Add Holding Tab To Ticker Page (KPIs tbd)
+- Make Holding panel less prevalent on mobile? / Go away?
+- Modal to open transaction (see reasoning, etc)
+- Better Holdings Page (Best performer, Bar Chart with Return per stock? (somehow also weighted with portfolio weight?))
+- Better Date Range filter for Transactions
+- If current holding, maybe show how cost basis line evolved in Ticker View (e.g. bought some cost basis shifts down...)
+
+**Receipts**:
+
+- Add + button to receipts in Spending
 
 ## Larger Features
 
-- Enable better spending tracking (so I quickly log spend e.g. 2 beers at night out)
-- Hookup API to chess to scrape whether I played Chess that Day
-- Subscription Management?
+**Investing**
+
 - Figure out what Stock Research Looks Like
 - better portfolio analytics
   - E.g. average holding time of current shares. Average dividends received per share during holding period
     Unrealized P/L, Unrealized P/L per share net of dividends (% and ABS)
 - Lambda function that fetches data for ticker once it is added to the tickers table / the backfill is set to true.
   - Maybe a button to "run lambda for that ticker"
+
+**Spending**
+
+- Enable better spending tracking (so I quickly log spend e.g. 2 beers at night out)
+- Subscription Management? (easier to add spending )
+- Better Spending Overiew Page (sucks right now)
+- Edit Transaction....
+
+**General**
+
+- Hookup Github to scrape whether I wrote code etc (lines changed? Repos?)
+- Hookup API to chess to scrape whether I played Chess that Day
+- Better sidebar
+  - Other issue is state of sidebar caching (moves on open if it's closed)
+  - If I'm on Investing and I open sidebar all investing pages should be open. It should maube take up fuill screen on mobile (as an overlay?)
+  - This will need a custom integration....
 
 # FORMULAS USED
 

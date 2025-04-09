@@ -93,7 +93,16 @@ const navBarItems: NavBarItem[] = [
 				title: "Chess",
 				url: "chess",
 			},
+			{
+				title: "Github",
+				url: "github",
+			},
 		],
+	},
+	{
+		title: "Time Tracking",
+		url: "/time-tracking",
+		rootName: "Overview",
 	},
 	{
 		title: "Settings",
