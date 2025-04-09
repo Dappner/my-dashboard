@@ -5,6 +5,7 @@ import {
 	ChartTooltipContent,
 } from "@/components/ui/chart";
 import useUser from "@/hooks/useUser";
+import type { PortfolioDailyMetric, Timeframe } from "@my-dashboard/shared";
 import { format, isValid, parseISO, subDays } from "date-fns"; // Added subDays
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -18,7 +19,6 @@ import {
 } from "recharts";
 import { usePortfolioDailyMetrics } from "../hooks/usePortfolioDailyMetrics";
 import { useTickerHistoricalPrices } from "../pages/Research/hooks/useTickerHistoricalPrices";
-import type { PortfolioDailyMetric, Timeframe } from "@my-dashboard/shared";
 
 function parseDateSafe(dateString: string | null | undefined): Date | null {
 	if (!dateString) return null;

@@ -1,11 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Timeframe } from "@my-dashboard/shared";
 import { format, isValid, parseISO } from "date-fns";
 import { Calendar, TrendingUp } from "lucide-react";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { useHoldings } from "../hooks/useHoldings";
 import { usePortfolioMetrics } from "../hooks/usePortfolioMetrics";
-import type { Timeframe } from "@my-dashboard/shared";
 
 interface PortfolioInsightsWidgetProps {
 	timeframe: Timeframe;
