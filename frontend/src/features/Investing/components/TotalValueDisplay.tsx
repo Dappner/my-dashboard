@@ -1,8 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatPercent } from "@/lib/formatting";
 import { cn } from "@/lib/utils";
-import type { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import { usePortfolioMetrics } from "../hooks/usePortfolioMetrics";
+import type { Timeframe } from "@my-dashboard/shared";
 
 interface TotalValueDisplayProps {
 	timeframe: Timeframe;

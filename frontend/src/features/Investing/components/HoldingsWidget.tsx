@@ -6,7 +6,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { Holding } from "@/types/holdingsTypes";
+import type { Holding } from "@my-dashboard/shared";
 import { useNavigate } from "react-router";
 import { useHoldings } from "../hooks/useHoldings";
 

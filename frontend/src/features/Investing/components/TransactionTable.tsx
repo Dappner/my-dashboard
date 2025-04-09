@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { useTransactionSheet } from "@/contexts/SheetContext";
 import { cn } from "@/lib/utils";
-import type { TradeView, TransactionType } from "@/types/transactionsTypes";
+import type { TradeView, TransactionType } from "@my-dashboard/shared";
 import { format, parseISO } from "date-fns";
 import { Pencil, Trash2 } from "lucide-react";
 

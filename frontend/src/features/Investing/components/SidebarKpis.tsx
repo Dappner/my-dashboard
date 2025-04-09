@@ -1,9 +1,9 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/formatting";
 import { cn } from "@/lib/utils";
-import type { Timeframe } from "@/types/portfolioDailyMetricTypes";
 import { ArrowDown, ArrowUp, DollarSign, Percent } from "lucide-react";
 import { usePortfolioMetrics } from "../hooks/usePortfolioMetrics";
+import type { Timeframe } from "@my-dashboard/shared";
 
 interface SidebarKpisProps {
 	timeframe: Timeframe;

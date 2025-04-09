@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from "@/lib/formatting";
-import type { CalendarEventsView } from "@/types/calendarEventsTypes";
+import type { CalendarEventsView } from "@my-dashboard/shared";
 import { ArrowUpRight, Calendar } from "lucide-react";
 
 interface TickerEventsProps {
