@@ -1,7 +1,9 @@
 import CustomPieChart from "@/components/charts/CustomPieChart";
+import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { chartColors } from "@/constants";
+import { useEntityMappings } from "@/features/Investing/hooks/useEntityMappings";
 import { useHoldings } from "@/features/Investing/hooks/useHoldings";
 import { useMemo } from "react";
 import { useHoldingsAllocation } from "../hooks/useHoldingsAllocation";
@@ -10,8 +12,6 @@ import {
 	prepareIndustryData,
 	prepareSectorData,
 } from "../utils";
-import { useEntityMappings } from "@/features/Investing/hooks/useEntityMappings";
-import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 
 export default function AllocationTab() {
 	const { holdings } = useHoldings();

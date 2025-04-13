@@ -7,10 +7,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { AppRoutes } from "@/navigation";
 import type { Holding } from "@my-dashboard/shared";
 import { useNavigate } from "react-router";
 import { useHoldings } from "../hooks/useHoldings";
-import { AppRoutes } from "@/navigation";
 
 export default function HoldingsWidget() {
 	const navigate = useNavigate();
