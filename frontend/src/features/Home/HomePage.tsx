@@ -303,7 +303,6 @@ export default function HomePage() {
 								},
 							)}`}
 							icon={TrendingUp}
-							// compact
 						/>
 						<div className="col-span-2">
 							<PortfolioChart
@@ -318,7 +317,7 @@ export default function HomePage() {
 				<section className="space-y-2">
 					<div className="flex justify-between items-center">
 						<h2 className="text-base font-semibold sm:text-lg">
-							Spending{" "}
+							Spending
 							<span className="text-sm font-normal text-gray-600">
 								(this Month)
 							</span>

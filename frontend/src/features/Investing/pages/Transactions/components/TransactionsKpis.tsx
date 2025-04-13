@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface TransactionKPIsProps {
@@ -13,7 +14,7 @@ export default function TransactionKPIs({
 }: TransactionKPIsProps) {
 	return (
 		<div className="grid grid-cols-3 sm:gap-2 w-full">
-			<div className="bg-white/80 backdrop-blur-sm sm:rounded-lg px-3 py-2 sm:border border-gray-200 shadow-sm">
+			<Card className="sm:rounded-lg px-3 py-2 sm:border border-gray-200 shadow-sm">
 				<div className="text-xs text-gray-600 mb-1">Net Cashflow</div>
 				<div
 					className={cn(
@@ -23,12 +24,12 @@ export default function TransactionKPIs({
 				>
 					${Math.abs(netCashflow).toFixed(2)}
 				</div>
-			</div>
-			<div className="bg-white/80 backdrop-blur-sm sm:rounded-lg px-3 py-2 sm:border border-gray-200 shadow-sm">
+			</Card>
+			<Card className="sm:rounded-lg px-3 py-2 sm:border border-gray-200 shadow-sm">
 				<div className="text-xs text-gray-600 mb-1">Total Trades</div>
 				<div className="text-lg font-semibold text-gray-800">{totalTrades}</div>
-			</div>
-			<div className="bg-white/80 backdrop-blur-sm sm:rounded-lg px-3 py-2 sm:border border-gray-200 shadow-sm">
+			</Card>
+			<Card className=" sm:rounded-lg px-3 py-2 sm:border border-gray-200 shadow-sm">
 				<div className="text-xs text-gray-600 mb-1">Net Deposits</div>
 				<div
 					className={cn(
@@ -38,7 +39,7 @@ export default function TransactionKPIs({
 				>
 					${Math.abs(netCash).toFixed(2)}
 				</div>
-			</div>
+			</Card>
 		</div>
 	);
 }

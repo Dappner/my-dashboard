@@ -34,7 +34,7 @@ export default function KpiCard({
 		val !== undefined ? `${val >= 0 ? "+" : ""}${val.toFixed(2)}%` : "";
 
 	const content = (
-		<Card className="hover:shadow-md transition-shadow duration-300 border h-full">
+		<Card>
 			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 				<CardTitle className="text-xs font-medium text-muted-foreground truncate max-w-[80%]">
 					{title}
