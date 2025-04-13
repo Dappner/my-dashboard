@@ -5,8 +5,8 @@ import { useParams } from "react-router";
 import HoldingsPanel from "./components/HoldingsPanel";
 import TickerHeader from "./components/TickerHeader";
 import { useTickerData } from "./hooks/useTickerData";
-import OverviewTab from "./tabs/OverviewTab";
 import FundTab from "./tabs/FundTab";
+import OverviewTab from "./tabs/OverviewTab";
 
 export default function TickerPage() {
 	const { exchange, ticker: tickerSymbol } = useParams();

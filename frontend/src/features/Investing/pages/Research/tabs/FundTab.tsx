@@ -2,6 +2,7 @@ import SectionHeader from "@/components/customs/SectionHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { chartColors } from "@/constants";
+import { useEntityMappings } from "@/features/Investing/hooks/useEntityMappings";
 import { useFundsData } from "@/features/Investing/hooks/useFundsData";
 import { formatDate, formatLargeNumber, formatPercent } from "@/lib/formatting";
 import {
@@ -16,7 +17,6 @@ import {
 	YAxis,
 } from "recharts";
 import { useTickerData } from "../hooks/useTickerData";
-import { useEntityMappings } from "@/features/Investing/hooks/useEntityMappings";
 
 interface FundTabProps {
 	exchange: string;

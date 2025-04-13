@@ -1,7 +1,7 @@
 import { TickerSheet } from "@/features/Investing/sheets/TickerSheet";
 import { TransactionSheet } from "@/features/Investing/sheets/TransactionSheet";
-import { useSheet } from "../contexts/SheetContext";
 import type { Ticker, TradeView } from "@my-dashboard/shared";
+import { useSheet } from "../contexts/SheetContext";
 
 export const SheetContainer: React.FC = () => {
 	const { activeSheet, sheetData, closeSheet } = useSheet();

@@ -1,7 +1,7 @@
-import { useMemo } from "react";
-import { useSectors } from "./useSectors";
-import { useIndustries } from "./useIndustries";
 import type { Industry, Sector } from "@my-dashboard/shared";
+import { useMemo } from "react";
+import { useIndustries } from "./useIndustries";
+import { useSectors } from "./useSectors";
 
 export function useEntityMappings() {
 	const { sectors = [], isLoading: sectorsLoading } = useSectors();

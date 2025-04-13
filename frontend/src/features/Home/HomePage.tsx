@@ -1,136 +1,17 @@
 import KpiCard from "@/components/customs/KpiCard";
 import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 import { PageContainer } from "@/components/layout/components/PageContainer";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import useUser from "@/hooks/useUser";
-import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { CheckSquare, DollarSign, GitCommit, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import PortfolioChart from "../Investing/components/PortfolioChart";
 import { usePortfolioMetrics } from "../Investing/hooks/usePortfolioMetrics";
+import { useSpendingMetrics } from "../Spending/hooks/useSpendingMetrics";
+import { CategoryPieChart } from "../Spending/components/CategoryPieChart";
 
-const useSpendingMetrics = (userId?: string) => {
-	return useQuery<
-		{
-			totalSpent: number;
-			monthlyTrend: number;
-			receiptCount: number;
-			monthlyData: { month: string; amount: number }[];
-			categories: { name: string; amount: number; color: string }[];
-		},
-		Error
-	>({
-		queryKey: ["spendingMetrics", userId],
-		queryFn: async () => {
-			if (!userId) throw new Error("User ID is required");
-			const today = new Date();
-			const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-			const sixMonthsAgo = new Date(
-				today.getFullYear(),
-				today.getMonth() - 5,
-				1,
-			);
-
-			const { data: currentMonthData, error: currentError } = await supabase
-				.schema("grocery")
-				.from("receipts")
-				.select("total_amount, purchase_date")
-				.eq("user_id", userId)
-				.gte("purchase_date", format(startOfMonth, "yyyy-MM-dd"))
-				.lte("purchase_date", format(today, "yyyy-MM-dd"));
-
-			if (currentError) throw new Error(currentError.message);
-
-			const totalSpent = currentMonthData.reduce(
-				(sum, receipt) => sum + (receipt.total_amount || 0),
-				0,
-			);
-			const receiptCount = currentMonthData.length;
-
-			const { data: monthlyDataRaw, error: monthlyError } = await supabase
-				.schema("grocery")
-				.from("receipts")
-				.select("total_amount, purchase_date")
-				.eq("user_id", userId)
-				.gte("purchase_date", format(sixMonthsAgo, "yyyy-MM-dd"))
-				.lte("purchase_date", format(today, "yyyy-MM-dd"));
-
-			if (monthlyError) throw new Error(monthlyError.message);
-
-			const monthlyData = Array.from({ length: 6 }, (_, i) => {
-				const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-				const monthData = monthlyDataRaw.filter(
-					(item) =>
-						new Date(item.purchase_date).getMonth() === date.getMonth() &&
-						new Date(item.purchase_date).getFullYear() === date.getFullYear(),
-				);
-				return {
-					month: format(date, "MMM"),
-					amount: monthData.reduce(
-						(sum, item) => sum + (item.total_amount || 0),
-						0,
-					),
-				};
-			}).reverse();
-
-			const currentMonthTotal = monthlyData[monthlyData.length - 1].amount;
-			const previousMonthTotal =
-				monthlyData[monthlyData.length - 2]?.amount || 0;
-			const monthlyTrend =
-				previousMonthTotal > 0
-					? ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) *
-						100
-					: 0;
-
-			const { data: categoryData, error: categoryError } = await supabase
-				.schema("grocery")
-				.from("receipts_with_items")
-				.select("category_name, total_amount")
-				.eq("user_id", userId)
-				.gte("purchase_date", format(startOfMonth, "yyyy-MM-dd"))
-				.lte("purchase_date", format(today, "yyyy-MM-dd"));
-
-			if (categoryError) throw new Error(categoryError.message);
-
-			const categories = categoryData.reduce(
-				(acc, item) => {
-					const category = item.category_name || "Other";
-					const existing = acc.find((c) => c.name === category);
-					if (existing) {
-						existing.amount += item.total_amount || 0;
-					} else {
-						acc.push({
-							name: category,
-							amount: item.total_amount || 0,
-							color: getCategoryColor(category),
-						});
-					}
-					return acc;
-				},
-				[] as { name: string; amount: number; color: string }[],
-			);
-
-			return {
-				totalSpent,
-				monthlyTrend,
-				receiptCount,
-				monthlyData,
-				categories,
-			};
-		},
-		enabled: !!userId,
-	});
-};
-
-// Types
 type ChessDay = { date: string; played: boolean };
 type CommitDay = { date: string; count: number };
 type HabitsData = { chess: ChessDay[]; commits: CommitDay[] };
@@ -164,34 +45,6 @@ const useHabitsData = (userId?: string) => {
 		},
 		enabled: !!userId, // Only run query if userId exists
 	});
-};
-// Components
-const SpendingPieChart: React.FC<{
-	data: { name: string; amount: number; color: string }[];
-}> = ({ data }) => {
-	return (
-		<ResponsiveContainer width="100%" height={200}>
-			<PieChart>
-				<Pie
-					data={data}
-					cx="50%"
-					cy="50%"
-					labelLine={false}
-					outerRadius={80}
-					dataKey="amount"
-					label={({ name, percent }) =>
-						`${name}: ${(percent * 100).toFixed(0)}%`
-					}
-				>
-					{data.map((entry, index) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: This is irrelevant for the PieChart
-						<Cell key={`cell-${index}`} fill={entry.color} />
-					))}
-				</Pie>
-				<Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
-			</PieChart>
-		</ResponsiveContainer>
-	);
 };
 
 const CompactHabitsTracker: React.FC<{ habitsData: HabitsData }> = ({
@@ -261,16 +114,16 @@ export default function HomePage() {
 	const { user } = useUser();
 	const userId = user?.id;
 	const { metrics, isLoading: metricsLoading } = usePortfolioMetrics("ALL");
-	const { data: spendingMetrics, isLoading: spendingLoading } =
-		useSpendingMetrics(userId);
+
+	const queryDate = new Date();
+	const currentMonth = format(queryDate, "MMMM yyyy");
+	const { spendingMetrics, isLoading: spendingLoading } =
+		useSpendingMetrics(queryDate);
 	const { data: habitsData, isLoading: habitsLoading } = useHabitsData(userId);
 
 	const isLoading = metricsLoading || spendingLoading || habitsLoading;
 
 	if (isLoading) return <LoadingSpinner />;
-
-	const today = new Date();
-	const currentMonth = format(today, "MMMM yyyy");
 
 	return (
 		<PageContainer>
@@ -349,16 +202,10 @@ export default function HomePage() {
 							// compact
 						/>
 						<div className="col-span-2">
-							<Card>
-								<CardHeader className="p-2">
-									<CardDescription className="text-xs">
-										{currentMonth}
-									</CardDescription>
-								</CardHeader>
-								<CardContent className="p-2 pt-0">
-									<SpendingPieChart data={spendingMetrics?.categories || []} />
-								</CardContent>
-							</Card>
+							<CategoryPieChart
+								categories={spendingMetrics.categories}
+								month={currentMonth}
+							/>
 						</div>
 					</div>
 				</section>
@@ -384,14 +231,3 @@ export default function HomePage() {
 }
 
 // Helper function for category colors
-function getCategoryColor(category: string): string {
-	const colors: Record<string, string> = {
-		Groceries: "#36A2EB",
-		Dining: "#FF6384",
-		Utilities: "#FFCE56",
-		Entertainment: "#4BC0C0",
-		Transportation: "#9966FF",
-		Other: "#FF9F40",
-	};
-	return colors[category] || "#FF9F40";
-}

@@ -1,12 +1,12 @@
 import { supabase } from "@/lib/supabase";
 import type { Receipt } from "./receiptsApi";
 
-interface MonthlyData {
+export interface MonthlyData {
 	month: string;
 	amount: number;
 }
 
-interface CategoryData {
+export interface CategoryData {
 	name: string;
 	amount: number;
 }
