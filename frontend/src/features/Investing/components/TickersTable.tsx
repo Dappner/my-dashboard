@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -7,10 +9,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "react-router-dom";
 import type { Ticker } from "@my-dashboard/shared";
-import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 interface TickersTableProps {
 	tickers: Ticker[];

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { queryKeys, type Sector } from "@my-dashboard/shared";
+import { type Sector, queryKeys } from "@my-dashboard/shared";
 import { useQuery } from "@tanstack/react-query";
 
 interface SectorsQueryOptions {

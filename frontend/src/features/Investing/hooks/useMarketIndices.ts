@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
 import { type MarketIndex, queryKeys } from "@my-dashboard/shared";
+import { useQuery } from "@tanstack/react-query";
 
 interface UseMarketIndexOptions {
 	staleTime?: number;

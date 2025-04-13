@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { queryKeys, type Ticker } from "@my-dashboard/shared";
+import { type Ticker, queryKeys } from "@my-dashboard/shared";
 import { useQuery } from "@tanstack/react-query";
 
 interface UseTickersByIndustryOptions {

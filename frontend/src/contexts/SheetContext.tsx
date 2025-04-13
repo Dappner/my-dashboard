@@ -1,8 +1,8 @@
 import type { Ticker, TradeView } from "@my-dashboard/shared";
 import type React from "react";
 import {
-	createContext,
 	type ReactNode,
+	createContext,
 	useCallback,
 	useContext,
 	useMemo,

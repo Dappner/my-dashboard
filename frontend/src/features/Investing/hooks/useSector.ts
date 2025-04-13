@@ -1,8 +1,8 @@
 import { api } from "@/lib/api";
 import {
-	queryKeys,
 	type Sector,
 	type SectorWithIndustries,
+	queryKeys,
 } from "@my-dashboard/shared";
 import { useQuery } from "@tanstack/react-query";
 

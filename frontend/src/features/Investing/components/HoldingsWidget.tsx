@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import {
 	Table,
 	TableBody,
@@ -9,7 +10,6 @@ import {
 import type { Holding } from "@my-dashboard/shared";
 import { useNavigate } from "react-router";
 import { useHoldings } from "../hooks/useHoldings";
-import { Card } from "@/components/ui/card";
 
 export default function HoldingsWidget() {
 	const navigate = useNavigate();

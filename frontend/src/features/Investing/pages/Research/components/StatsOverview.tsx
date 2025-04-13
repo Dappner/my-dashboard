@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
 import { BarChart3, DollarSign, PieChart, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function StatsOverview() {
 	const stats = [

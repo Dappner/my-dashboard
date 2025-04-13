@@ -1,11 +1,11 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useSectors } from "@/features/Investing/hooks/useSectors";
+import { AlertCircle, ArrowDown, ArrowUp } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, ArrowDown, ArrowUp } from "lucide-react";
-import { useSectors } from "@/features/Investing/hooks/useSectors";
 
 // Types for sorting
 type SortKey = "name" | "market_weight";

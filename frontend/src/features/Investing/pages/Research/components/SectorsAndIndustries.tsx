@@ -1,14 +1,14 @@
-import { useMemo } from "react";
-import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Building2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useSectorsWithIndustries } from "@/features/Investing/hooks/useSectorsWithIndustries";
 import { formatCurrency } from "@/lib/formatting";
 import type { SectorWithIndustries } from "@my-dashboard/shared";
+import { AlertCircle, Building2 } from "lucide-react";
+import { useMemo } from "react";
+import { Link } from "react-router-dom";
 
 export function SectorsAndIndustries() {
 	const {

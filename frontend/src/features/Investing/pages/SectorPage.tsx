@@ -1,17 +1,17 @@
+import TimeframeControls from "@/components/controls/TimeFrameControls";
+import { PageContainer } from "@/components/layout/components/PageContainer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Timeframe } from "@my-dashboard/shared";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { PageContainer } from "@/components/layout/components/PageContainer";
+import { TickersTable } from "../components/TickersTable";
 import { useHistoricalPrices } from "../hooks/useHistoricalPrices";
 import { useIndustries } from "../hooks/useIndustries";
+import { useSectorIndex } from "../hooks/useMarketIndices";
 import { useSector } from "../hooks/useSector";
 import { useTickersBySector } from "../hooks/useTickersBySector";
-import { useSectorIndex } from "../hooks/useMarketIndices";
-import TimeframeControls from "@/components/controls/TimeFrameControls";
-import type { Timeframe } from "@my-dashboard/shared";
-import { TickersTable } from "../components/TickersTable";
 import { PerformanceChart } from "./Research/components/PerformanceChart";
 
 export default function SectorPage() {
