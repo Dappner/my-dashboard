@@ -1,368 +1,424 @@
-import type { ReceiptWithItems } from "@/api/receiptsApi";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
-import { ArrowLeftIcon, CalendarIcon, TagIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+	CalendarIcon,
+	EditIcon,
+	EyeIcon,
+	PencilIcon,
+	PieChartIcon,
+	ShoppingBagIcon,
+	TrashIcon,
+} from "lucide-react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCategoryIcon } from "../../components/ReceiptCard";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { toast } from "sonner";
+import { useReceipt } from "./useReceipt";
+import { CategoryDropdown } from "./components/CategoryDropdown";
 
 export default function ReceiptDetailPage() {
 	const { receiptId } = useParams<{ receiptId: string }>();
 	const { user } = useAuthContext();
 	const navigate = useNavigate();
-	const [receipt, setReceipt] = useState<ReceiptWithItems | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [isImageOpen, setIsImageOpen] = useState(false);
+	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-	useEffect(() => {
-		const fetchReceipt = async () => {
-			if (!user?.id || !receiptId) {
-				setError("Missing user ID or receipt ID");
-				setIsLoading(false);
-				return;
+	const {
+		receipt,
+		isLoading,
+		error,
+		deleteReceipt,
+		updateReceipt,
+		updateItemCategory,
+	} = useReceipt(receiptId, user?.id);
+
+	const handleEditReceipt = () => {
+		if (receiptId) navigate(`/receipts/${receiptId}/edit`);
+	};
+
+	const handleCategoryChange = async (
+		itemId: string,
+		categoryId: string | null,
+	) => {
+		const result = await updateItemCategory(itemId, categoryId);
+		if (result) {
+			toast.success("Successfully changed the Category!");
+		}
+	};
+
+	const handleDelete = async () => {
+		try {
+			const result = await deleteReceipt();
+			if (result.success) {
+				toast.success("Receipt deleted successfully");
+				navigate("/receipts");
+			} else {
+				toast.error(`Failed to delete receipt: ${result.error}`);
 			}
+		} catch (err) {
+			toast.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+		} finally {
+			setIsDeleteDialogOpen(false);
+		}
+	};
 
-			try {
-				// Fetch the receipt from Supabase
-				const { data, error: receiptError } = await supabase
-					.schema("grocery")
-					.from("receipts_with_items")
-					.select("*")
-					.eq("receipt_id", receiptId)
-					.eq("user_id", user.id);
+	const handleDateChange = async (date: Date | undefined) => {
+		if (!date || !receipt) return;
 
-				if (receiptError) throw receiptError;
-				if (!data || data.length === 0) {
-					setError("Receipt not found");
-					setIsLoading(false);
-					return;
-				}
+		try {
+			await updateReceipt({
+				...receipt,
+				purchase_date: date,
+			});
+			toast.success("Receipt date updated");
+		} catch (err) {
+			toast.error(
+				`Failed to update date: ${
+					err instanceof Error ? err.message : String(err)
+				}`,
+			);
+		}
+	};
 
-				// Process the data similar to the receiptsApi
-				const receiptData = data[0];
-				let signedImageUrl: string | null = null;
-
-				if (receiptData.receipt_image_path) {
-					const { data: signedUrlData, error: signedUrlError } =
-						await supabase.storage
-							.from("receipts")
-							.createSignedUrl(receiptData.receipt_image_path, 3600);
-
-					if (!signedUrlError) {
-						signedImageUrl = signedUrlData.signedUrl;
-					}
-				}
-
-				// Create the receipt object with all items
-				const receiptWithItems: ReceiptWithItems = {
-					receipt_id: receiptData.receipt_id || "",
-					store_name: receiptData.store_name || "",
-					purchase_date: receiptData.purchase_date
-						? new Date(receiptData.purchase_date)
-						: new Date(),
-					total_amount: receiptData.total_amount || 0,
-					total_discount: receiptData.total_discount || 0,
-					currency_code: receiptData.currency_code || "USD",
-					receipt_image_path: receiptData.receipt_image_path || null,
-					imageUrl: signedImageUrl,
-					items: [],
-				};
-
-				// Add all items from the data
-				for (const row of data) {
-					if (row.item_id) {
-						receiptWithItems.items.push({
-							item_id: row.item_id,
-							item_name: row.item_name || "Unknown Item",
-							readable_name: row.readable_name || "Unknown Item",
-							quantity: row.quantity || 1,
-							unit_price: row.unit_price || 0,
-							original_unit_price: row.original_unit_price || 0,
-							discount_amount: row.discount_amount || 0,
-							is_discounted: row.is_discounted || false,
-							total_price: row.total_price || null,
-							category_name: row.category_name || null,
-						});
-					}
-				}
-
-				setReceipt(receiptWithItems);
-				setIsLoading(false);
-			} catch (err) {
-				console.error("Error fetching receipt:", err);
-				setError("Failed to load receipt details");
-				setIsLoading(false);
-			}
-		};
-
-		fetchReceipt();
-	}, [receiptId, user?.id]);
-
-	const handleGoBack = () => {
-		navigate(-1);
+	const handleAddEditTip = () => {
+		toast.info("Add/Edit Tip functionality will be implemented soon");
 	};
 
 	if (isLoading) {
-		return <ReceiptDetailSkeleton />;
+		return (
+			<div className="flex items-center justify-center min-h-[50vh]">
+				<LoadingSpinner />
+			</div>
+		);
 	}
 
 	if (error || !receipt) {
 		return (
-			<div className="container mx-auto p-6">
-				<div className="flex items-center mb-6">
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={handleGoBack}
-						className="mr-2"
-					>
-						<ArrowLeftIcon className="h-4 w-4 mr-2" />
-						Back
-					</Button>
-				</div>
-				<div className="bg-red-50 text-red-800 p-4 rounded-lg">
-					<p className="font-medium">Error</p>
-					<p>{error || "Failed to load receipt"}</p>
-					<Button variant="outline" className="mt-4" onClick={handleGoBack}>
-						Return to Receipts
-					</Button>
+			<div className="container mx-auto p-4 max-w-4xl">
+				<div className="p-8 text-center">
+					<h2 className="text-xl font-semibold mb-2">
+						{error ? "Error Loading Receipt" : "Receipt Not Found"}
+					</h2>
+					<p className="text-muted-foreground">
+						{error
+							? `Error: ${
+									error instanceof Error ? error.message : String(error)
+								}`
+							: "The receipt you're looking for doesn't exist or has been deleted."}
+					</p>
 				</div>
 			</div>
 		);
 	}
 
-	const totalSavings =
-		receipt.total_discount ||
-		receipt.items.reduce((sum, item) => sum + (item.discount_amount || 0), 0);
-	const formattedDate = format(new Date(receipt.purchase_date), "PPP");
-	const categories = [
-		...new Set(receipt.items.map((item) => item.category_name)),
-	].filter(Boolean);
+	const totalSavings = receipt.items.reduce(
+		(sum, item) => sum + (item.discount_amount || 0),
+		0,
+	);
+
+	const formattedDate = format(receipt.purchase_date, "PPP");
+
+	const itemCategories = [
+		...new Set(
+			receipt.items
+				.map((item) => item.category_name || "Uncategorized")
+				.filter(Boolean),
+		),
+	];
+
+	const pieChartData = itemCategories.map((category) => ({
+		name: category,
+		value: receipt.items
+			.filter((item) => (item.category_name || "Uncategorized") === category)
+			.reduce((sum, item) => sum + (item.total_price || item.unit_price), 0),
+	}));
+
+	const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 	return (
-		<div className="container mx-auto p-4 md:p-6 space-y-6 max-w-3xl">
-			{/* Header with back button */}
-			<div className="flex items-center mb-4">
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={handleGoBack}
-					className="mr-2"
-				>
-					<ArrowLeftIcon className="h-4 w-4 mr-2" />
-					Back
-				</Button>
-				<h1 className="text-2xl font-bold">Receipt Details</h1>
-			</div>
+		<div className="p-4 flex flex-col h-[calc(100dvh-56px)]">
+			{/* Header Section */}
+			<header className="mb-3">
+				<div className="flex items-center justify-between">
+					<h1 className="text-lg font-semibold truncate max-w-[50%]">
+						{receipt.store_name || "Receipt Details"}
+					</h1>
+					<div className="flex items-center gap-2">
+						<Popover>
+							<PopoverTrigger asChild>
+								<Button variant="outline" size="sm" className="h-8 text-xs">
+									<CalendarIcon className="h-3.5 w-3.5 mr-1" />
+									{formattedDate}
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className="w-auto p-0" align="end">
+								<Calendar
+									mode="single"
+									selected={receipt.purchase_date}
+									onSelect={handleDateChange}
+									initialFocus
+								/>
+							</PopoverContent>
+						</Popover>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={handleEditReceipt}
+							className="h-8 px-2"
+						>
+							<EditIcon className="h-3.5 w-3.5" />
+						</Button>
+						<Button
+							variant="destructive"
+							size="sm"
+							onClick={() => setIsDeleteDialogOpen(true)}
+							className="h-8 px-2"
+						>
+							<TrashIcon className="h-3.5 w-3.5" />
+						</Button>
+					</div>
+				</div>
+			</header>
 
-			{/* Store and Date Info */}
-			<Card className="p-6">
-				<div className="flex items-start md:items-center gap-4 flex-col md:flex-row">
+			{/* Main Content */}
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 min-h-0">
+				{/* Left Column - Image */}
+				<div className="flex flex-col gap-4 ">
 					<Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
 						<DialogTrigger asChild>
-							<Avatar className="h-16 w-16 cursor-pointer">
-								<AvatarImage
-									src={receipt.imageUrl || ""}
-									alt={receipt.store_name || undefined}
-								/>
-								<AvatarFallback className="bg-blue-500 text-white text-xl">
-									{receipt.store_name?.substring(0, 2) || "??"}
-								</AvatarFallback>
-							</Avatar>
+							<div className="relative aspect-video">
+								{receipt.imageUrl ? (
+									<img
+										src={receipt.imageUrl}
+										alt={`Receipt from ${receipt.store_name || "store"}`}
+										className="w-full h-full object-contain rounded-lg"
+									/>
+								) : (
+									<div className="w-full h-full bg-muted flex items-center justify-center">
+										<ShoppingBagIcon className="h-12 w-12 text-muted-foreground/50" />
+									</div>
+								)}
+								<div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all flex items-center justify-center">
+									<EyeIcon className="h-6 w-6 text-white opacity-0 hover:opacity-100" />
+								</div>
+							</div>
 						</DialogTrigger>
-						<DialogContent className="max-w-[90vw] sm:max-w-xl">
-							<img
-								src={receipt.imageUrl || ""}
-								alt={`Receipt from ${receipt.store_name}`}
-								className="w-full rounded-lg"
-							/>
+						<DialogContent className="max-w-[90vw] max-h-[90vh] p-0">
+							{receipt.imageUrl ? (
+								<img
+									src={receipt.imageUrl}
+									alt={`Receipt from ${receipt.store_name || "store"}`}
+									className="w-full h-full object-cover"
+								/>
+							) : (
+								<div className="w-full h-full flex items-center justify-center bg-black/80">
+									<ShoppingBagIcon className="h-24 w-24 text-white/30" />
+								</div>
+							)}
 						</DialogContent>
 					</Dialog>
+				</div>
 
-					<div className="flex-1">
-						<h2 className="text-2xl font-bold text-gray-800">
-							{receipt.store_name || "Unknown Store"}
-						</h2>
-						<div className="text-gray-600 flex items-center gap-1 mt-1">
-							<CalendarIcon className="h-4 w-4" />
-							{formattedDate}
-						</div>
-					</div>
-
-					<div className="text-right mt-4 md:mt-0">
-						<div className="text-sm text-gray-600 mb-1">
-							{receipt.items.length}{" "}
-							{receipt.items.length === 1 ? "item" : "items"}
-						</div>
-						<div className="text-2xl font-bold">
-							{receipt.currency_code}
-							{receipt.total_amount.toFixed(2)}
-						</div>
-						{totalSavings > 0 && (
-							<div className="text-green-600 text-sm flex items-center justify-end gap-1 mt-1">
-								<TagIcon className="h-4 w-4" />
-								Saved {receipt.currency_code}
-								{totalSavings.toFixed(2)}
+				{/* Right Column - Items List */}
+				<div className="grid col-span-2 grid-cols-1 md:grid-cols-2 gap-4">
+					<Card>
+						<CardHeader className="py-2 px-4">
+							<div className="flex justify-between items-center">
+								<CardTitle className="text-sm">Receipt Summary</CardTitle>
+								<span className="text-base font-bold">
+									{receipt.currency_code}
+									{receipt.total_amount.toFixed(2)}
+								</span>
 							</div>
-						)}
-					</div>
-				</div>
-			</Card>
-
-			{/* Categories */}
-			{categories.length > 0 && (
-				<div className="flex flex-wrap gap-2 my-4">
-					{categories.map(
-						(category) =>
-							category && (
-								<div
-									key={category}
-									className="bg-gray-100 rounded-full px-3 py-1 text-sm flex items-center gap-1"
-								>
-									{getCategoryIcon(category)}
-									{category}
-								</div>
-							),
-					)}
-				</div>
-			)}
-
-			{/* Items */}
-			<Card className="p-6">
-				<h3 className="text-lg font-semibold mb-4">Items</h3>
-				<div className="space-y-4">
-					{receipt.items.map((item) => (
-						<div
-							key={item.item_id}
-							className="pb-3 border-b border-gray-100 last:border-b-0 last:pb-0"
-						>
-							<div className="flex justify-between">
-								<div className="flex-1">
-									<p className="font-medium">{item.readable_name}</p>
-									{item.quantity > 1 && (
-										<p className="text-sm text-gray-500">
-											Quantity: {item.quantity}
-										</p>
-									)}
-								</div>
-								<div className="text-right ml-4">
-									<p className="font-medium">
+						</CardHeader>
+						<CardContent className="p-4 pt-0">
+							<div className="space-y-1.5 text-sm">
+								<div className="flex justify-between">
+									<span className="text-muted-foreground">Subtotal</span>
+									<span>
 										{receipt.currency_code}
-										{item.unit_price.toFixed(2)}
-									</p>
-									{item.is_discounted && (
-										<p className="text-sm text-green-600">
-											Save {receipt.currency_code}
-											{item.discount_amount.toFixed(2)}
-										</p>
-									)}
+										{(receipt.total_amount + totalSavings).toFixed(2)}
+									</span>
 								</div>
+								{totalSavings > 0 && (
+									<div className="flex justify-between text-green-600">
+										<span>Discount</span>
+										<span>
+											-{receipt.currency_code}
+											{totalSavings.toFixed(2)}
+										</span>
+									</div>
+								)}
+								{receipt.tax_amount && receipt.tax_amount > 0 && (
+									<div className="flex justify-between">
+										<span className="text-muted-foreground">Tax</span>
+										<span>
+											{receipt.currency_code}
+											{receipt.tax_amount.toFixed(2)}
+										</span>
+									</div>
+								)}
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={handleAddEditTip}
+									className="w-full h-7 text-xs mt-3"
+								>
+									<PencilIcon className="h-3 w-3 mr-1" />
+									Add/Edit Tip
+								</Button>
 							</div>
-						</div>
-					))}
-				</div>
-			</Card>
+						</CardContent>
+					</Card>
 
-			{/* Summary */}
-			<Card className="p-6">
-				<h3 className="text-lg font-semibold mb-4">Summary</h3>
-				<div className="space-y-2">
-					<div className="flex justify-between text-gray-600">
-						<span>Subtotal</span>
-						<span>
-							{receipt.currency_code}
-							{(receipt.total_amount + totalSavings).toFixed(2)}
-						</span>
-					</div>
-
-					{totalSavings > 0 && (
-						<div className="flex justify-between text-green-600">
-							<span>Discount</span>
-							<span>
-								-{receipt.currency_code}
-								{totalSavings.toFixed(2)}
-							</span>
-						</div>
+					{/* Category Pie Chart */}
+					{pieChartData.length > 0 && (
+						<Card>
+							<CardHeader className="py-2 px-4">
+								<CardTitle className="text-sm flex items-center">
+									<PieChartIcon className="h-3.5 w-3.5 mr-1" />
+									Category Breakdown
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="p-2">
+								<div className="h-36">
+									<ResponsiveContainer width="100%" height="100%">
+										<PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+											<Pie
+												data={pieChartData}
+												cx="50%"
+												cy="50%"
+												outerRadius={55}
+												fill="#8884d8"
+												dataKey="value"
+												label={({ name, percent }) =>
+													`${name}: ${(percent * 100).toFixed(0)}%`
+												}
+												labelLine={false}
+											>
+												{pieChartData.map((item, index) => (
+													<Cell
+														key={item.name}
+														fill={COLORS[index % COLORS.length]}
+													/>
+												))}
+											</Pie>
+											<Tooltip
+												formatter={(value: number) =>
+													`${receipt.currency_code}${value.toFixed(2)}`
+												}
+											/>
+										</PieChart>
+									</ResponsiveContainer>
+								</div>
+							</CardContent>
+						</Card>
 					)}
 
-					<div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200 mt-2">
-						<span>Total</span>
-						<span>
-							{receipt.currency_code}
-							{receipt.total_amount.toFixed(2)}
-						</span>
-					</div>
+					<Card className="h-full md:col-span-2">
+						<CardHeader className="pb-3 px-4 border-b">
+							<CardTitle className="text-sm">
+								Items ({receipt.items.length})
+							</CardTitle>
+						</CardHeader>
+						<ScrollArea className="flex-1 overflow-y-scroll">
+							{receipt.items.length > 0 ? (
+								<div className="divide-y">
+									{receipt.items.map((item) => (
+										<div
+											key={item.item_id}
+											className="py-2 px-4 hover:bg-muted/30 transition-colors"
+										>
+											<div className="flex items-start justify-between gap-3">
+												<div className="flex-1">
+													<p className="font-medium text-sm leading-tight">
+														{item.readable_name || item.item_name}
+													</p>
+													<div className="flex flex-wrap gap-2 items-center mt-1">
+														{item.quantity > 1 && (
+															<span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+																{item.quantity} × {receipt.currency_code}
+																{item.unit_price.toFixed(2)}
+															</span>
+														)}
+														<CategoryDropdown
+															currentCategoryId={item.category_id}
+															itemId={item.item_id}
+															onCategoryChange={handleCategoryChange}
+														/>
+													</div>
+												</div>
+												<div className="text-right min-w-20">
+													<p className="font-medium text-sm">
+														{receipt.currency_code}
+														{(item.total_price || item.unit_price).toFixed(2)}
+													</p>
+													{item.discount_amount > 0 && (
+														<p className="text-xs text-green-600 mt-0.5">
+															Saved {receipt.currency_code}
+															{item.discount_amount.toFixed(2)}
+														</p>
+													)}
+												</div>
+											</div>
+										</div>
+									))}
+								</div>
+							) : (
+								<div className="p-6 text-center text-muted-foreground">
+									<ShoppingBagIcon className="h-8 w-8 mx-auto mb-2 opacity-30" />
+									<p>No items found</p>
+								</div>
+							)}
+						</ScrollArea>
+					</Card>
 				</div>
-			</Card>
+			</div>
+			{/* Delete Confirmation */}
+			<AlertDialog
+				open={isDeleteDialogOpen}
+				onOpenChange={setIsDeleteDialogOpen}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Delete Receipt?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This will permanently delete the receipt and its{" "}
+							{receipt.items.length} items.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleDelete}
+							className="bg-destructive hover:bg-destructive/90"
+						>
+							Delete
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }
-
-const ReceiptDetailSkeleton = () => {
-	return (
-		<div className="container mx-auto p-4 md:p-6 space-y-6 max-w-3xl">
-			<div className="flex items-center mb-4">
-				<Skeleton className="h-8 w-20 mr-2" />
-				<Skeleton className="h-8 w-40" />
-			</div>
-
-			<Card className="p-6">
-				<div className="flex items-start md:items-center gap-4 flex-col md:flex-row">
-					<Skeleton className="h-16 w-16 rounded-full" />
-					<div className="flex-1">
-						<Skeleton className="h-8 w-48 mb-2" />
-						<Skeleton className="h-4 w-32" />
-					</div>
-					<div className="text-right mt-4 md:mt-0">
-						<Skeleton className="h-4 w-24 mb-2 ml-auto" />
-						<Skeleton className="h-8 w-32 ml-auto" />
-					</div>
-				</div>
-			</Card>
-
-			<Card className="p-6">
-				<Skeleton className="h-6 w-24 mb-4" />
-				<div className="space-y-4">
-					{[1, 2, 3, 4].map((i) => (
-						<div
-							key={i}
-							className="pb-3 border-b border-gray-100 last:border-b-0 last:pb-0"
-						>
-							<div className="flex justify-between">
-								<Skeleton className="h-5 w-48" />
-								<Skeleton className="h-5 w-16" />
-							</div>
-						</div>
-					))}
-				</div>
-			</Card>
-
-			<Card className="p-6">
-				<Skeleton className="h-6 w-24 mb-4" />
-				<div className="space-y-3">
-					<div className="flex justify-between">
-						<Skeleton className="h-5 w-20" />
-						<Skeleton className="h-5 w-20" />
-					</div>
-					<div className="flex justify-between">
-						<Skeleton className="h-5 w-20" />
-						<Skeleton className="h-5 w-20" />
-					</div>
-					<div className="pt-2 border-t border-gray-200 mt-2">
-						<div className="flex justify-between">
-							<Skeleton className="h-6 w-16" />
-							<Skeleton className="h-6 w-24" />
-						</div>
-					</div>
-				</div>
-			</Card>
-		</div>
-	);
-};

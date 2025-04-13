@@ -10,7 +10,7 @@ node_modules
 
 # pnpm
 */pnpm-lock.yaml
-./pnpm-lock.yaml
+.idea/*
 .pnpm
 
 #  Typescript compiled js files
