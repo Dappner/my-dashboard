@@ -7,12 +7,12 @@ import { formatCurrency } from "@/lib/formatting";
 import type { Timeframe } from "@my-dashboard/shared";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { TickersTable } from "../components/TickersTable";
 import { useHistoricalPrices } from "../hooks/useHistoricalPrices";
 import { useIndustry } from "../hooks/useIndustry";
 import { useIndustryIndex, useSectorIndex } from "../hooks/useMarketIndices";
 import { useTickersByIndustry } from "../hooks/useTickersByIndustry";
 import { PerformanceChart } from "./Research/components/PerformanceChart";
+import { TickerTable } from "../components/TickerTable";
 
 export default function IndustryPage() {
 	const { industrySlug } = useParams<{ industrySlug: string }>();
@@ -53,11 +53,9 @@ export default function IndustryPage() {
 	});
 
 	// Fetch tickers
-	const {
-		tickers,
-		isLoading: isLoadingTickers,
-		isError: isErrorTickers,
-	} = useTickersByIndustry(industrySlug || "");
+	const { tickers, isLoading: isLoadingTickers } = useTickersByIndustry(
+		industrySlug || "",
+	);
 
 	// Format industry name
 	const industryName =
@@ -161,11 +159,7 @@ export default function IndustryPage() {
 				<h2 className="text-xl font-semibold mb-4">
 					Tracked Tickers ({tickers.length})
 				</h2>
-				<TickersTable
-					tickers={tickers}
-					isLoading={isLoadingTickers}
-					isError={isErrorTickers}
-				/>
+				<TickerTable tickers={tickers} isLoading={isLoadingTickers} />
 			</section>
 		</PageContainer>
 	);

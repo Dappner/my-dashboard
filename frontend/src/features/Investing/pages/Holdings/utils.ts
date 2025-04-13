@@ -1,8 +1,7 @@
 import type { PieChartDataItem } from "@/components/charts/CustomPieChart";
 import { chartColors } from "@/constants";
-import { formatIndustryName, formatSectorName } from "@/lib/formatting";
-import type { Holding, HoldingAllocation } from "@/types/holdingsTypes";
 import type { PieData } from "./components/DividendPieChart";
+import type { Holding, HoldingAllocation } from "@my-dashboard/shared";
 
 export interface DividendMonthData {
 	name: string;

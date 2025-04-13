@@ -20,7 +20,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { TickerSelect } from "../../forms/FormControls";
-import TickerTable from "./components/TickerTable";
+import useUntradeableTickers from "../../hooks/useUntradeableTickers";
+import { TickerTable } from "../../components/TickerTable";
 
 const trackingFormSchema = z.object({
 	ticker_id: z.string().min(1, "Please select a ticker"),
@@ -32,6 +33,7 @@ export default function ManageInvestingPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const { tickers, isLoading } = useTickers();
 
+	const { data: untradeableTickers } = useUntradeableTickers();
 	const { openAddTicker } = useTickerSheet();
 
 	const { user, updateUser } = useUser();
@@ -60,8 +62,7 @@ export default function ManageInvestingPage() {
 		(ticker) =>
 			ticker.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			ticker.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			ticker.exchange?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			ticker.sector?.toLowerCase().includes(searchQuery.toLowerCase()),
+			ticker.exchange?.toLowerCase().includes(searchQuery.toLowerCase()),
 	);
 
 	return (
@@ -73,6 +74,10 @@ export default function ManageInvestingPage() {
 					</TabsTrigger>
 					<TabsTrigger value="tracking" className="cursor-pointer">
 						Tracking
+					</TabsTrigger>
+
+					<TabsTrigger value="indices" className="cursor-pointer">
+						Indices
 					</TabsTrigger>
 				</TabsList>
 				<TabsContent value="tickers">
@@ -106,7 +111,7 @@ export default function ManageInvestingPage() {
 						</div>
 					) : filteredTickers && filteredTickers.length > 0 ? (
 						<div className="rounded-md border">
-							<TickerTable filteredTickers={filteredTickers} />
+							<TickerTable tickers={filteredTickers || []} />
 						</div>
 					) : (
 						<div className="py-8 text-center">
@@ -157,7 +162,7 @@ export default function ManageInvestingPage() {
 														field.onChange(value);
 														void form.handleSubmit(onTrackingSubmit)();
 													}}
-												/>{" "}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -172,6 +177,10 @@ export default function ManageInvestingPage() {
 							</form>
 						</Form>
 					</div>
+				</TabsContent>
+
+				<TabsContent value="indices">
+					<TickerTable tickers={untradeableTickers || []} />
 				</TabsContent>
 			</Tabs>
 		</PageContainer>

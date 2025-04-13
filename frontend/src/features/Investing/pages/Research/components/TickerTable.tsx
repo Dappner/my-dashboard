@@ -6,7 +6,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { formatIndustryName, formatSectorName } from "@/lib/formatting";
 import type { TickerDaily } from "@my-dashboard/shared";
 import { useNavigate } from "react-router";
 import { TableLoading } from "./TableLoading";
@@ -51,8 +50,8 @@ export default function TickerTable({
 								<TableCell>{ticker.name || "-"}</TableCell>
 								<TableCell>${ticker.regular_market_price || "-"}</TableCell>
 								<TableCell>${ticker.trailing_pe || "-"}</TableCell>
-								<TableCell>{formatSectorName(ticker.sector)}</TableCell>
-								<TableCell>{formatIndustryName(ticker.industry)}</TableCell>
+								<TableCell>{ticker.sector}</TableCell>
+								<TableCell>{ticker.industry}</TableCell>
 							</TableRow>
 						))}
 					</TableBody>

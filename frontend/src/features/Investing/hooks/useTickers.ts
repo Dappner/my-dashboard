@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { type Ticker, queryKeys } from "@my-dashboard/shared";
+import { queryKeys, type Ticker } from "@my-dashboard/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -28,13 +28,13 @@ export const useTickers = (options: UseTickersOptions = {}) => {
 	} = options;
 
 	const {
-		data: tickers = [], // Default to empty array if no data
+		data: tickers = [],
 		isLoading,
 		isError,
 		refetch,
 	} = useQuery<Ticker[]>({
-		queryKey: queryKeys.tickers.all,
-		queryFn: () => api.tickers.getTickers(),
+		queryKey: queryKeys.tickers.list({ tradeable: true }),
+		queryFn: () => api.tickers.getTickers({ tradeable: true }),
 		staleTime: queryOptions.staleTime,
 		retry: queryOptions.retry,
 		enabled: queryOptions.enabled ?? true,
@@ -43,7 +43,7 @@ export const useTickers = (options: UseTickersOptions = {}) => {
 	const addTickerMutation = useMutation({
 		mutationFn: api.tickers.addTicker,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.tickers.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.tickers.lists() });
 			toast.success("Ticker added successfully");
 			onAddSuccess?.();
 		},
@@ -56,7 +56,7 @@ export const useTickers = (options: UseTickersOptions = {}) => {
 	const updateTickerMutation = useMutation({
 		mutationFn: api.tickers.updateTicker,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.tickers.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.tickers.lists() });
 			toast.success("Ticker updated successfully");
 			onUpdateSuccess?.();
 		},
@@ -69,7 +69,7 @@ export const useTickers = (options: UseTickersOptions = {}) => {
 	const deleteTickerMutation = useMutation({
 		mutationFn: api.tickers.deleteTicker,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.tickers.all });
+			queryClient.invalidateQueries({ queryKey: queryKeys.tickers.lists() });
 			toast.success("Ticker deleted successfully");
 			onDeleteSuccess?.();
 		},

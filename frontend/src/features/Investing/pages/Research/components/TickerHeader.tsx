@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-	formatCategoryName,
-	formatIndustryName,
-	formatSectorName,
-} from "@/lib/formatting";
+import { IndustryDisplay } from "@/features/Investing/components/IndustryDisplay";
+import { SectorDisplay } from "@/features/Investing/components/SectorDisplay";
+import { formatCategoryName } from "@/lib/formatting";
 import { supabase } from "@/lib/supabase";
 import type { HistoricalPrice, Ticker } from "@my-dashboard/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -99,14 +97,14 @@ export default function TickerHeader({ ticker, isLoading }: TickerHeaderProps) {
 											aria-hidden="true"
 											className="mr-1.5 size-5 shrink-0 text-gray-400"
 										/>
-										{formatSectorName(ticker?.sector, "N/A")}
+										<SectorDisplay sectorId={ticker.sector_id || ""} />
 									</div>
 									<div className="mt-2 flex items-center text-sm text-gray-500">
 										<MapPinIcon
 											aria-hidden="true"
 											className="mr-1.5 size-5 shrink-0 text-gray-400"
 										/>
-										{formatIndustryName(ticker?.industry)}
+										<IndustryDisplay industryId={ticker.industry_id || ""} />
 									</div>
 								</>
 							)}

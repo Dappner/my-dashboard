@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { type Ticker, queryKeys } from "@my-dashboard/shared";
+import { queryKeys, type Ticker } from "@my-dashboard/shared";
 import { useQuery } from "@tanstack/react-query";
 
 interface TickerQueryOptions {
@@ -24,8 +24,12 @@ export const useTicker = (options: UseTickerOptions) => {
 		isError,
 		refetch,
 	} = useQuery<Ticker | null>({
-		queryKey: queryKeys.tickers.ticker(exchange, tickerSymbol),
-		queryFn: () => api.tickers.getTicker(exchange, tickerSymbol),
+		queryKey: queryKeys.tickers.detail({
+			symbol: tickerSymbol,
+			exchange: exchange,
+		}),
+		queryFn: () =>
+			api.tickers.getTickerBySymbolAndExchange(tickerSymbol, exchange),
 		staleTime,
 		retry,
 		enabled: enabled ?? true,

@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Timeframe } from "@my-dashboard/shared";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { TickersTable } from "../components/TickersTable";
+import { TickerTable } from "../components/TickerTable";
 import { useHistoricalPrices } from "../hooks/useHistoricalPrices";
 import { useIndustries } from "../hooks/useIndustries";
 import { useSectorIndex } from "../hooks/useMarketIndices";
@@ -56,11 +56,9 @@ export default function SectorPage() {
 	} = useIndustries({ sectorKey: sectorSlug });
 
 	// Fetch tickers
-	const {
-		tickers,
-		isLoading: isLoadingTickers,
-		isError: isErrorTickers,
-	} = useTickersBySector(sectorSlug || "");
+	const { tickers, isLoading: isLoadingTickers } = useTickersBySector(
+		sectorSlug || "",
+	);
 
 	// Loading state
 	if (isLoadingSector) {
@@ -188,10 +186,9 @@ export default function SectorPage() {
 				<h2 className="text-xl font-semibold mb-4">
 					Top Tickers ({tickers.length})
 				</h2>
-				<TickersTable
+				<TickerTable
 					tickers={tickers.slice(0, 4)}
 					isLoading={isLoadingTickers}
-					isError={isErrorTickers}
 				/>
 				{tickers.length > 4 && (
 					<div className="mt-4 text-center">

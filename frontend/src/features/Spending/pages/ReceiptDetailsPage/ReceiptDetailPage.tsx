@@ -23,7 +23,6 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import {
 	CalendarIcon,
-	EditIcon,
 	EyeIcon,
 	PencilIcon,
 	PieChartIcon,
@@ -36,6 +35,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { CategoryDropdown } from "./components/CategoryDropdown";
 import { useReceipt } from "./useReceipt";
+import { AppRoutes } from "@/navigation";
 
 export default function ReceiptDetailPage() {
 	const { receiptId } = useParams<{ receiptId: string }>();
@@ -53,10 +53,6 @@ export default function ReceiptDetailPage() {
 		updateItemCategory,
 	} = useReceipt(receiptId, user?.id);
 
-	const handleEditReceipt = () => {
-		if (receiptId) navigate(`/receipts/${receiptId}/edit`);
-	};
-
 	const handleCategoryChange = async (
 		itemId: string,
 		categoryId: string | null,
@@ -72,7 +68,7 @@ export default function ReceiptDetailPage() {
 			const result = await deleteReceipt();
 			if (result.success) {
 				toast.success("Receipt deleted successfully");
-				navigate("/receipts");
+				navigate(AppRoutes.spending.receipts.list());
 			} else {
 				toast.error(`Failed to delete receipt: ${result.error}`);
 			}
@@ -181,14 +177,6 @@ export default function ReceiptDetailPage() {
 								/>
 							</PopoverContent>
 						</Popover>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={handleEditReceipt}
-							className="h-8 px-2"
-						>
-							<EditIcon className="h-3.5 w-3.5" />
-						</Button>
 						<Button
 							variant="destructive"
 							size="sm"

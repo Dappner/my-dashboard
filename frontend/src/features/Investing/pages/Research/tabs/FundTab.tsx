@@ -3,11 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { chartColors } from "@/constants";
 import { useFundsData } from "@/features/Investing/hooks/useFundsData";
-import {
-	formatLargeNumber,
-	formatPercent,
-	formatSectorName,
-} from "@/lib/formatting";
+import { formatLargeNumber, formatPercent } from "@/lib/formatting";
 import {
 	Bar,
 	BarChart,
