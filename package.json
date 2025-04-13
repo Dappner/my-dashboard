@@ -1,19 +1,11 @@
 {
-  "name": "my-dashboard-monorepo",
-  "private": true,
-  "version": "1.0.0",
-  "workspaces": {
-    "packages": [
-      "frontend",
-      "mobile",
-      "shared"
-    ]
-  },
-  "scripts": {
-    "build:shared": "pnpm --filter @my-dashboard/shared build",
-    "dev": "pnpm --filter @my-dashboard/shared watch & pnpm --filter frontend dev"
-  },
-  "trustedDependencies": [
-    "@biomejs/biome"
-  ]
+	"name": "my-dashboard-monorepo",
+	"private": true,
+	"version": "1.0.0",
+	"scripts": {
+		"build:shared": "pnpm --filter @my-dashboard/shared build",
+		"dev": "pnpm --filter @my-dashboard/shared build && pnpm --filter @my-dashboard/shared watch & pnpm --filter @my-dashboard/frontend dev",
+		"install:all": "pnpm install && pnpm build:shared"
+	},
+	"trustedDependencies": ["@biomejs/biome"]
 }

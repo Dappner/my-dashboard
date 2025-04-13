@@ -1,15 +1,15 @@
+import type { ReceiptWithItems } from "@/api/receiptsApi";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useAuthContext } from "@/contexts/AuthContext";
-import { format } from "date-fns";
-import { ArrowLeftIcon, CalendarIcon, TagIcon } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import type { ReceiptWithItems } from "@/api/receiptsApi";
+import { format } from "date-fns";
+import { ArrowLeftIcon, CalendarIcon, TagIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { getCategoryIcon } from "../../components/ReceiptCard";
 
 export default function ReceiptDetailPage() {
