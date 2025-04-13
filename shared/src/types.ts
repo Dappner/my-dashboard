@@ -56,3 +56,12 @@ export type UpdateTransaction =
 
 // Market Index
 export type MarketIndex = Database["public"]["Views"]["market_indices"]["Row"];
+
+
+// FOREX
+export type ForexRate = Database["public"]["Tables"]["forex_rates"]["Row"];
+
+export interface CurrencyPair {
+  base_currency: string;
+  target_currency: string;
+}

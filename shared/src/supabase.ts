@@ -305,6 +305,36 @@ export type Database = {
           },
         ]
       }
+      forex_rates: {
+        Row: {
+          base_currency: string
+          created_at: string | null
+          date: string
+          id: string
+          rate: number
+          source: string | null
+          target_currency: string
+        }
+        Insert: {
+          base_currency: string
+          created_at?: string | null
+          date: string
+          id?: string
+          rate: number
+          source?: string | null
+          target_currency: string
+        }
+        Update: {
+          base_currency?: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          rate?: number
+          source?: string | null
+          target_currency?: string
+        }
+        Relationships: []
+      }
       fund_asset_classes: {
         Row: {
           asset_class: string
@@ -1175,7 +1205,6 @@ export type Database = {
       }
       users: {
         Row: {
-          cash_balance: number
           created_at: string | null
           email: string
           first_name: string | null
@@ -1185,7 +1214,6 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          cash_balance?: number
           created_at?: string | null
           email: string
           first_name?: string | null
@@ -1195,7 +1223,6 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          cash_balance?: number
           created_at?: string | null
           email?: string
           first_name?: string | null
@@ -2058,7 +2085,13 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_unique_currency_pairs: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          base_currency: string
+          target_currency: string
+        }[]
+      }
     }
     Enums: {
       transaction_type_enum:

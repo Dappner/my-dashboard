@@ -29,6 +29,7 @@ import {
   createMarketIndicesApi,
   marketIndicesApiKeys,
 } from "./modules/marketIndices";
+import { createForexApi, forexApiKeys } from "./modules/forex";
 
 export const queryKeys = {
   calendarEvents: calendarEventsApiKeys,
@@ -42,6 +43,7 @@ export const queryKeys = {
   sectors: sectorsApiKeys,
   marketStructure: marketStructureApiKeys,
   marketIndices: marketIndicesApiKeys,
+  forex: forexApiKeys
 };
 
 export function createApi(supabase: SupabaseClient<Database>) {
@@ -57,6 +59,7 @@ export function createApi(supabase: SupabaseClient<Database>) {
     sectors: createSectorsApi(supabase),
     marketStructure: createMarketStructureApi(supabase),
     marketIndices: createMarketIndicesApi(supabase),
+    forex: createForexApi(supabase),
   };
 }
 
