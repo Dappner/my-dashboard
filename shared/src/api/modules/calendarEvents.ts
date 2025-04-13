@@ -1,6 +1,6 @@
 import { Database } from "@/supabase";
+import { CalendarEventsView } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { CalendarEventsView } from "./types";
 
 export const calendarEventsApiKeys = {
   all: ["calendarEvents"] as const,
@@ -37,5 +37,3 @@ export function createCalendarEventsApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
-
-export * from "./types";

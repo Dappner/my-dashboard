@@ -4,7 +4,8 @@ export * from "./api";
 export * from "./services";
 
 export * from "./hooks";
-// export * from "./types"
+export * from "./types";
+export { type Database } from "./supabase";
+
 // Export utilities
 export * from "./utils";
-export { type Database } from "./supabase";

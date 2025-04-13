@@ -1,17 +1,19 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { timeframes } from "@/constants";
-import type { Timeframe } from "@/types/portfolioDailyMetricTypes";
+import { cn } from "@/lib/utils";
+import type { Timeframe } from "@my-dashboard/shared";
 
-export default function TimeframeControls({
-	timeframe,
-	onTimeframeChange,
-}: {
+export interface TimeframeControlsProps {
+	className?: string;
 	timeframe: Timeframe;
 	onTimeframeChange: (period: Timeframe) => void;
-}) {
-	// Handler ensures only valid Timeframe values are passed up
+}
+export default function TimeframeControls({
+	className,
+	timeframe,
+	onTimeframeChange,
+}: TimeframeControlsProps) {
 	const handleValueChange = (value: string) => {
-		// Check if the selected value is a valid timeframe and actually changed
 		if (
 			value &&
 			value !== timeframe &&
@@ -19,7 +21,6 @@ export default function TimeframeControls({
 		) {
 			onTimeframeChange(value as Timeframe);
 		}
-		// If value is empty (clicked active item), do nothing to prevent deselection
 	};
 
 	return (
@@ -28,7 +29,10 @@ export default function TimeframeControls({
 			size="sm"
 			value={timeframe}
 			onValueChange={handleValueChange}
-			className="flex flex-wrap justify-center bg-white shadow-xs"
+			className={cn(
+				className,
+				"flex flex-wrap justify-center bg-white shadow-xs",
+			)}
 			aria-label="Select time frame"
 		>
 			{timeframes.map((period) => (

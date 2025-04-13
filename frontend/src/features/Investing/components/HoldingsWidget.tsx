@@ -9,6 +9,7 @@ import {
 import type { Holding } from "@my-dashboard/shared";
 import { useNavigate } from "react-router";
 import { useHoldings } from "../hooks/useHoldings";
+import { Card } from "@/components/ui/card";
 
 export default function HoldingsWidget() {
 	const navigate = useNavigate();
@@ -19,7 +20,7 @@ export default function HoldingsWidget() {
 	};
 
 	return (
-		<div className="bg-white border sm:rounded-md shadow-sm overflow-x-auto">
+		<Card className="overflow-x-auto py-0">
 			{isLoading ? (
 				<div className="text-center py-4 text-muted-foreground">
 					Loading holdings...
@@ -87,6 +88,6 @@ export default function HoldingsWidget() {
 					</TableBody>
 				</Table>
 			)}
-		</div>
+		</Card>
 	);
 }

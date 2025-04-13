@@ -1,6 +1,6 @@
 import { Database } from "@/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { InsertTicker, Ticker, UpdateTicker } from "./types";
+import { InsertTicker, Ticker, UpdateTicker } from "@/types";
 
 export const tickersApiKeys = {
   all: ["tickers"] as const,
@@ -86,5 +86,3 @@ export function createTickersApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
-
-export * from "./types";

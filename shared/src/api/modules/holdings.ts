@@ -1,6 +1,6 @@
 import { Database } from "@/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Holding } from "./types";
+import { Holding } from "@/types";
 
 export const holdingsApiKeys = {
   all: ["holdings"] as const,
@@ -39,5 +39,3 @@ export function createHoldingsApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
-
-export * from "./types";

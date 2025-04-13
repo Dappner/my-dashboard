@@ -74,8 +74,22 @@ export function formatCategoryName(name?: string | null, nullSub?: string) {
 	return capitalized;
 }
 
-export const formatCurrency = (value?: number): string => {
+export const formatCurrency = (value?: number, short?: boolean): string => {
 	if (!value) return "0";
+
+	if (short) {
+		const thresholds = [
+			{ threshold: 1e12, suffix: "T" },
+			{ threshold: 1e9, suffix: "B" },
+			{ threshold: 1e6, suffix: "M" },
+		];
+
+		for (const { threshold, suffix } of thresholds) {
+			if (value >= threshold) {
+				return `$${(value / threshold).toFixed(2)}${suffix}`;
+			}
+		}
+	}
 
 	return `$${value.toLocaleString("en-US", {
 		minimumFractionDigits: 2,

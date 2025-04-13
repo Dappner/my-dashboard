@@ -1,6 +1,6 @@
 import { Database } from "@/supabase";
+import { AssetClass, SectorWeighting, TopHolding } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { AssetClass, SectorWeighting, TopHolding } from "./types";
 
 export const fundsApiKeys = {
   all: ["funds"] as const,
@@ -63,5 +63,3 @@ export function createFundsApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
-
-export * from "./types";

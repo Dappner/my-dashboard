@@ -1,6 +1,6 @@
 import { Database } from "@/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { InsertTransaction, TradeView, UpdateTransaction } from "./types";
+import { InsertTransaction, TradeView, UpdateTransaction } from "@/types";
 
 export const transactionsApiKeys = {
   all: ["transactions"] as const,
@@ -88,5 +88,3 @@ export function createTransactionsApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
-
-export * from "./types";

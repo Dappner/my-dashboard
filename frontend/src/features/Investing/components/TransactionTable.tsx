@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
 	Table,
 	TableBody,
@@ -71,7 +72,7 @@ export default function TransactionTable({
 	}
 
 	return (
-		<div className="bg-white border sm:rounded-md shadow-sm overflow-x-auto">
+		<Card className="overflow-x-auto py-0">
 			<Table>
 				<TableHeader>
 					<TableRow className="bg-muted/50 hover:bg-muted/50">
@@ -179,7 +180,7 @@ export default function TransactionTable({
 						);
 					})}
 				</TableBody>
-			</Table>{" "}
-		</div>
+			</Table>
+		</Card>
 	);
 }

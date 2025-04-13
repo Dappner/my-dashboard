@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import type { ChartConfig } from "@/components/ui/chart";
 import {
 	ChartContainer,
@@ -517,7 +518,7 @@ export default function PortfolioChart({
 	}
 
 	return (
-		<div className="h-96 min-h-[384px] w-full bg-background rounded-lg shadow-sm p-1 sm:p-2 border">
+		<Card className="h-96 min-h-[384px] w-full p-1 sm:p-2 border">
 			<ResponsiveContainer width="100%" height="100%">
 				<ChartContainer config={chartConfig} className="h-full w-full">
 					<LineChart
@@ -527,7 +528,6 @@ export default function PortfolioChart({
 						<CartesianGrid
 							vertical={false}
 							strokeDasharray="3 3"
-							// Use CSS variables if defined, otherwise fallback
 							stroke="hsl(var(--border, 214.3 31.8% 91.4%) / 0.7)"
 						/>
 						<XAxis
@@ -694,6 +694,6 @@ export default function PortfolioChart({
 					</LineChart>
 				</ChartContainer>
 			</ResponsiveContainer>
-		</div>
+		</Card>
 	);
 }

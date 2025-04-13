@@ -11,6 +11,9 @@ import SettingsPage from "@/features/Settings/SettingsPage";
 import SpendingPage from "@/features/Spending/SpendingPage";
 import ReceiptsPage from "@/features/Spending/pages/ReceiptsPage";
 import { Outlet, type RouteObject } from "react-router-dom";
+import IndustryPage from "./features/Investing/pages/IndustryPage";
+import MarketPage from "./features/Investing/pages/Market/MarketPage";
+import SectorPage from "./features/Investing/pages/SectorPage";
 
 export interface AppRouteHandle<
 	TParams extends Record<string, string> = Record<string, string>,
@@ -73,7 +76,30 @@ export const routeConfig: AppRouteObject[] = [
 				handle: { title: "Research", crumb: () => "Research" },
 			},
 			{
-				path: "stock/:exchange/:ticker",
+				path: "market",
+				element: <MarketPage />,
+				handle: { title: "Market", crumb: () => "Market" },
+			},
+			{
+				path: "industry/:industrySlug",
+				element: <IndustryPage />,
+				handle: {
+					title: "Industry Performance",
+					crumb: (data: { params: { industrySlug: string } }) =>
+						`Industry: ${data.params.industrySlug}`,
+				} as AppRouteHandle<{ industrySlug: string }>,
+			},
+			{
+				path: "sector/:sectorSlug",
+				element: <SectorPage />,
+				handle: {
+					title: "Sector Performance",
+					crumb: (data: { params: { sectorSlug: string } }) =>
+						`Sector: ${data.params.sectorSlug}`,
+				} as AppRouteHandle<{ sectorSlug: string }>,
+			},
+			{
+				path: "ticker/:exchange/:ticker",
 				element: <TickerPage />,
 				handle: {
 					title: "Stock Details",

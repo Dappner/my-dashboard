@@ -19,6 +19,16 @@ import {
   transactionsApiKeys,
 } from "./modules/transactions";
 import { createFundsApi, fundsApiKeys } from "./modules/funds";
+import { createIndustriesApi, industriesApiKeys } from "./modules/industries";
+import { createSectorsApi, sectorsApiKeys } from "./modules/sectors";
+import {
+  createMarketStructureApi,
+  marketStructureApiKeys,
+} from "./modules/market-structure";
+import {
+  createMarketIndicesApi,
+  marketIndicesApiKeys,
+} from "./modules/marketIndices";
 
 export const queryKeys = {
   calendarEvents: calendarEventsApiKeys,
@@ -28,6 +38,10 @@ export const queryKeys = {
   tickerPrices: tickerPricesApiKeys,
   tickers: tickersApiKeys,
   transactions: transactionsApiKeys,
+  industries: industriesApiKeys,
+  sectors: sectorsApiKeys,
+  marketStructure: marketStructureApiKeys,
+  marketIndices: marketIndicesApiKeys,
 };
 
 export function createApi(supabase: SupabaseClient<Database>) {
@@ -39,16 +53,11 @@ export function createApi(supabase: SupabaseClient<Database>) {
     tickerPrices: createTickerPricesApi(supabase),
     tickers: createTickersApi(supabase),
     transactions: createTransactionsApi(supabase),
+    industries: createIndustriesApi(supabase),
+    sectors: createSectorsApi(supabase),
+    marketStructure: createMarketStructureApi(supabase),
+    marketIndices: createMarketIndicesApi(supabase),
   };
 }
 
 export type Api = ReturnType<typeof createApi>;
-
-// Re-export individual module types
-export * from "./modules/calendarEvents";
-export * from "./modules/funds";
-export * from "./modules/holdings";
-export * from "./modules/portfolioDailyMetrics";
-export * from "./modules/tickerPrices";
-export * from "./modules/tickers";
-export * from "./modules/transactions";

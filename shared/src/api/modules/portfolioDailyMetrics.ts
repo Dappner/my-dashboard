@@ -1,4 +1,4 @@
-import { PortfolioDailyMetric } from "./types";
+import { PortfolioDailyMetric } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/supabase";
 import { convertTimeframeToDateRange, Timeframe } from "@/utils";
@@ -35,5 +35,3 @@ export function createDailyMetricsApi(supabase: SupabaseClient<Database>) {
     },
   };
 }
-
-export * from "./types";

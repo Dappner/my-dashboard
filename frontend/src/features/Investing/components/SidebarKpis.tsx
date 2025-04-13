@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import type { Timeframe } from "@my-dashboard/shared";
 import { ArrowDown, ArrowUp, DollarSign, Percent } from "lucide-react";
 import { usePortfolioMetrics } from "../hooks/usePortfolioMetrics";
+import { Card } from "@/components/ui/card";
 
 interface SidebarKpisProps {
 	timeframe: Timeframe;
@@ -34,8 +35,8 @@ export default function SidebarKpis({
 
 	return (
 		<div className="grid grid-cols-3 sm:gap-2 w-full">
-			<div className="bg-white/80 backdrop-blur-sm sm:rounded-lg px-3 py-2 sm:border border-gray-200 shadow-sm">
-				<div className="text-xs text-gray-600 mb-1">Unrealized P/L</div>
+			<Card className="sm:rounded-lg px-3 py-2">
+				<div className="text-xs text-gray-700 mb-1">Unrealized P/L</div>
 				<div className="flex items-center justify-between">
 					<div
 						className={cn(
@@ -53,9 +54,9 @@ export default function SidebarKpis({
 						<ArrowDown className="h-4 w-4 text-red-500" />
 					)}
 				</div>
-			</div>
-			<div className="bg-white/80 backdrop-blur-sm sm:rounded-lg px-3 py-2 sm:border border-gray-200 shadow-sm">
-				<div className="text-xs text-gray-600 mb-1">
+			</Card>
+			<Card className="sm:rounded-lg px-3 py-2">
+				<div className="text-xs text-gray-700 mb-1">
 					Realized P/L ({timeframe})
 				</div>
 				<div className="flex items-center justify-between">
@@ -64,9 +65,9 @@ export default function SidebarKpis({
 					</span>
 					<Percent className="h-4 w-4 text-gray-400" />
 				</div>
-			</div>
-			<div className="bg-white/80 backdrop-blur-sm sm:rounded-lg px-3 py-2 sm:border border-gray-200 shadow-sm">
-				<div className="text-xs text-gray-600 mb-1">Cash</div>
+			</Card>
+			<Card className="sm:rounded-lg px-3 py-2">
+				<div className="text-xs text-gray-700 mb-1">Cash</div>
 				<div className="flex items-center justify-between">
 					<div className="flex flex-col items-baseline mb-0">
 						<span className="text-lg font-semibold mb-0">
@@ -78,7 +79,7 @@ export default function SidebarKpis({
 					</div>
 					<DollarSign className="h-4 w-4 text-gray-400" />
 				</div>
-			</div>
+			</Card>
 		</div>
 	);
 }

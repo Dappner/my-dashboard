@@ -1,4 +1,4 @@
-import { HistoricalPrice } from "./types";
+import { HistoricalPrice } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/supabase";
 import { convertTimeframeToDateRange, Timeframe } from "@/utils";
@@ -16,7 +16,6 @@ export function createTickerPricesApi(supabase: SupabaseClient<Database>) {
       tickerId: string,
       timeframe: Timeframe,
     ): Promise<HistoricalPrice[]> {
-      const now = new Date();
       let query = supabase
         .from("historical_prices")
         .select("*")
@@ -39,7 +38,30 @@ export function createTickerPricesApi(supabase: SupabaseClient<Database>) {
 
       return data as HistoricalPrice[];
     },
+    async getHistoricalPricesBySymbol(
+      symbol: string,
+      timeframe: Timeframe,
+    ): Promise<HistoricalPrice[]> {
+      // Use the new view
+      let query = supabase
+        .from("ticker_historical_prices")
+        .select("*")
+        .eq("symbol", symbol)
+        .order("date", { ascending: true });
+
+      const dateRange = convertTimeframeToDateRange(timeframe);
+      if (dateRange.startDate) {
+        query = query.gte("date", dateRange.startDate);
+      }
+      if (dateRange.endDate) {
+        query = query.lte("date", dateRange.endDate);
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        throw new Error(`Failed to fetch historical prices: ${error.message}`);
+      }
+      return data as HistoricalPrice[];
+    },
   };
 }
-
-export * from "./types";

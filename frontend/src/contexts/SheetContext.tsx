@@ -1,9 +1,8 @@
-import type { Ticker } from "@/types/tickerTypes";
-import type { TradeView } from "@/types/transactionsTypes";
+import type { Ticker, TradeView } from "@my-dashboard/shared";
 import type React from "react";
 import {
-	type ReactNode,
 	createContext,
+	type ReactNode,
 	useCallback,
 	useContext,
 	useMemo,
