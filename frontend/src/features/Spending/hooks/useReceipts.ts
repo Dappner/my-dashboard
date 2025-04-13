@@ -1,13 +1,14 @@
 import { receiptsApi, receiptsApiKeys } from "@/api/receiptsApi";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 export const useReceipts = (userId?: string) => {
-	return useQuery({
+	return useInfiniteQuery({
 		queryKey: userId ? receiptsApiKeys.user(userId) : receiptsApiKeys.all,
-		queryFn: () => {
-			if (!userId) throw new Error("User ID is required");
-			return receiptsApi.getReceiptsWithItems(userId);
+		queryFn: ({ pageParam = 1 }) => {
+			return receiptsApi.getReceiptsWithItems(userId || "", pageParam);
 		},
-		enabled: !!userId, // Only fetch if userId is provided
+		initialPageParam: 1,
+		getNextPageParam: (lastPage) => lastPage.nextPage,
+		enabled: !!userId,
 	});
 };

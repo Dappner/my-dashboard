@@ -14,7 +14,15 @@ export default function ReceiptsPage() {
 	const { user } = useAuthContext();
 	const { uploadReceipt, isUploading } = useReceiptUpload();
 
-	const { data: receipts, isLoading, error, refetch } = useReceipts(user?.id);
+	const {
+		data,
+		isLoading,
+		error,
+		refetch,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useReceipts(user?.id);
 
 	const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
@@ -56,7 +64,8 @@ export default function ReceiptsPage() {
 		);
 	}
 
-	const filteredReceipts = receipts;
+	// Extract and flatten all receipts from the pages
+	const allReceipts = data?.pages.flatMap((page) => page.receipts) || [];
 
 	return (
 		<div className="container mx-auto p-6 space-y-8">
@@ -90,13 +99,26 @@ export default function ReceiptsPage() {
 			</div>
 
 			<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-				{filteredReceipts?.map((receipt) => (
+				{allReceipts.map((receipt) => (
 					<ReceiptCard key={receipt.receipt_id} receipt={receipt} />
 				))}
 			</div>
 
+			{/* Load More Button */}
+			{hasNextPage && (
+				<div className="flex justify-center mt-6">
+					<Button
+						onClick={() => fetchNextPage()}
+						disabled={isFetchingNextPage}
+						variant="outline"
+					>
+						{isFetchingNextPage ? "Loading more..." : "Load more receipts"}
+					</Button>
+				</div>
+			)}
+
 			{/* Empty State */}
-			{filteredReceipts?.length === 0 && (
+			{allReceipts.length === 0 && (
 				<div className="flex flex-col items-center justify-center p-12 text-center bg-gray-50 rounded-lg border border-gray-200">
 					<ReceiptIcon className="h-16 w-16 text-gray-400 mb-4" />
 					<h3 className="font-semibold text-xl text-gray-800">
