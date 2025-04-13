@@ -14,58 +14,48 @@ logger = setup_logging(name="ticker_selector")
 class TickerSelector:
     """
     Selects tickers to process based on configuration.
-
-    This class is responsible for:
-    - Fetching tickers from the database
-    - Filtering tickers based on symbols, status, etc.
-    - Validating tickers before processing
     """
 
     def __init__(self, supabase_client):
-        """
-        Initialize the ticker selector with the Supabase client.
-
-        Args:
-            supabase_client: Supabase client for database operations
-        """
         self.supabase = supabase_client
 
-    def fetch_all_tickers(self) -> List[Dict[str, Any]]:
+    def select_tickers(self, config: PipelineConfig) -> List[Dict[str, Any]]:
         """
-        Fetch all tickers from the database.
+        Select tickers based on the pipeline configuration.
+
+        Args:
+            config: Pipeline configuration with selection criteria
 
         Returns:
-            List of ticker dictionaries from the database
+            List of ticker dictionaries
         """
+        if config.specific_tickers:
+            # Specific tickers take precedence
+            return self.fetch_specific_tickers(config.specific_tickers)
+        elif config.ticker_types:
+            # Filter by ticker types
+            return self.fetch_tickers_by_type(config.ticker_types)
+        else:
+            # Default to all tickers
+            return self.fetch_all_tickers()
+
+    def fetch_all_tickers(self) -> List[Dict[str, Any]]:
+        """Fetch all tickers from the database."""
         try:
             response = (
                 self.supabase.table("tickers")
                 .select("id, symbol, exchange, backfill, quote_type")
                 .execute()
             )
-
             tickers = response.data
             logger.info(f"Fetched {len(tickers)} tickers from database")
-
-            # Validate tickers
-            validated_tickers = self._validate_tickers(tickers)
-
-            return validated_tickers
-
+            return self._validate_tickers(tickers)
         except Exception as e:
             logger.error(f"Failed to fetch tickers from database: {e}")
             return []
 
     def fetch_specific_tickers(self, symbols: List[str]) -> List[Dict[str, Any]]:
-        """
-        Fetch specific tickers by symbol from the database.
-
-        Args:
-            symbols: List of ticker symbols to fetch
-
-        Returns:
-            List of ticker dictionaries from the database
-        """
+        """Fetch specific tickers by symbol."""
         if not symbols:
             logger.warning("No symbols provided for specific ticker fetch")
             return []
@@ -74,7 +64,6 @@ class TickerSelector:
             # Convert symbols to uppercase for consistent matching
             upper_symbols = [s.upper() for s in symbols]
 
-            # Using Supabase's .in() filter for multiple values
             response = (
                 self.supabase.table("tickers")
                 .select("id, symbol, exchange, backfill, quote_type")
@@ -85,38 +74,45 @@ class TickerSelector:
             tickers = response.data
             logger.info(f"Fetched {len(tickers)} specific tickers from database")
 
-            # Check if all requested symbols were found
+            # Check for missing symbols
             found_symbols = [t["symbol"].upper() for t in tickers]
-            missing_symbols = [s for s in upper_symbols if s not in found_symbols]
+            missing = [s for s in upper_symbols if s not in found_symbols]
+            if missing:
+                logger.warning(f"Some requested tickers were not found: {missing}")
 
-            if missing_symbols:
-                logger.warning(
-                    f"Some requested tickers were not found: {missing_symbols}"
-                )
-
-            # Validate tickers
-            validated_tickers = self._validate_tickers(tickers)
-
-            return validated_tickers
-
+            return self._validate_tickers(tickers)
         except Exception as e:
-            logger.error(f"Failed to fetch specific tickers from database: {e}")
+            logger.error(f"Failed to fetch specific tickers: {e}")
+            return []
+
+    def fetch_tickers_by_type(self, ticker_types: List[str]) -> List[Dict[str, Any]]:
+        """Fetch tickers by quote type."""
+        if not ticker_types:
+            logger.warning("No ticker types provided for type-based fetch")
+            return []
+
+        try:
+            response = (
+                self.supabase.table("tickers")
+                .select("id, symbol, exchange, backfill, quote_type")
+                .in_("quote_type", ticker_types)
+                .execute()
+            )
+
+            tickers = response.data
+            logger.info(f"Fetched {len(tickers)} tickers of types {ticker_types}")
+
+            return self._validate_tickers(tickers)
+        except Exception as e:
+            logger.error(f"Failed to fetch tickers by type: {e}")
             return []
 
     def _validate_tickers(self, tickers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Validate tickers to ensure they have required fields.
-
-        Args:
-            tickers: List of ticker dictionaries from the database
-
-        Returns:
-            List of validated ticker dictionaries
-        """
-        validated_tickers = []
+        """Validate and normalize ticker data."""
+        validated = []
 
         for ticker in tickers:
-            # Check for required fields
+            # Check required fields
             if not ticker.get("id") or not ticker.get("symbol"):
                 logger.warning(f"Skipping invalid ticker: {ticker}")
                 continue
@@ -124,12 +120,13 @@ class TickerSelector:
             # Ensure symbol is uppercase
             ticker["symbol"] = ticker["symbol"].upper()
 
-            # Ensure backfill is a boolean
+            # Set defaults if missing
             if "backfill" not in ticker:
                 ticker["backfill"] = False
 
-            # Add ticker to validated list
-            validated_tickers.append(ticker)
+            if "quote_type" not in ticker:
+                ticker["quote_type"] = "EQUITY"  # Default quote type
 
-        logger.debug(f"Validated {len(validated_tickers)} tickers")
-        return validated_tickers
+            validated.append(ticker)
+
+        return validated

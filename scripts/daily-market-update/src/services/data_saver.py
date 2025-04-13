@@ -1,27 +1,44 @@
-from datetime import datetime, date
-from typing import Optional, Dict
-import pandas as pd
-from src.models.data_models import PriceData, TickerInfo, FinanceData, CalendarEvent
-from pydantic import ValidationError
-from src.core.logging_config import setup_logging
-from src.core.util import get_value
-import logging
+"""
+Data saver module for storing data in the database.
+"""
 
-logger = setup_logging(name="data_saver", level=logging.DEBUG)
+from datetime import date
+from typing import List, Dict, Set, Optional, Any, Tuple
+
+from src.core.logging_config import setup_logging
+from src.models.db_models import (
+    DBHistoricalPrice, DBTickerInfo, DBFinanceDaily,
+    DBCalendarEvent, DBFundHolding, DBSectorWeighting, DBAssetClass
+)
+
+logger = setup_logging(name="data_saver")
 
 
 class DataSaver:
+    """
+    Saves financial data to the database.
+    """
+
     def __init__(self, supabase_client):
+        """
+        Initialize the data saver.
+
+        Args:
+            supabase_client: Supabase client for database operations
+        """
         self.supabase = supabase_client
 
-    def should_update(
-        self, last_update_date: Optional[date], threshold_days: int = 1
-    ) -> bool:
-        if not last_update_date:
-            return True
-        return (date.today() - last_update_date).days >= threshold_days
-
     def get_last_update_date(self, ticker_id: str, table_name: str) -> Optional[date]:
+        """
+        Get the date of the last update for a ticker in a table.
+
+        Args:
+            ticker_id: Ticker ID to query
+            table_name: Table name to query
+
+        Returns:
+            Date of last update or None if no previous updates
+        """
         try:
             response = (
                 self.supabase.table(table_name)
@@ -31,409 +48,237 @@ class DataSaver:
                 .limit(1)
                 .execute()
             )
+
             if response.data and len(response.data) > 0:
-                logger.debug(
-                    f"Last update date response for {ticker_id} in {table_name}: {response.data}"
-                )
-                date_str = response.data[0]["date"]
-                if date_str is not None:
+                date_str = response.data[0].get("date")
+                if date_str:
+                    from datetime import datetime
                     return datetime.strptime(date_str, "%Y-%m-%d").date()
-                else:
-                    logger.warning(
-                        f"No valid date found for ticker {ticker_id} in {table_name}, date is None"
-                    )
-                    return None
-            logger.debug(f"No entries found for ticker {ticker_id} in {table_name}")
-            return None
-        except Exception as e:
-            logger.error(
-                f"Failed to get last update date for ticker {ticker_id} in {table_name}: {e}"
-            )
+
             return None
 
-    def save_price_data(self, ticker_id: str, symbol: str, data: pd.DataFrame) -> int:
-        if data is None or data.empty:
+        except Exception as e:
+            logger.error(f"Failed to get last update date for {ticker_id} in {table_name}: {e}")
+            return None
+
+    def should_update(self, last_update_date: Optional[date], threshold_days: int = 1) -> bool:
+        """
+        Determine if an update should be performed based on last update date.
+
+        Args:
+            last_update_date: Date of last update
+            threshold_days: Minimum days between updates
+
+        Returns:
+            True if update should be performed, False otherwise
+        """
+        if not last_update_date:
+            return True
+
+        today = date.today()
+        return (today - last_update_date).days >= threshold_days
+
+    def save_historical_prices(
+            self,
+            ticker_id: str,
+            symbol: str,
+            prices: List[DBHistoricalPrice]
+    ) -> int:
+        """
+        Save historical price data to the database.
+
+        Args:
+            ticker_id: Ticker ID
+            symbol: Ticker symbol (for logging)
+            prices: List of price models to save
+
+        Returns:
+            Number of records saved
+        """
+        if not prices:
             logger.debug(f"No price data for {symbol}")
             return 0
 
         try:
-            price_data_list = [
-                PriceData(
-                    ticker_id=ticker_id,
-                    date=index,
-                    open_price=float(row["Open"]) if not pd.isna(row["Open"]) else None,
-                    high_price=float(row["High"]) if not pd.isna(row["High"]) else None,
-                    low_price=float(row["Low"]) if not pd.isna(row["Low"]) else None,
-                    close_price=float(row["Close"])
-                    if not pd.isna(row["Close"])
-                    else None,
-                    dividends=float(row["Dividends"])
-                    if not pd.isna(row["Dividends"])
-                    else None,
-                    stock_splits=float(row["Stock Splits"])
-                    if not pd.isna(row["Stock Splits"])
-                    else None,
-                    volume=int(row["Volume"]) if not pd.isna(row["Volume"]) else None,
-                ).dict(exclude_none=True)
-                for index, row in data.iterrows()
-            ]
+            # Convert models to dictionaries for Supabase
+            price_dicts = [p.model_dump(exclude_none=True) for p in prices]
 
-            try:
-                response = (
-                    self.supabase.table("historical_prices")
-                    .upsert(price_data_list, on_conflict="ticker_id,date")
-                    .execute()
-                )
-            except Exception as e:
-                logger.error(
-                    f"Error saving to supabse for {symbol}", extra={"error": str(e)}
-                )
+            # Upsert to database
+            response = (
+                self.supabase.table("historical_prices")
+                .upsert(price_dicts, on_conflict="ticker_id,date")
+                .execute()
+            )
 
-            logger.info(f"Saved {len(price_data_list)} price records for {symbol}")
-            return len(price_data_list)
-        except ValidationError as e:
-            logger.error(f"Validation error for {symbol}", extra={"error": str(e)})
-            return 0
+            saved_count = len(price_dicts)
+            logger.info(f"Saved {saved_count} price records for {symbol}")
+            return saved_count
+
         except Exception as e:
-            logger.exception(f"Failed to save price data for {symbol}")
+            logger.error(f"Failed to save price data for {symbol}: {e}", exc_info=True)
             return 0
 
     def update_ticker_info(
-        self, ticker_id: str, symbol: str, info: Dict, backfill: bool = False
+            self,
+            ticker_info: DBTickerInfo
     ) -> bool:
-        if not info:
-            return False
+        """
+        Update ticker information in the database.
 
-        ticker_info = TickerInfo(
-            long_business_summary=info.get("longBusinessSummary"),
-            category=info.get("category"),
-            region=info.get("region"),
-            quote_type=info.get("quoteType", "EQUITY"),
-            backfill=False,
-            industry=info.get("industryKey") if backfill else None,
-            sector=info.get("sectorKey") if backfill else None,
-            dividend_amount=info.get("lastDividendValue") if backfill else None,
-        ).dict(exclude_none=True)
+        Args:
+            ticker_info: Ticker info model
 
+        Returns:
+            True if successful, False otherwise
+        """
         if not ticker_info:
             return False
+
         try:
-            self.supabase.table("tickers").update(ticker_info).eq(
-                "id", ticker_id
+            # Convert model to dictionary for Supabase
+            ticker_dict = ticker_info.model_dump(exclude_none=True)
+
+            # Update in database
+            self.supabase.table("tickers").update(ticker_dict).eq(
+                "id", ticker_info.id
             ).execute()
+
             return True
+
         except Exception as e:
-            logger.error(f"Failed to update tickers table for {symbol}: {e}")
+            logger.error(f"Failed to update ticker info for {ticker_info.symbol}: {e}")
             return False
 
-    def save_finance_data(self, ticker_id, symbol, info):
-        """Saves finance data to yh_finance_daily in a batched request."""
-        if not info:
-            logger.debug(f"No finance data available for {symbol}")
-            return False
+    def save_finance_daily(
+            self,
+            finance_data: DBFinanceDaily
+    ) -> bool:
+        """
+        Save daily finance data to the database.
 
-        quote_type = info.get("quoteType", "EQUITY")
-        field_configs = {
-            "regular_market_price": {"types": ["EQUITY", "ETF"], "cast": float},
-            "regular_market_change_percent": {
-                "types": ["EQUITY", "ETF"],
-                "cast": float,
-            },
-            "market_cap": {"types": ["EQUITY", "ETF"], "cast": int},
-            "dividend_yield": {"types": None, "cast": float},  # No type restriction
-            "fifty_two_week_low": {"types": ["EQUITY", "ETF"], "cast": float},
-            "fifty_two_week_high": {"types": ["EQUITY", "ETF"], "cast": float},
-            "fifty_day_average": {"types": ["EQUITY", "ETF"], "cast": float},
-            "two_hundred_day_average": {"types": ["EQUITY", "ETF"], "cast": float},
-            "trailing_pe": {"types": ["EQUITY"], "cast": float},
-            "total_assets": {"types": ["MUTUALFUND", "ETF"], "cast": int},
-            "nav_price": {"types": ["MUTUALFUND", "ETF"], "cast": float},
-            "yield_": {"types": ["MUTUALFUND", "ETF"], "cast": float},
-            "ytd_return": {"types": None, "cast": float},
-            "beta3year": {
-                "types": None,
-                "cast": float,
-                "key": "beta",
-            },  # Maps to "beta" in info
-            "fund_family": {"types": ["MUTUALFUND", "ETF"], "cast": str},
-            "fund_inception_date": {
-                "types": ["MUTUALFUND", "ETF"],
-                "cast": lambda x: datetime.fromtimestamp(x).strftime("%Y-%m-%d")
-                if x
-                else None,
-            },
-            "legal_type": {"types": ["MUTUALFUND", "ETF"], "cast": str},
-            "three_year_average_return": {
-                "types": ["MUTUALFUND", "ETF"],
-                "cast": float,
-            },
-            "five_year_average_return": {"types": ["MUTUALFUND", "ETF"], "cast": float},
-            "net_expense_ratio": {"types": ["MUTUALFUND", "ETF"], "cast": float},
-            "shares_outstanding": {"types": ["EQUITY", "ETF"], "cast": int},
-            "trailing_three_month_returns": {
-                "types": ["MUTUALFUND", "ETF"],
-                "cast": float,
-            },
-            "trailing_three_month_nav_returns": {
-                "types": ["MUTUALFUND", "ETF"],
-                "cast": float,
-            },
-        }
+        Args:
+            finance_data: Finance daily model
 
-        finance_kwargs = {"ticker_id": ticker_id}
-        for field, config in field_configs.items():
-            if config["types"] is None or quote_type in config["types"]:
-                key = config.get(
-                    "key", field
-                )  # Use "key" if specified, else field name
-                finance_kwargs[field] = get_value(info, key, cast_type=config["cast"])
-
-        finance_data = FinanceData(**finance_kwargs).dict(exclude_none=True)
-
-        if len(finance_data) <= 3:  # Only ticker_id, date, and updated_at
-            logger.debug(f"Insufficient finance data for {symbol}")
+        Returns:
+            True if successful, False otherwise
+        """
+        if not finance_data:
             return False
 
         try:
+            # Convert model to dictionary for Supabase
+            finance_dict = finance_data.model_dump(exclude_none=True)
+
+            # Upsert to database
             self.supabase.table("yh_finance_daily").upsert(
-                [finance_data],
+                [finance_dict],
                 on_conflict=["ticker_id"],
             ).execute()
+
             return True
+
         except Exception as e:
-            logger.error(f"Failed to update yh_finance_daily for {symbol}: {e}")
+            logger.error(f"Failed to save finance data for {finance_data.ticker_id}: {e}")
             return False
 
-    def save_calendar_events(self, ticker_id, symbol, ticker):
-        """Saves calendar events from yfinance to the calendar_events table."""
-        if not hasattr(ticker, "calendar"):
-            logger.debug(f"No calendar attribute available for {symbol}")
+    def save_calendar_events(
+            self,
+            ticker_id: str,
+            symbol: str,
+            events: List[DBCalendarEvent]
+    ) -> bool:
+        """
+        Save calendar events to the database.
+
+        Args:
+            ticker_id: Ticker ID
+            symbol: Ticker symbol (for logging)
+            events: List of calendar event models
+
+        Returns:
+            True if successful, False otherwise
+        """
+        if not events:
+            logger.debug(f"No calendar events for {symbol}")
             return False
 
         try:
-            calendar = ticker.calendar
-        except Exception as e:
-            logger.warning(f"Failed to fetch calendar data for {symbol}: {e}")
-            calendar = None
+            # Convert models to dictionaries for Supabase
+            event_dicts = [e.model_dump(exclude_none=True) for e in events]
 
-        if calendar is None or (isinstance(calendar, dict) and not calendar):
-            logger.debug(f"No calendar data available or empty for {symbol}")
-            return False
-
-        events_data = []
-
-        # Handle Dividend Date
-        if "Dividend Date" in calendar and calendar["Dividend Date"]:
-            events_data.append(
-                CalendarEvent(
-                    ticker_id=str(ticker_id),
-                    date=calendar["Dividend Date"].strftime("%Y-%m-%d"),
-                    event_type="dividend",
-                ).dict(exclude_none=True)
-            )
-
-        if "Ex-Dividend Date" in calendar and calendar["Ex-Dividend Date"]:
-            events_data.append(
-                CalendarEvent(
-                    ticker_id=str(ticker_id),
-                    date=calendar["Ex-Dividend Date"].strftime("%Y-%m-%d"),
-                    event_type="ex_dividend",
-                ).dict(exclude_none=True)
-            )
-
-        if "Earnings Date" in calendar and calendar["Earnings Date"]:
-            earnings_dates = calendar["Earnings Date"]
-            if isinstance(earnings_dates, list) and earnings_dates:
-                earnings_dates_str = [
-                    d.strftime("%Y-%m-%d") for d in earnings_dates if d
-                ]
-                if earnings_dates_str:
-                    earnings_event = CalendarEvent(
-                        ticker_id=str(ticker_id),
-                        date=earnings_dates_str[0],
-                        event_type="earnings",
-                        earnings_dates=earnings_dates_str,
-                        earnings_high=get_value(calendar, "Earnings High", float),
-                        earnings_low=get_value(calendar, "Earnings Low", float),
-                        earnings_average=get_value(calendar, "Earnings Average", float),
-                        revenue_high=get_value(calendar, "Revenue High", int),
-                        revenue_low=get_value(calendar, "Revenue Low", int),
-                        revenue_average=get_value(calendar, "Revenue Average", int),
-                    ).dict(exclude_none=True)
-                    events_data.append(earnings_event)
-
-        if not events_data:
-            logger.debug(f"No valid calendar events to save for {symbol}")
-            return False
-
-        try:
+            # Upsert to database
             self.supabase.table("calendar_events").upsert(
-                events_data, on_conflict="ticker_id,date,event_type"
+                event_dicts,
+                on_conflict="ticker_id,date,event_type"
             ).execute()
-            logger.info(
-                f"Updated calendar_events table for {symbol} with {len(events_data)} events"
-            )
+
+            logger.info(f"Saved {len(events)} calendar events for {symbol}")
             return True
+
         except Exception as e:
             logger.error(f"Failed to save calendar events for {symbol}: {e}")
             return False
 
-    def save_fund_top_holdings(
-        self, ticker_id, symbol, ticker, data_key="top_holdings"
-    ):
-        """Saves fund top holdings data from yfinance."""
-        logger.debug(
-            f"Attempting to save {data_key} for {symbol}",
-            extra={"table": "fund_top_holdings"},
-        )
+    def save_fund_data(
+            self,
+            ticker_id: str,
+            symbol: str,
+            holdings: List[DBFundHolding],
+            sectors: List[DBSectorWeighting],
+            assets: List[DBAssetClass]
+    ) -> Set[str]:
+        """
+        Save fund-specific data to the database.
 
-        if not hasattr(ticker, "funds_data"):
-            logger.error(f"No funds_data attribute available for {symbol}")
-            return False
+        Args:
+            ticker_id: Ticker ID
+            symbol: Ticker symbol (for logging)
+            holdings: List of fund holding models
+            sectors: List of sector weighting models
+            assets: List of asset allocation models
 
-        data = getattr(ticker.funds_data, data_key, None)
-        if data is None or not isinstance(data, pd.DataFrame):
-            logger.error(f"No valid {data_key} DataFrame available for {symbol}")
-            return False
+        Returns:
+            Set of updated table names
+        """
+        updates = set()
 
-        logger.debug(f"Raw {data_key} data for {symbol}", extra={"data": str(data)})
-        upsert_data = []
+        # Save holdings
+        if holdings:
+            try:
+                holding_dicts = [h.model_dump(exclude_none=True) for h in holdings]
+                self.supabase.table("fund_top_holdings").upsert(
+                    holding_dicts,
+                    on_conflict="ticker_id,holding_symbol"
+                ).execute()
+                updates.add("fund_top_holdings")
+                logger.info(f"Saved {len(holdings)} fund holdings for {symbol}")
+            except Exception as e:
+                logger.error(f"Failed to save fund holdings for {symbol}: {e}")
 
-        try:
-            for index, row in data.iterrows():
-                upsert_data.append(
-                    {
-                        "ticker_id": ticker_id,
-                        "holding_symbol": index,
-                        "holding_name": row["Name"],
-                        "weight": float(row["Holding Percent"]) * 100,
-                        "date": date.today().strftime("%Y-%m-%d"),
-                        "updated_at": datetime.now().isoformat(),
-                    }
-                )
-        except KeyError as e:
-            logger.error(
-                f"Error processing top holdings DataFrame for {symbol}: Missing key {e}"
-            )
-            return False
+        # Save sectors
+        if sectors:
+            try:
+                sector_dicts = [s.model_dump(exclude_none=True) for s in sectors]
+                self.supabase.table("fund_sector_weightings").upsert(
+                    sector_dicts,
+                    on_conflict="ticker_id,sector_name"
+                ).execute()
+                updates.add("fund_sector_weightings")
+                logger.info(f"Saved {len(sectors)} sector weightings for {symbol}")
+            except Exception as e:
+                logger.error(f"Failed to save sector weightings for {symbol}: {e}")
 
-        return self._upsert_data(
-            upsert_data,
-            "fund_top_holdings",
-            symbol,
-            data_key,
-            on_conflict="ticker_id,holding_symbol",
-        )
+        # Save assets
+        if assets:
+            try:
+                asset_dicts = [a.model_dump(exclude_none=True) for a in assets]
+                self.supabase.table("fund_asset_classes").upsert(
+                    asset_dicts,
+                    on_conflict="ticker_id,asset_class"
+                ).execute()
+                updates.add("fund_asset_classes")
+                logger.info(f"Saved {len(assets)} asset classes for {symbol}")
+            except Exception as e:
+                logger.error(f"Failed to save asset classes for {symbol}: {e}")
 
-    def save_fund_sector_weightings(
-        self, ticker_id, symbol, ticker, data_key="sector_weightings"
-    ):
-        """Saves fund sector weightings data from yfinance."""
-        logger.debug(
-            f"Attempting to save {data_key} for {symbol}",
-            extra={"table": "fund_sector_weightings"},
-        )
-
-        if not hasattr(ticker, "funds_data"):
-            logger.error(f"No funds_data attribute available for {symbol}")
-            return False
-
-        data = getattr(ticker.funds_data, data_key, None)
-        if data is None or not isinstance(data, dict):
-            logger.error(f"No valid {data_key} dictionary available for {symbol}")
-            return False
-
-        logger.debug(f"Raw {data_key} data for {symbol}", extra={"data": str(data)})
-        upsert_data = []
-
-        try:
-            for sector_name, weight in data.items():
-                upsert_data.append(
-                    {
-                        "ticker_id": ticker_id,
-                        "sector_name": sector_name.replace("_", "-"),
-                        "weight": float(weight) * 100,
-                        "date": date.today().strftime("%Y-%m-%d"),
-                        "updated_at": datetime.now().isoformat(),
-                    }
-                )
-        except Exception as e:
-            logger.error(f"Error processing sector weightings for {symbol}: {e}")
-            return False
-
-        return self._upsert_data(
-            upsert_data,
-            "fund_sector_weightings",
-            symbol,
-            data_key,
-            on_conflict="ticker_id,sector_name",
-        )
-
-    def save_fund_asset_classes(
-        self, ticker_id, symbol, ticker, data_key="asset_allocation"
-    ):
-        """Saves fund asset classes data from yfinance."""
-        logger.debug(
-            f"Attempting to save {data_key} for {symbol}",
-            extra={"table": "fund_asset_classes"},
-        )
-
-        if not hasattr(ticker, "funds_data"):
-            logger.error(f"No funds_data attribute available for {symbol}")
-            return False
-
-        data = getattr(ticker.funds_data, data_key, None)
-        if data is None or not isinstance(data, dict):
-            logger.error(f"No valid {data_key} dictionary available for {symbol}")
-            return False
-
-        logger.debug(f"Raw {data_key} data for {symbol}", extra={"data": str(data)})
-        upsert_data = []
-
-        try:
-            for asset_class, weight in data.items():
-                upsert_data.append(
-                    {
-                        "ticker_id": ticker_id,
-                        "asset_class": asset_class,
-                        "weight": float(weight) * 100,
-                        "date": date.today().strftime("%Y-%m-%d"),
-                        "updated_at": datetime.now().isoformat(),
-                    }
-                )
-        except Exception as e:
-            logger.error(f"Error processing asset classes for {symbol}: {e}")
-            return False
-
-        return self._upsert_data(
-            upsert_data,
-            "fund_asset_classes",
-            symbol,
-            data_key,
-            on_conflict="ticker_id,asset_class",
-        )
-
-    def _upsert_data(self, upsert_data, table_name, symbol, data_key, on_conflict):
-        """Helper method to handle the database upsert operation."""
-        if not upsert_data:
-            logger.info(
-                f"No valid {data_key} data to save for {symbol} after processing"
-            )
-            return False
-
-        logger.debug(
-            f"Preparing to upsert {len(upsert_data)} records",
-            extra={"table": table_name, "data_sample": upsert_data[:1]},
-        )
-
-        try:
-            self.supabase.table(table_name).upsert(
-                upsert_data, on_conflict=on_conflict
-            ).execute()
-            logger.info(
-                f"Successfully saved {len(upsert_data)} {data_key} records for {symbol}"
-            )
-            return True
-        except Exception as e:
-            logger.exception(f"Database upsert failed for {symbol} {data_key}")
-            return False
+        return updates
