@@ -1,3 +1,4 @@
+import LoadingState from "@/components/layout/components/LoadingState";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useParams } from "react-router";
@@ -5,7 +6,7 @@ import HoldingsPanel from "./components/HoldingsPanel";
 import TickerHeader from "./components/TickerHeader";
 import { useTickerData } from "./hooks/useTickerData";
 import OverviewTab from "./tabs/OverviewTab";
-import LoadingState from "@/components/layout/components/LoadingState";
+import FundTab from "./tabs/FundTab";
 
 export default function TickerPage() {
 	const { exchange, ticker: tickerSymbol } = useParams();
@@ -53,11 +54,11 @@ export default function TickerPage() {
 					)}
 				</TabsContent>
 				<TabsContent value="fund">
-					{/* <FundTab */}
-					{/* 	tickerId={ticker?.id} */}
-					{/* 	exchange={exchange} */}
-					{/* 	tickerSymbol={tickerSymbol} */}
-					{/* /> */}
+					<FundTab
+						tickerId={ticker?.id}
+						exchange={exchange}
+						tickerSymbol={tickerSymbol}
+					/>
 				</TabsContent>
 			</Tabs>
 

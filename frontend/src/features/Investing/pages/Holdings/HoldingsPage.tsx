@@ -21,9 +21,13 @@ export default function HoldingsPage() {
 			</div>
 		);
 	}
-
 	if (error || !metrics) {
 		return <div className={"text-red-600 "}>Error loading KPIs.</div>;
+	}
+
+	//TODO: Empty State for holdings
+	if (metrics.currentTotalValue === 0) {
+		return <div>TODO: EMPTY STATE FOR HOLDINGS</div>;
 	}
 
 	return (

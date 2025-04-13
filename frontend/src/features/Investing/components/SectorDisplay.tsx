@@ -1,7 +1,7 @@
-import { useSectors } from "@/features/Investing/hooks/useSectors";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "react-router-dom";
+import { useSectors } from "@/features/Investing/hooks/useSectors";
 import { AppRoutes } from "@/navigation";
+import { Link } from "react-router-dom";
 
 interface SectorDisplayProps {
 	sectorId: string;

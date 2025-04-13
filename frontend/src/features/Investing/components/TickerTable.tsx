@@ -9,13 +9,13 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { monthsShort } from "@/features/Investing/constants";
-import { Pencil, Trash2 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { AppRoutes } from "@/navigation";
 import type { Ticker } from "@my-dashboard/shared";
+import { Pencil, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useEntityMappings } from "../hooks/useEntityMappings";
 import { IndustryDisplay } from "./IndustryDisplay";
 import { SectorDisplay } from "./SectorDisplay";
-import { useEntityMappings } from "../hooks/useEntityMappings";
 
 export type TickerTableVariant = "simple" | "admin";
 

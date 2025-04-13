@@ -1,7 +1,7 @@
-import { useIndustries } from "@/features/Investing/hooks/useIndustries";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "react-router-dom";
+import { useIndustries } from "@/features/Investing/hooks/useIndustries";
 import { AppRoutes } from "@/navigation";
+import { Link } from "react-router-dom";
 
 interface IndustryDisplayProps {
 	industryId?: string;

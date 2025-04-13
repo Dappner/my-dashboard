@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { chartColors } from "@/constants";
 import { useFundsData } from "@/features/Investing/hooks/useFundsData";
-import { formatLargeNumber, formatPercent } from "@/lib/formatting";
+import { formatDate, formatLargeNumber, formatPercent } from "@/lib/formatting";
 import {
 	Bar,
 	BarChart,
@@ -16,6 +16,7 @@ import {
 	YAxis,
 } from "recharts";
 import { useTickerData } from "../hooks/useTickerData";
+import { useEntityMappings } from "@/features/Investing/hooks/useEntityMappings";
 
 interface FundTabProps {
 	exchange: string;
@@ -29,18 +30,11 @@ export default function FundTab({
 	tickerId,
 }: FundTabProps) {
 	const { yhFinanceData } = useTickerData(exchange, tickerSymbol);
+	const { sectorKeyMap } = useEntityMappings();
 
 	const { isLoading, topHoldings, sectorWeightings, assetClasses } =
 		useFundsData(tickerId);
-
-	const formatDate = (dateString: string): string => {
-		const date = new Date(dateString);
-		return new Intl.DateTimeFormat("en-US", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		}).format(date);
-	};
+	//TODO: for some reason real-estate sector is realestate here...
 
 	if (isLoading) {
 		return (
@@ -136,67 +130,71 @@ export default function FundTab({
 					</Card>
 				</div>
 				{/* Asset Allocation */}
-				<div>
-					<SectionHeader title="Asset Allocation" />
-					<Card className="h-full">
-						<CardContent>
-							<div className="h-64">
-								<ResponsiveContainer width="100%" height="100%">
-									<PieChart>
-										<Pie
-											data={assetClasses}
-											cx="50%"
-											cy="50%"
-											labelLine={true}
-											label={({ name, percent }) =>
-												`${name} (${(percent * 100).toFixed(1)}%)`
-											}
-											outerRadius={80}
-											fill="#8884d8"
-											dataKey="weight"
-											nameKey="asset_class"
-										>
-											{assetClasses.map((entry, index) => (
-												<Cell
-													key={`${entry.id}`}
-													fill={chartColors[index % chartColors.length]}
-												/>
-											))}
-										</Pie>
-										<Tooltip
-											formatter={(value: number) => [
-												`${value.toFixed(2)}%`,
-												"Weight",
-											]}
-											labelFormatter={(name) => name}
-										/>
-									</PieChart>
-								</ResponsiveContainer>
-							</div>
-							<div className="mt-4 grid grid-cols-1 gap-1">
-								{assetClasses.map((item, i) => (
-									<div
-										key={item.id}
-										className="flex justify-between items-center text-sm"
-									>
-										<span className="flex items-center">
-											<span
-												className="w-3 h-3 mr-2 inline-block rounded-sm"
-												style={{
-													backgroundColor: chartColors[i % chartColors.length],
-												}}
+				{/* TODO: Fix in Pipeline */}
+				{assetClasses && assetClasses.length > 0 && (
+					<div>
+						<SectionHeader title="Asset Allocation" />
+						<Card className="h-full">
+							<CardContent>
+								<div className="h-64">
+									<ResponsiveContainer width="100%" height="100%">
+										<PieChart>
+											<Pie
+												data={assetClasses}
+												cx="50%"
+												cy="50%"
+												labelLine={true}
+												label={({ name, percent }) =>
+													`${name} (${(percent * 100).toFixed(1)}%)`
+												}
+												outerRadius={80}
+												fill="#8884d8"
+												dataKey="weight"
+												nameKey="asset_class"
+											>
+												{assetClasses.map((entry, index) => (
+													<Cell
+														key={`${entry.id}`}
+														fill={chartColors[index % chartColors.length]}
+													/>
+												))}
+											</Pie>
+											<Tooltip
+												formatter={(value: number) => [
+													`${value.toFixed(2)}%`,
+													"Weight",
+												]}
+												labelFormatter={(name) => name}
 											/>
-											{item.asset_class}
-										</span>
-										<span className="font-medium">
-											{item.weight.toFixed(2)}%
-										</span>
-									</div>
-								))}
-							</div>
-						</CardContent>
-					</Card>
-				</div>
+										</PieChart>
+									</ResponsiveContainer>
+								</div>
+								<div className="mt-4 grid grid-cols-1 gap-1">
+									{assetClasses.map((item, i) => (
+										<div
+											key={item.id}
+											className="flex justify-between items-center text-sm"
+										>
+											<span className="flex items-center">
+												<span
+													className="w-3 h-3 mr-2 inline-block rounded-sm"
+													style={{
+														backgroundColor:
+															chartColors[i % chartColors.length],
+													}}
+												/>
+												{item.asset_class}
+											</span>
+											<span className="font-medium">
+												{item.weight.toFixed(2)}%
+											</span>
+										</div>
+									))}
+								</div>
+							</CardContent>
+						</Card>
+					</div>
+				)}
 				{/* Top Holdings */}
 				<div>
 					<SectionHeader title="Top Holdings" />
@@ -285,13 +283,14 @@ export default function FundTab({
 											dataKey="weight"
 											nameKey="sector_name"
 											labelLine={false}
-											label={({ sector_name, percent }) =>
-												percent > 0.05
-													? `${formatSectorName(sector_name)} (${(
-															percent * 100
-														).toFixed(1)}%)`
-													: ""
-											}
+											label={({ sector_name, percent }) => {
+												// Only show label if sector takes up more than 5% of the pie
+												if (percent <= 0.05) return "";
+
+												// If we have the sector in our map, use that name
+												const sectorName = sectorKeyMap.get(sector_name)?.name;
+												return `${sectorName} (${(percent * 100).toFixed(1)}%)`;
+											}}
 										>
 											{sectorWeightings.map((entry, index) => (
 												<Cell
@@ -305,7 +304,7 @@ export default function FundTab({
 												`${value.toFixed(2)}%`,
 												"Weight",
 											]}
-											labelFormatter={(name) => formatSectorName(name)}
+											labelFormatter={(name) => sectorKeyMap.get(name)?.name}
 										/>
 									</PieChart>
 								</ResponsiveContainer>
@@ -330,7 +329,7 @@ export default function FundTab({
 																chartColors[index % chartColors.length],
 														}}
 													/>
-													{formatSectorName(sector.sector_name)}
+													{sectorKeyMap.get(sector.sector_name)?.name}
 												</td>
 												<td className="py-3 text-right font-medium">
 													{sector.weight.toFixed(2)}%

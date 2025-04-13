@@ -1,13 +1,11 @@
 import { TickerSheet } from "@/features/Investing/sheets/TickerSheet";
 import { TransactionSheet } from "@/features/Investing/sheets/TransactionSheet";
-import type { Ticker } from "@/types/tickerTypes";
-import type { TradeView } from "@/types/transactionsTypes";
 import { useSheet } from "../contexts/SheetContext";
+import type { Ticker, TradeView } from "@my-dashboard/shared";
 
 export const SheetContainer: React.FC = () => {
 	const { activeSheet, sheetData, closeSheet } = useSheet();
 
-	// TODO: Add more sheets
 	return (
 		<>
 			{activeSheet === "transaction" && (

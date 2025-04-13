@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { queryKeys, type Ticker } from "@my-dashboard/shared";
+import { type Ticker, queryKeys } from "@my-dashboard/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 

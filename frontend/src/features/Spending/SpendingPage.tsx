@@ -139,8 +139,8 @@ export default function SpendingOverview() {
 	return (
 		<PageContainer className="min-h-screen">
 			<div>
-				<header className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-					<div>
+				<header className="mb-6 flex flex-row justify-center sm:justify-between items-start sm:items-center gap-4">
+					<div className="hidden sm:block">
 						<h1 className="text-2xl md:text-3xl font-bold tracking-tight">
 							Spending Overview
 						</h1>
@@ -148,9 +148,9 @@ export default function SpendingOverview() {
 					<div className="flex items-center gap-2">
 						<Button
 							type="button"
-							variant="ghost"
+							variant="outline"
 							onClick={handlePrevMonth}
-							className="p-2 hover:bg-gray-100 rounded-full"
+							className="p-2 hover:bg-gray-100 rounded-full shadow-xl"
 							aria-label="Previous month"
 						>
 							<ChevronLeft className="h-5 w-5" />
@@ -160,9 +160,9 @@ export default function SpendingOverview() {
 						</span>
 						<Button
 							type="button"
-							variant="ghost"
+							variant="outline"
 							onClick={handleNextMonth}
-							className="p-2 hover:bg-gray-100 rounded-full disabled:opacity-50"
+							className="p-2 hover:bg-gray-100 rounded-full disabled:opacity-50 shadow-xl"
 							aria-label="Next month"
 							disabled={isNextDisabled}
 						>

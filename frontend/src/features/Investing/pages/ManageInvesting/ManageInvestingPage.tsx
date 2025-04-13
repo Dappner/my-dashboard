@@ -19,9 +19,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { TickerTable } from "../../components/TickerTable";
 import { TickerSelect } from "../../forms/FormControls";
 import useUntradeableTickers from "../../hooks/useUntradeableTickers";
-import { TickerTable } from "../../components/TickerTable";
 
 const trackingFormSchema = z.object({
 	ticker_id: z.string().min(1, "Please select a ticker"),

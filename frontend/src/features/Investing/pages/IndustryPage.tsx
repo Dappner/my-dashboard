@@ -7,12 +7,12 @@ import { formatCurrency } from "@/lib/formatting";
 import type { Timeframe } from "@my-dashboard/shared";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { TickerTable } from "../components/TickerTable";
 import { useHistoricalPrices } from "../hooks/useHistoricalPrices";
 import { useIndustry } from "../hooks/useIndustry";
 import { useIndustryIndex, useSectorIndex } from "../hooks/useMarketIndices";
 import { useTickersByIndustry } from "../hooks/useTickersByIndustry";
 import { PerformanceChart } from "./Research/components/PerformanceChart";
-import { TickerTable } from "../components/TickerTable";
 
 export default function IndustryPage() {
 	const { industrySlug } = useParams<{ industrySlug: string }>();

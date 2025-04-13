@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { AppRoutes } from "@/navigation";
 import { format } from "date-fns";
 import {
 	CalendarIcon,
@@ -35,7 +36,6 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { CategoryDropdown } from "./components/CategoryDropdown";
 import { useReceipt } from "./useReceipt";
-import { AppRoutes } from "@/navigation";
 
 export default function ReceiptDetailPage() {
 	const { receiptId } = useParams<{ receiptId: string }>();
