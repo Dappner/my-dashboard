@@ -14,6 +14,7 @@ import { Outlet, type RouteObject } from "react-router-dom";
 import IndustryPage from "./features/Investing/pages/IndustryPage";
 import SectorPage from "./features/Investing/pages/SectorPage";
 import ReceiptDetailPage from "./features/Spending/pages/ReceiptDetailsPage/ReceiptDetailPage";
+import ForexPage from "./features/Investing/pages/ForexPage";
 
 export interface AppRouteHandle<
 	TParams extends Record<string, string> = Record<string, string>,
@@ -74,6 +75,11 @@ export const routeConfig: AppRouteObject[] = [
 				path: "research",
 				element: <ResearchPage />,
 				handle: { title: "Research", crumb: () => "Research" },
+			},
+			{
+				path: "forex",
+				element: <ForexPage />,
+				handle: { title: "Forex", crumb: () => "Forex" },
 			},
 			{
 				path: "industry/:industrySlug",

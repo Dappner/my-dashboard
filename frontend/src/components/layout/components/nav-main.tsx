@@ -60,6 +60,10 @@ const navBarItems: NavBarItem[] = [
 				url: "/investing/research",
 			},
 			{
+				title: "Forex",
+				url: "/investing/forex",
+			},
+			{
 				title: "Manage",
 				url: "/investing/manage",
 			},
