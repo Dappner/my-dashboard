@@ -31,6 +31,8 @@ export type ReceiptWithItems = {
 export const receiptsApiKeys = {
 	all: ["receipts"] as const,
 	user: (userId: string) => [...receiptsApiKeys.all, userId] as const,
+	detail: (userId: string, receiptId: string) =>
+		[...receiptsApiKeys.user(userId), receiptId] as const,
 };
 
 export const receiptsApi = {
@@ -112,5 +114,156 @@ export const receiptsApi = {
 		const receipts = Array.from(receiptMap.values());
 		const nextPage = count !== null && end + 1 < count ? page + 1 : undefined;
 		return { receipts, nextPage };
+	},
+	async getReceiptById(
+		userId: string,
+		receiptId: string,
+	): Promise<ReceiptWithItems> {
+		const { data, error } = await supabase
+			.schema("grocery")
+			.from("receipts_with_items")
+			.select("*")
+			.eq("receipt_id", receiptId)
+			.eq("user_id", userId);
+
+		if (error) throw error;
+		if (!data || data.length === 0) {
+			throw new Error("Receipt not found");
+		}
+
+		// Process the data
+		const receiptData = data[0];
+		let signedImageUrl: string | null = null;
+
+		if (receiptData.receipt_image_path) {
+			const { data: signedUrlData, error: signedUrlError } =
+				await supabase.storage
+					.from("receipts")
+					.createSignedUrl(receiptData.receipt_image_path, 3600);
+
+			if (!signedUrlError) {
+				signedImageUrl = signedUrlData.signedUrl;
+			}
+		}
+
+		// Create the receipt object
+		const receipt: ReceiptWithItems = {
+			receipt_id: receiptData.receipt_id || "",
+			store_name: receiptData.store_name ?? "",
+			purchase_date: receiptData.purchase_date
+				? new Date(receiptData.purchase_date)
+				: new Date(),
+			total_amount: receiptData.total_amount ?? 0,
+			total_discount: receiptData.total_discount ?? 0,
+			currency_code: receiptData.currency_code ?? "USD",
+			receipt_image_path: receiptData.receipt_image_path ?? null,
+			imageUrl: signedImageUrl,
+			items: [],
+		};
+
+		// Add all items from the data
+		for (const row of data as ReceiptsWithItemsRow[]) {
+			if (row.item_id) {
+				receipt.items.push({
+					item_id: row.item_id,
+					item_name: row.item_name ?? "Unknown Item",
+					readable_name: row.readable_name ?? "Unknown Item",
+					quantity: row.quantity ?? 1,
+					unit_price: row.unit_price ?? 0,
+					original_unit_price: row.original_unit_price ?? 0,
+					discount_amount: row.discount_amount ?? 0,
+					is_discounted: row.is_discounted ?? false,
+					total_price: row.total_price ?? null,
+					category_name: row.category_name ?? "",
+				});
+			}
+		}
+
+		return receipt;
+	},
+
+	async updateReceipt(
+		userId: string,
+		receiptId: string,
+		updatedData: Partial<ReceiptWithItems>,
+	): Promise<{ success: boolean; error?: string }> {
+		try {
+			// Update receipt base data
+			const { error: updateError } = await supabase
+				.schema("grocery")
+				.from("receipts")
+				.update({
+					store_name: updatedData.store_name,
+					total_amount: updatedData.total_amount,
+					total_discount: updatedData.total_discount,
+					currency_code: updatedData.currency_code,
+					purchase_date:
+						updatedData.purchase_date instanceof Date
+							? updatedData.purchase_date.toISOString()
+							: undefined,
+				})
+				.eq("receipt_id", receiptId)
+				.eq("user_id", userId);
+
+			if (updateError) throw updateError;
+
+			// Handle item updates if items are provided
+			if (updatedData.items && updatedData.items.length > 0) {
+				for (const item of updatedData.items) {
+					if (!item.item_id) continue;
+
+					const { error: itemError } = await supabase
+						.schema("grocery")
+						.from("receipt_items")
+						.update({
+							item_name: item.item_name,
+							readable_name: item.readable_name,
+							quantity: item.quantity,
+							unit_price: item.unit_price,
+							discount_amount: item.discount_amount,
+							is_discounted: item.is_discounted,
+							category_name: item.category_name,
+						})
+						.eq("item_id", item.item_id);
+
+					if (itemError) {
+						console.error("Error updating item:", itemError);
+						// Continue with other items even if one fails
+					}
+				}
+			}
+
+			return { success: true };
+		} catch (err) {
+			console.error("Error updating receipt:", err);
+			return {
+				success: false,
+				error: err instanceof Error ? err.message : "Unknown error",
+			};
+		}
+	},
+
+	async deleteReceipt(
+		userId: string,
+		receiptId: string,
+	): Promise<{ success: boolean; error?: string }> {
+		try {
+			// Delete receipt (cascade should handle items)
+			const { error: deleteError } = await supabase
+				.schema("grocery")
+				.from("receipts")
+				.delete()
+				.eq("receipt_id", receiptId)
+				.eq("user_id", userId);
+
+			if (deleteError) throw deleteError;
+			return { success: true };
+		} catch (err) {
+			console.error("Error deleting receipt:", err);
+			return {
+				success: false,
+				error: err instanceof Error ? err.message : "Unknown error",
+			};
+		}
 	},
 };

@@ -14,6 +14,7 @@ import { Outlet, type RouteObject } from "react-router-dom";
 import IndustryPage from "./features/Investing/pages/IndustryPage";
 import MarketPage from "./features/Investing/pages/Market/MarketPage";
 import SectorPage from "./features/Investing/pages/SectorPage";
+import ReceiptDetailPage from "./features/Spending/pages/ReceiptDetailsPage/ReceiptDetailPage";
 
 export interface AppRouteHandle<
 	TParams extends Record<string, string> = Record<string, string>,
@@ -130,6 +131,10 @@ export const routeConfig: AppRouteObject[] = [
 				path: "receipts",
 				element: <ReceiptsPage />,
 				handle: { title: "Receipts", crumb: () => "Receipts" },
+			},
+			{
+				path: "receipts/:receiptId",
+				element: <ReceiptDetailPage />,
 			},
 		],
 	},
