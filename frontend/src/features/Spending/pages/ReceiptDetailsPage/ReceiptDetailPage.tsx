@@ -34,8 +34,8 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
-import { useReceipt } from "./useReceipt";
 import { CategoryDropdown } from "./components/CategoryDropdown";
+import { useReceipt } from "./useReceipt";
 
 export default function ReceiptDetailPage() {
 	const { receiptId } = useParams<{ receiptId: string }>();

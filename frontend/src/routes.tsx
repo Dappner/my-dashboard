@@ -16,132 +16,132 @@ import SectorPage from "./features/Investing/pages/SectorPage";
 import ReceiptDetailPage from "./features/Spending/pages/ReceiptDetailsPage/ReceiptDetailPage";
 
 export interface AppRouteHandle<
-  TParams extends Record<string, string> = Record<string, string>,
+	TParams extends Record<string, string> = Record<string, string>,
 > {
-  crumb?: (data: {
-    data: unknown;
-    params: TParams;
-  }) => React.ReactNode;
-  title?: string;
+	crumb?: (data: {
+		data: unknown;
+		params: TParams;
+	}) => React.ReactNode;
+	title?: string;
 }
 
 export type AppRouteObject = RouteObject & {
-  // biome-ignore lint/suspicious/noExplicitAny: This is delicate and is best achieved with any... Can't think of a better way..
-  handle?: AppRouteHandle<any>;
-  children?: AppRouteObject[];
+	// biome-ignore lint/suspicious/noExplicitAny: This is delicate and is best achieved with any... Can't think of a better way..
+	handle?: AppRouteHandle<any>;
+	children?: AppRouteObject[];
 };
 
 export const routeConfig: AppRouteObject[] = [
-  {
-    path: "/",
-    element: <HomePage />,
-    handle: {
-      title: "Home",
-      crumb: () => "Home",
-    },
-  },
-  {
-    path: "/investing",
-    element: <Outlet />, // Parent uses Outlet
-    handle: {
-      // Parent handle defines the base crumb for this section
-      crumb: () => "Investing",
-    },
-    children: [
-      {
-        index: true, // Index route for /investing
-        element: <InvestingPage />,
-        handle: {
-          title: "Investment Dashboard",
-        },
-      },
-      {
-        path: "manage",
-        element: <ManageInvestingPage />,
-        handle: { title: "Manage Investments", crumb: () => "Manage" },
-      },
-      {
-        path: "holdings",
-        element: <HoldingsPage />,
-        handle: { title: "Holdings", crumb: () => "Holdings" },
-      },
-      {
-        path: "transactions",
-        element: <TransactionsPage />,
-        handle: { title: "Transactions", crumb: () => "Transactions" },
-      },
-      {
-        path: "research",
-        element: <ResearchPage />,
-        handle: { title: "Research", crumb: () => "Research" },
-      },
-      {
-        path: "industry/:industrySlug",
-        element: <IndustryPage />,
-        handle: {
-          title: "Industry Performance",
-          crumb: (data: { params: { industrySlug: string } }) =>
-            `Industry: ${data.params.industrySlug}`,
-        } as AppRouteHandle<{ industrySlug: string }>,
-      },
-      {
-        path: "sector/:sectorSlug",
-        element: <SectorPage />,
-        handle: {
-          title: "Sector Performance",
-          crumb: (data: { params: { sectorSlug: string } }) =>
-            `Sector: ${data.params.sectorSlug}`,
-        } as AppRouteHandle<{ sectorSlug: string }>,
-      },
-      {
-        path: "ticker/:exchange/:ticker",
-        element: <TickerPage />,
-        handle: {
-          title: "Stock Details",
-          crumb: (data: { params: { ticker: string } }) =>
-            `Stock: ${data.params.ticker.toUpperCase()}`,
-        } as AppRouteHandle<{ ticker: string }>,
-      },
-      {
-        path: "alerts",
-        element: <AlertsPage />,
-        handle: { title: "Alerts", crumb: () => "Alerts" },
-      },
-    ],
-  },
-  {
-    path: "spending",
-    element: <Outlet />,
-    handle: { title: "Spending Overview", crumb: () => "Spending" },
-    children: [
-      {
-        index: true,
-        element: <SpendingPage />,
-        handle: {
-          title: "Spending Dashboard",
-        },
-      },
-      {
-        path: "receipts",
-        element: <ReceiptsPage />,
-        handle: { title: "Receipts", crumb: () => "Receipts" },
-      },
-      {
-        path: "receipts/:receiptId",
-        element: <ReceiptDetailPage />,
-        handle: { title: "Receipt Detail", crumb: () => "Receipts" },
-      },
-    ],
-  },
-  {
-    path: "settings",
-    element: <SettingsPage />,
-    handle: { title: "Settings", crumb: () => "Settings" },
-  },
+	{
+		path: "/",
+		element: <HomePage />,
+		handle: {
+			title: "Home",
+			crumb: () => "Home",
+		},
+	},
+	{
+		path: "/investing",
+		element: <Outlet />, // Parent uses Outlet
+		handle: {
+			// Parent handle defines the base crumb for this section
+			crumb: () => "Investing",
+		},
+		children: [
+			{
+				index: true, // Index route for /investing
+				element: <InvestingPage />,
+				handle: {
+					title: "Investment Dashboard",
+				},
+			},
+			{
+				path: "manage",
+				element: <ManageInvestingPage />,
+				handle: { title: "Manage Investments", crumb: () => "Manage" },
+			},
+			{
+				path: "holdings",
+				element: <HoldingsPage />,
+				handle: { title: "Holdings", crumb: () => "Holdings" },
+			},
+			{
+				path: "transactions",
+				element: <TransactionsPage />,
+				handle: { title: "Transactions", crumb: () => "Transactions" },
+			},
+			{
+				path: "research",
+				element: <ResearchPage />,
+				handle: { title: "Research", crumb: () => "Research" },
+			},
+			{
+				path: "industry/:industrySlug",
+				element: <IndustryPage />,
+				handle: {
+					title: "Industry Performance",
+					crumb: (data: { params: { industrySlug: string } }) =>
+						`Industry: ${data.params.industrySlug}`,
+				} as AppRouteHandle<{ industrySlug: string }>,
+			},
+			{
+				path: "sector/:sectorSlug",
+				element: <SectorPage />,
+				handle: {
+					title: "Sector Performance",
+					crumb: (data: { params: { sectorSlug: string } }) =>
+						`Sector: ${data.params.sectorSlug}`,
+				} as AppRouteHandle<{ sectorSlug: string }>,
+			},
+			{
+				path: "ticker/:exchange/:ticker",
+				element: <TickerPage />,
+				handle: {
+					title: "Stock Details",
+					crumb: (data: { params: { ticker: string } }) =>
+						`Stock: ${data.params.ticker.toUpperCase()}`,
+				} as AppRouteHandle<{ ticker: string }>,
+			},
+			{
+				path: "alerts",
+				element: <AlertsPage />,
+				handle: { title: "Alerts", crumb: () => "Alerts" },
+			},
+		],
+	},
+	{
+		path: "spending",
+		element: <Outlet />,
+		handle: { title: "Spending Overview", crumb: () => "Spending" },
+		children: [
+			{
+				index: true,
+				element: <SpendingPage />,
+				handle: {
+					title: "Spending Dashboard",
+				},
+			},
+			{
+				path: "receipts",
+				element: <ReceiptsPage />,
+				handle: { title: "Receipts", crumb: () => "Receipts" },
+			},
+			{
+				path: "receipts/:receiptId",
+				element: <ReceiptDetailPage />,
+				handle: { title: "Receipt Detail", crumb: () => "Receipts" },
+			},
+		],
+	},
+	{
+		path: "settings",
+		element: <SettingsPage />,
+		handle: { title: "Settings", crumb: () => "Settings" },
+	},
 ];
 
 export const loginRoute: AppRouteObject = {
-  path: "/login",
-  element: <LoginPage />,
-  handle: { title: "Login" },
+	path: "/login",
+	element: <LoginPage />,
+	handle: { title: "Login" },
 };
