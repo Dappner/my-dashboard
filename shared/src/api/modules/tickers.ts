@@ -11,7 +11,8 @@ export const tickersApiKeys = {
 export function createTickersApi(supabase: SupabaseClient<Database>) {
   return {
     async getTickers() {
-      const { data } = await supabase.from("tickers").select().order("symbol");
+      const { data } = await supabase.from("tickers").select().order("symbol")
+        .is("tradeable", true);
 
       return data as Ticker[];
     },
