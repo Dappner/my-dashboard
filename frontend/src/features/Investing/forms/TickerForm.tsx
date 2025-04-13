@@ -21,8 +21,6 @@ export const tickerFormSchema = z.object({
 	symbol: z.string().min(1, "Symbol is required").max(10),
 	name: z.string().optional(),
 	exchange: z.string().optional(),
-	sector: z.string().optional(),
-	industry: z.string().optional(),
 	dividend_amount: z.coerce.number().optional(),
 	dividend_months: z.array(z.number()).optional(),
 	cik: z.string().optional(),
@@ -42,8 +40,6 @@ export function TickerForm({
 		symbol: "",
 		name: "",
 		exchange: "",
-		sector: "",
-		industry: "",
 		dividend_amount: 0,
 		dividend_months: [],
 		cik: "",
@@ -122,32 +118,6 @@ export function TickerForm({
 									<FormLabel>Exchange</FormLabel>
 									<FormControl>
 										<Input placeholder="NASDAQ" {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="sector"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Sector</FormLabel>
-									<FormControl>
-										<Input placeholder="Technology" {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="industry"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Industry</FormLabel>
-									<FormControl>
-										<Input placeholder="Consumer Electronics" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>

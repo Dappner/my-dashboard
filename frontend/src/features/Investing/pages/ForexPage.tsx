@@ -1,4 +1,6 @@
-import { useState } from "react";
+import TimeframeControls from "@/components/controls/TimeFrameControls";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -21,23 +23,21 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
-import {
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-	Tooltip,
-	ResponsiveContainer,
-} from "recharts";
 import { useCurrencyPairs } from "@/hooks/useCurrencyPairs";
 import { useHistoricalForexRates } from "@/hooks/useHistoricalForexRates";
 import { useLatestForexRate } from "@/hooks/useLatestForexRate";
-import type { Timeframe, CurrencyPair, ForexRate } from "@my-dashboard/shared";
-import TimeframeControls from "@/components/controls/TimeFrameControls";
+import type { CurrencyPair, ForexRate, Timeframe } from "@my-dashboard/shared";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import {
+	CartesianGrid,
+	Line,
+	LineChart,
+	ResponsiveContainer,
+	Tooltip,
+	XAxis,
+	YAxis,
+} from "recharts";
 
 export default function ForexPage() {
 	const [selectedPair, setSelectedPair] = useState<string>("USD/EUR");

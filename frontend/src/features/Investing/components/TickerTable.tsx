@@ -12,7 +12,7 @@ import { monthsShort } from "@/features/Investing/constants";
 import { AppRoutes } from "@/navigation";
 import type { Ticker } from "@my-dashboard/shared";
 import { Pencil, Trash2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEntityMappings } from "../hooks/useEntityMappings";
 import { IndustryDisplay } from "./IndustryDisplay";
 import { SectorDisplay } from "./SectorDisplay";
@@ -23,7 +23,6 @@ interface TickerTableProps {
 	tickers: Ticker[];
 	variant?: TickerTableVariant;
 	isLoading?: boolean;
-	onSymbolClick?: (ticker: Ticker) => void;
 	onEdit?: (ticker: Ticker) => void;
 	onDelete?: (ticker: Ticker) => void;
 	emptyMessage?: string;
@@ -33,33 +32,30 @@ export function TickerTable({
 	tickers,
 	variant = "simple",
 	isLoading = false,
-	onSymbolClick,
 	onEdit,
 	onDelete,
 	emptyMessage = "No tickers available",
 }: TickerTableProps) {
 	const { sectorMap, industryMap } = useEntityMappings();
+	const navigate = useNavigate();
 	// Helper for rendering Symbol cell with click handler
+	const onSymbolClick = (ticker: Ticker) => {
+		navigate(AppRoutes.investing.ticker(ticker.exchange || "", ticker.symbol));
+	};
 	const renderSymbol = (ticker: Ticker) => (
-		<span
-			className={
-				onSymbolClick ? "font-bold cursor-pointer hover:underline" : "font-bold"
-			}
-			onClick={onSymbolClick ? () => onSymbolClick(ticker) : undefined}
-			onKeyDown={
-				onSymbolClick
-					? (e) => {
-							if (e.key === "Enter" || e.key === " ") {
-								onSymbolClick(ticker);
-							}
-						}
-					: undefined
-			}
-			tabIndex={onSymbolClick ? 0 : undefined}
-			role={onSymbolClick ? "button" : undefined}
+		<button
+			type="button"
+			className="font-bold cursor-pointer hover:underline"
+			onClick={() => onSymbolClick(ticker)}
+			onKeyDown={(e) => {
+				if (e.key === "Enter" || e.key === " ") {
+					onSymbolClick(ticker);
+				}
+			}}
+			tabIndex={0}
 		>
 			{ticker.symbol}
-		</span>
+		</button>
 	);
 
 	// Helper for rendering dividend months

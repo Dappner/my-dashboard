@@ -9,7 +9,6 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Dict, List, Optional, Any, Union
 from pydantic import BaseModel, Field, field_validator
-
 from src.core.logging_config import setup_logging
 
 logger = setup_logging(name="event_processor")

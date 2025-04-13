@@ -10,13 +10,16 @@ import {
 import type { Holding } from "@my-dashboard/shared";
 import { useNavigate } from "react-router";
 import { useHoldings } from "../hooks/useHoldings";
+import { AppRoutes } from "@/navigation";
 
 export default function HoldingsWidget() {
 	const navigate = useNavigate();
 	const { holdings, isLoading, isError } = useHoldings();
 
 	const handleHoldingClick = (holding: Holding) => {
-		navigate(`/investing/stock/${holding.exchange}/${holding.symbol}`);
+		navigate(
+			AppRoutes.investing.ticker(holding.exchange || "", holding.symbol || ""),
+		);
 	};
 
 	return (

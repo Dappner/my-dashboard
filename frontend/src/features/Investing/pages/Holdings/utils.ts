@@ -1,6 +1,11 @@
 import type { PieChartDataItem } from "@/components/charts/CustomPieChart";
 import { chartColors } from "@/constants";
-import type { Holding, HoldingAllocation } from "@my-dashboard/shared";
+import type {
+	Holding,
+	HoldingAllocation,
+	Industry,
+	Sector,
+} from "@my-dashboard/shared";
 import type { PieData } from "./components/DividendPieChart";
 
 export interface DividendMonthData {
@@ -160,25 +165,31 @@ export const prepareDividendPieData = (
 
 	return result;
 };
-
 export const prepareSectorData = (
 	holdings: HoldingAllocation[],
+	sectorKeyMap: Map<string, Sector>,
 ): PieChartDataItem[] => {
 	const sectorMap = new Map<string, number>();
 
 	for (const holding of holdings) {
 		const marketValue = holding.current_market_value ?? 0;
+
 		if (holding.quote_type === "EQUITY" && holding.stock_sector) {
-			sectorMap.set(
-				holding.stock_sector,
-				(sectorMap.get(holding.stock_sector) ?? 0) + marketValue,
-			);
+			// Use sector key to get proper name
+			const sectorKey = holding.stock_sector;
+			const sectorName = sectorKeyMap.get(sectorKey)?.name || sectorKey;
+
+			sectorMap.set(sectorName, (sectorMap.get(sectorName) ?? 0) + marketValue);
 		} else if (holding.sector_weightings) {
 			for (const sector of holding.sector_weightings) {
 				const sectorValue = marketValue * (sector.weight / 100);
+				// Try to map sector_name to proper name if available
+				const sectorName =
+					sectorKeyMap.get(sector.sector_name)?.name || sector.sector_name;
+
 				sectorMap.set(
-					sector.sector_name,
-					(sectorMap.get(sector.sector_name) ?? 0) + sectorValue,
+					sectorName,
+					(sectorMap.get(sectorName) ?? 0) + sectorValue,
 				);
 			}
 		} else {
@@ -186,34 +197,37 @@ export const prepareSectorData = (
 		}
 	}
 
-	return Array.from(sectorMap.entries()).map(([label, value]) => ({
-		label: formatSectorName(label) || "N/A",
-		value,
-	}));
+	return Array.from(sectorMap.entries())
+		.map(([label, value]) => ({
+			label: label || "N/A",
+			value,
+		}))
+		.sort((a, b) => b.value - a.value);
 };
 
 export const prepareIndustryData = (
 	holdings: Holding[],
+	industryKeyMap: Map<string, Industry>,
 ): PieChartDataItem[] => {
 	if (!holdings || holdings.length === 0) return [];
 
 	const industryMap = new Map<string, number>();
 
 	for (const holding of holdings) {
-		const industry = holding.industry ?? holding.quote_type ?? "Unknown";
+		const industryKey = holding.industry ?? holding.quote_type ?? "Unknown";
+		const industryName = industryKeyMap.get(industryKey)?.name || industryKey;
 		const value = (holding.shares ?? 0) * (holding.average_cost_basis ?? 0);
 
-		industryMap.set(industry, (industryMap.get(industry) ?? 0) + value);
+		industryMap.set(industryName, (industryMap.get(industryName) ?? 0) + value);
 	}
 
 	return Array.from(industryMap.entries())
 		.map(([label, value]) => ({
-			label: formatIndustryName(label),
+			label: label,
 			value: Number(value.toFixed(2)),
 		}))
 		.sort((a, b) => b.value - a.value);
 };
-
 export const prepareAllocationData = (
 	holdings: Holding[],
 	cash_balance: number,

@@ -34,7 +34,7 @@ export default function ManageInvestingPage() {
 	const { tickers, isLoading } = useTickers();
 
 	const { data: untradeableTickers } = useUntradeableTickers();
-	const { openAddTicker } = useTickerSheet();
+	const { openAddTicker, openEditTicker } = useTickerSheet();
 
 	const { user, updateUser } = useUser();
 
@@ -111,7 +111,11 @@ export default function ManageInvestingPage() {
 						</div>
 					) : filteredTickers && filteredTickers.length > 0 ? (
 						<div className="rounded-md border">
-							<TickerTable tickers={filteredTickers || []} />
+							<TickerTable
+								variant="admin"
+								tickers={filteredTickers || []}
+								onEdit={openEditTicker}
+							/>
 						</div>
 					) : (
 						<div className="py-8 text-center">

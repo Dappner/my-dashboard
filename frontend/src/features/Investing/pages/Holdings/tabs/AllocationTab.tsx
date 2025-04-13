@@ -10,6 +10,8 @@ import {
 	prepareIndustryData,
 	prepareSectorData,
 } from "../utils";
+import { useEntityMappings } from "@/features/Investing/hooks/useEntityMappings";
+import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 
 export default function AllocationTab() {
 	const { holdings } = useHoldings();
@@ -18,31 +20,41 @@ export default function AllocationTab() {
 		() => calculateGeographicExposure(holdings),
 		[holdings],
 	);
+
+	const { sectorKeyMap, industryKeyMap, isLoading } = useEntityMappings();
 	if (!holdings || !holdingsAllocation) {
 		return;
 	}
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-cols-max gap-4">
+		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 			<div className="col-span-1">
-				<CustomPieChart
-					title="Sector"
-					prefix="$"
-					data={prepareSectorData(holdingsAllocation)}
-					inputType="Absolute"
-					outputType="Percentage"
-					colors={chartColors}
-				/>
+				{isLoading ? (
+					<LoadingSpinner />
+				) : (
+					<CustomPieChart
+						title="Sector"
+						prefix="$"
+						data={prepareSectorData(holdingsAllocation, sectorKeyMap)}
+						inputType="Absolute"
+						outputType="Percentage"
+						colors={chartColors}
+					/>
+				)}
 			</div>
 			<div className="col-span-1">
-				<CustomPieChart
-					title="Industry"
-					prefix="$"
-					data={prepareIndustryData(holdings)}
-					inputType="Absolute"
-					outputType="Percentage"
-					colors={chartColors}
-				/>
+				{isLoading ? (
+					<LoadingSpinner />
+				) : (
+					<CustomPieChart
+						title="Industry"
+						prefix="$"
+						data={prepareIndustryData(holdings, industryKeyMap)}
+						inputType="Absolute"
+						outputType="Percentage"
+						colors={chartColors}
+					/>
+				)}
 			</div>
 			<div className="col-span-1">
 				<div className="flex flex-row items-center justify-between mb-2 h-8">
@@ -67,9 +79,11 @@ export default function AllocationTab() {
 							</div>
 						))}
 					</CardContent>
-				</Card>{" "}
+				</Card>
 			</div>
-			<div className="col-span-3">{/* <GeographicExposureMap /> */}</div>
+			<div className="col-span-1 md:col-span-2 lg:col-span-3">
+				{/* <GeographicExposureMap /> */}
+			</div>
 		</div>
 	);
 }

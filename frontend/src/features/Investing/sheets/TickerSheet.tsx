@@ -21,8 +21,6 @@ export function TickerSheet({ isOpen, onClose, ticker }: TickerSheetProps) {
 				exchange: ticker.exchange ?? "",
 				dividend_amount: ticker.dividend_amount ?? 0,
 				dividend_months: ticker.dividend_months ?? [],
-				sector: ticker.sector ?? "",
-				industry: ticker.industry ?? "",
 				backfill: ticker.backfill ?? false,
 				name: ticker.name ?? "",
 				cik: ticker.cik ?? "",

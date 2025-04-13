@@ -11,10 +11,10 @@ import SettingsPage from "@/features/Settings/SettingsPage";
 import SpendingPage from "@/features/Spending/SpendingPage";
 import ReceiptsPage from "@/features/Spending/pages/ReceiptsPage";
 import { Outlet, type RouteObject } from "react-router-dom";
+import ForexPage from "./features/Investing/pages/ForexPage";
 import IndustryPage from "./features/Investing/pages/IndustryPage";
 import SectorPage from "./features/Investing/pages/SectorPage";
 import ReceiptDetailPage from "./features/Spending/pages/ReceiptDetailsPage/ReceiptDetailPage";
-import ForexPage from "./features/Investing/pages/ForexPage";
 
 export interface AppRouteHandle<
 	TParams extends Record<string, string> = Record<string, string>,
