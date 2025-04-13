@@ -9,8 +9,8 @@ import { CheckSquare, DollarSign, GitCommit, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import PortfolioChart from "../Investing/components/PortfolioChart";
 import { usePortfolioMetrics } from "../Investing/hooks/usePortfolioMetrics";
-import { useSpendingMetrics } from "../Spending/hooks/useSpendingMetrics";
 import { CategoryPieChart } from "../Spending/components/CategoryPieChart";
+import { useSpendingMetrics } from "../Spending/hooks/useSpendingMetrics";
 
 type ChessDay = { date: string; played: boolean };
 type CommitDay = { date: string; count: number };
