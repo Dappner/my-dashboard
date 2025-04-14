@@ -24,6 +24,10 @@ export const AppRoutes = {
 			list: () => "/spending/receipts",
 			detail: (id: string) => `/spending/receipts/${id}`,
 		},
+		categories: {
+			list: () => "/spending/categories",
+			detail: (id: string) => `/spending/category/${id}`,
+		},
 	},
 
 	settings: () => "/settings",

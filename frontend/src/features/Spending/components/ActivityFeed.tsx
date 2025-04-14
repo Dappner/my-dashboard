@@ -6,6 +6,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { AppRoutes } from "@/navigation";
 import { ReceiptIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -28,7 +29,7 @@ export const ActivityFeed: React.FC<{ receipts: Receipt[] }> = ({
 						{receipts.map((receipt) => (
 							<li key={receipt.id}>
 								<Link
-									to={`/receipts/${receipt.id}`}
+									to={AppRoutes.spending.receipts.detail(receipt.id)}
 									className="flex items-center justify-between p-2 rounded-md hover:bg-muted transition-colors"
 								>
 									<div className="flex items-center">

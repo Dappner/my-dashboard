@@ -1,6 +1,4 @@
 service: daily-market-update
-org: dappner
-app: daily-market-update
 frameworkVersion: "3"
 
 provider:
@@ -8,6 +6,7 @@ provider:
   runtime: python3.10
   region: us-east-1
   profile: my-dashboard
+  architecture: x86_64
   environment:
     SUPABASE_URL: ${ssm:/daily-market-update/supabase-url}
     SUPABASE_KEY: ${ssm:/daily-market-update/supabase-key}
@@ -40,32 +39,15 @@ provider:
 plugins:
   - serverless-python-requirements
 
-custom:
-  pythonRequirements:
-    dockerizePip: true
-    layer: true # This will create a layer for dependencies
-    useStaticCache: true
-    useDownloadCache: true
-    slim: true # Slim down the package by removing unnecessary files
-    strip: true # Strip compiled libraries to reduce size
-    noDeploy: # Don't include these packages
-      - pytest
-      - coverage
-    dockerImage: public.ecr.aws/sam/build-python3.10:latest-x86_64
-    dockerExtraPipArgs: "--platform manylinux2014_x86_64 --only-binary=:all:"
-
+# custom:
+#   pythonRequirements:
+#     dockerizePip: non-linux
+#     dockerFile: ./Dockerfile
+#     dockerDisableCache: true
+#     layer: false
+#
 package:
-  individually: true
-  patterns:
-    - "!node_modules/**"
-    - "!tests/**"
-    - "!__pycache__/**"
-    - "!.pytest_cache/**"
-    - "!.git/**"
-    - "!.github/**"
-    - "!.vscode/**"
-    - "!*.dist-info/**"
-    - "!*.egg-info/**"
+  individually: false
 
 functions:
   processTickerData:

@@ -79,6 +79,10 @@ const navBarItems: NavBarItem[] = [
 				title: "Receipts",
 				url: "/spending/receipts",
 			},
+			{
+				title: "Categories",
+				url: "/spending/categories",
+			},
 		],
 	},
 	{

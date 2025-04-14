@@ -34,6 +34,7 @@ export default function TotalValueDisplay({
 }: TotalValueDisplayProps) {
 	const { metrics, isLoading, error } = usePortfolioMetrics(timeframe);
 
+	console.log(metrics);
 	if (isLoading) {
 		return (
 			<div className={`${className} py-4`}>

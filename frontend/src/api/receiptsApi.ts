@@ -7,6 +7,10 @@ export type Receipt = Database["grocery"]["Tables"]["receipts"]["Row"];
 export type ReceiptItem = Database["grocery"]["Tables"]["receipt_items"]["Row"];
 export type UpdateReceiptItem =
 	Database["grocery"]["Tables"]["receipt_items"]["Update"];
+
+export type SpendingCategory =
+	Database["grocery"]["Tables"]["categories"]["Row"];
+
 export type ReceiptWithItems = {
 	receipt_id: string;
 	store_name: string | null; // Allow null as per view
@@ -210,7 +214,7 @@ export const receiptsApi = {
 							? updatedData.purchase_date.toISOString()
 							: undefined,
 				})
-				.eq("receipt_id", receiptId)
+				.eq("id", receiptId)
 				.eq("user_id", userId);
 
 			if (updateError) throw updateError;
@@ -238,6 +242,7 @@ export const receiptsApi = {
 
 		return data;
 	},
+
 	async updateReceiptItemCategory(
 		receiptId: string,
 		itemId: string,
@@ -274,7 +279,7 @@ export const receiptsApi = {
 				.schema("grocery")
 				.from("receipts")
 				.delete()
-				.eq("receipt_id", receiptId)
+				.eq("id", receiptId)
 				.eq("user_id", userId);
 
 			if (deleteError) throw deleteError;

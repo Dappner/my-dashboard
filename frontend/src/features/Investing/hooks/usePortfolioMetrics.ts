@@ -13,6 +13,7 @@ export const usePortfolioMetrics = (timeframe: Timeframe = "ALL") => {
 	} = usePortfolioDailyMetrics(timeframe);
 
 	const { transactions, isLoading: transactionsLoading } = useTransactions();
+	console.log(dailyMetrics);
 
 	const { holdings, isLoading: holdingsLoading } = useHoldings();
 
