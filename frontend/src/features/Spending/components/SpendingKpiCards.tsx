@@ -6,9 +6,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AppRoutes } from "@/navigation";
 import { CalendarIcon, Receipt as ReceiptIcon, TrendingUp } from "lucide-react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { SpendingTrendIndicator } from "./SpendingTrendIndicator";
 
 interface SpendingKpiCardsProps {
@@ -18,6 +19,7 @@ interface SpendingKpiCardsProps {
 	averageDailySpend: number;
 	categories: CategoryData[];
 	month: string;
+	isLoading?: boolean;
 }
 
 export const SpendingKpiCards: React.FC<SpendingKpiCardsProps> = ({
@@ -27,16 +29,28 @@ export const SpendingKpiCards: React.FC<SpendingKpiCardsProps> = ({
 	month,
 	trend,
 	averageDailySpend,
+	isLoading = false,
 }) => {
+	// Find the category with the highest amount
 	const topCategory = categories.reduce(
 		(max, category) => (category.amount > max.amount ? category : max),
-		categories[0] || { name: "None", amount: 0 },
+		categories[0] || { id: "", name: "None", amount: 0 },
 	);
+
+	if (isLoading) {
+		return (
+			<div className="grid gap-4 md:grid-cols-4">
+				{[1, 2, 3, 4].map((i) => (
+					<Skeleton key={i} className="h-32 w-full rounded-lg" />
+				))}
+			</div>
+		);
+	}
 
 	return (
 		<div className="grid gap-4 md:grid-cols-4">
 			<Card className="hover:shadow-md transition-shadow">
-				<CardHeader>
+				<CardHeader className="pb-2">
 					<CardTitle className="text-lg flex items-center">
 						<TrendingUp className="h-4 w-4 mr-2" />
 						Total Spent
@@ -45,12 +59,11 @@ export const SpendingKpiCards: React.FC<SpendingKpiCardsProps> = ({
 				</CardHeader>
 				<CardContent>
 					<div className="text-2xl font-bold">${totalSpent.toFixed(2)}</div>
-					<SpendingTrendIndicator trend={trend} />
 				</CardContent>
 			</Card>
 
 			<Card className="hover:shadow-md transition-shadow">
-				<CardHeader>
+				<CardHeader className="pb-2">
 					<CardTitle className="text-lg flex items-center">
 						<ReceiptIcon className="h-4 w-4 mr-2" />
 						Receipts
@@ -66,32 +79,41 @@ export const SpendingKpiCards: React.FC<SpendingKpiCardsProps> = ({
 			</Card>
 
 			<Card className="hover:shadow-md transition-shadow h-full">
-				<CardHeader>
+				<CardHeader className="pb-2">
 					<CardTitle className="text-lg">Top Category</CardTitle>
 					<CardDescription className="text-xs">{month}</CardDescription>
 				</CardHeader>
 				<CardContent>
-					{/* TODO: Should link to this month of Alcohol */}
-					<Link
-						className="text-xl font-bold"
-						to={AppRoutes.spending.categories.detail(topCategory.id)}
-					>
-						{topCategory.name}
-					</Link>
-					<p className="text-sm text-muted-foreground">
-						${topCategory.amount.toFixed(2)}
-					</p>
+					{topCategory.id ? (
+						<>
+							<Link
+								className="text-xl font-bold hover:underline"
+								to={AppRoutes.spending.categories.detail(topCategory.id)}
+							>
+								{topCategory.name}
+							</Link>
+							<p className="text-sm text-muted-foreground">
+								${topCategory.amount.toFixed(2)}
+							</p>
+						</>
+					) : (
+						<div className="text-xl font-bold text-muted-foreground">
+							No categories
+						</div>
+					)}
 				</CardContent>
 			</Card>
 
-			<Card>
-				<CardHeader>
+			<Card className="hover:shadow-md transition-shadow">
+				<CardHeader className="pb-2">
 					<CardTitle className="text-lg">Average Daily Spend</CardTitle>
+					<p className="text-xs text-muted-foreground">{month}</p>
 				</CardHeader>
 				<CardContent>
 					<div className="text-2xl font-bold">
 						${averageDailySpend.toFixed(2)}
 					</div>
+					<SpendingTrendIndicator trend={trend} />
 				</CardContent>
 			</Card>
 		</div>

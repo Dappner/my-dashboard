@@ -1,19 +1,28 @@
 import type { CategoryData } from "@/api/spendingApi";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { AppRoutes } from "@/navigation";
+import { format } from "date-fns";
 import { memo } from "react";
 import { Link } from "react-router-dom";
 
 type CategoryCardProps = {
 	category: CategoryData;
 	percentage?: number;
+	currentMonth: Date;
 	color?: string;
 };
 
 export const CategoryCard = memo(
-	({ category, percentage, color = "#0088FE" }: CategoryCardProps) => {
+	({
+		category,
+		percentage,
+		color = "#0088FE",
+		currentMonth,
+	}: CategoryCardProps) => {
+		const monthParam = format(currentMonth, "yyyy-MM");
 		return (
-			<Link to={AppRoutes.spending.categories.detail(category.id)}>
+			<Link
+				to={`$AppRoutes.spending.categories.detail(category.id)/${monthParam}`}
+			>
 				<Card className="overflow-hidden transition-all hover:shadow-md">
 					<CardContent className="p-0">
 						<div className="h-1.5" style={{ backgroundColor: color }} />

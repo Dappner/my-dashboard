@@ -130,6 +130,13 @@ export const routeConfig: AppRouteObject[] = [
 				},
 			},
 			{
+				path: ":month",
+				element: <SpendingPage />,
+				handle: {
+					title: "Spending Dashboard",
+				},
+			},
+			{
 				path: "receipts",
 				handle: { title: "Receipts", crumb: () => "Receipts" },
 				children: [
@@ -155,9 +162,18 @@ export const routeConfig: AppRouteObject[] = [
 						handle: { title: null, crumb: () => null },
 					},
 					{
+						path: ":month",
+						element: <SpendingCategoriesPage />,
+					},
+					{
 						handle: { title: "Category", crumb: () => "Category" },
 						path: ":categoryId",
 						element: <SpendingCategoryDetailPage />,
+					},
+					{
+						path: ":categoryId/:month",
+						element: <SpendingCategoryDetailPage />,
+						handle: { title: "Category", crumb: () => "Category" },
 					},
 				],
 			},

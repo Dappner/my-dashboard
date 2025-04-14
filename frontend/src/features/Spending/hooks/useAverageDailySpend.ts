@@ -11,12 +11,19 @@ interface UseAverageDailySpendOptions {
  * Calculate the average daily spend based on daily spending data
  * Uses different calculation strategies based on whether viewing current month or past months
  */
+/**
+ * Calculate the average daily spend based on daily spending data
+ * Uses different calculation strategies based on whether viewing current month or past months
+ *
+ * For current month: total spent / days elapsed so far
+ * For past months: total spent / total days in month
+ */
 export function useAverageDailySpend({
 	dailySpending,
 	selectedDate,
 }: UseAverageDailySpendOptions): number {
 	return useMemo(() => {
-		if (!dailySpending || dailySpending.length === 0) {
+		if (!dailySpending) {
 			return 0;
 		}
 
@@ -24,34 +31,24 @@ export function useAverageDailySpend({
 		const isCurrentMonth =
 			isSameMonth(today, selectedDate) && isSameYear(today, selectedDate);
 
-		// Count days with actual spending data
-		const daysWithData = dailySpending.filter(
-			(d) => d.total_amount && d.total_amount > 0,
-		).length;
-
-		// Calculate total spent
+		// Calculate total spent for the month
 		const totalSpent = dailySpending.reduce(
 			(sum, d) => sum + (d.total_amount || 0),
 			0,
 		);
 
-		// For average calculation:
-		// 1. Prioritize using days with actual spending data if available
-		// 2. For current month, use elapsed days
-		// 3. For past months, use total days in month
-		let divisor: number;
+		// Calculate denominator based on month type
+		let daysInPeriod: number;
 
-		if (daysWithData > 0) {
-			// If we have spending data, average across days with spending
-			divisor = daysWithData;
-		} else if (isCurrentMonth) {
-			// Current month - use elapsed days
-			divisor = today.getDate();
+		if (isCurrentMonth) {
+			// For current month, use days elapsed so far
+			daysInPeriod = today.getDate();
 		} else {
-			// Past month - use total days in month
-			divisor = endOfMonth(selectedDate).getDate();
+			// For past months, use total days in that month
+			daysInPeriod = endOfMonth(selectedDate).getDate();
 		}
 
-		return divisor > 0 ? totalSpent / divisor : 0;
+		// Return the average - total spent divided by all days in the period
+		return daysInPeriod > 0 ? totalSpent / daysInPeriod : 0;
 	}, [dailySpending, selectedDate]);
 }

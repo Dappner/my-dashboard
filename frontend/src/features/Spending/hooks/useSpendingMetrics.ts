@@ -36,21 +36,56 @@ export function useLastMonthSpending(selectedDate: Date) {
 }
 
 /**
- * Hook to calculate monthly trend by comparing current month with last month
+ * Hook to calculate monthly trend by comparing current month with last month (average Spending)
  */
 export function useMonthlyTrend(selectedDate: Date) {
 	const currentMonth = useCurrentMonthSpending(selectedDate);
 	const lastMonth = useLastMonthSpending(selectedDate);
 
-	// Calculate trend only when both queries have completed successfully
+	// Calculate trend based on average daily spend
 	const trend = useMemo(() => {
-		if (currentMonth.data?.totalSpent && lastMonth.data && lastMonth.data > 0) {
-			return (
-				((currentMonth.data.totalSpent - lastMonth.data) / lastMonth.data) * 100
-			);
+		// Get current month info
+		const currentMonthTotal = currentMonth.data?.totalSpent || 0;
+		const currentMonthDays = new Date(
+			selectedDate.getFullYear(),
+			selectedDate.getMonth() + 1,
+			0,
+		).getDate();
+
+		// For current month, use days elapsed if we're in that month
+		const today = new Date();
+		const isCurrentMonthNow =
+			today.getMonth() === selectedDate.getMonth() &&
+			today.getFullYear() === selectedDate.getFullYear();
+		const currentDaysToUse = isCurrentMonthNow
+			? today.getDate()
+			: currentMonthDays;
+
+		// Get last month info
+		const lastMonthTotal = lastMonth.data || 0;
+		const lastMonthDate = new Date(
+			selectedDate.getFullYear(),
+			selectedDate.getMonth() - 1,
+			1,
+		);
+		const lastMonthDays = new Date(
+			lastMonthDate.getFullYear(),
+			lastMonthDate.getMonth() + 1,
+			0,
+		).getDate();
+
+		// Calculate average daily spend for both months
+		const currentDailyAvg =
+			currentDaysToUse > 0 ? currentMonthTotal / currentDaysToUse : 0;
+		const lastDailyAvg = lastMonthDays > 0 ? lastMonthTotal / lastMonthDays : 0;
+
+		// Calculate trend percentage
+		if (currentDailyAvg > 0 && lastDailyAvg > 0) {
+			return ((currentDailyAvg - lastDailyAvg) / lastDailyAvg) * 100;
 		}
+
 		return 0;
-	}, [currentMonth.data, lastMonth.data]);
+	}, [currentMonth.data, lastMonth.data, selectedDate]);
 
 	return {
 		trend,
