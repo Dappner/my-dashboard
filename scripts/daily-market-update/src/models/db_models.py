@@ -85,11 +85,10 @@ class DBTickerInfo(BaseModel):
     symbol: str
     name: Optional[str] = None
     quote_type: str = "EQUITY"
-    exchange: Optional[str] = None
     region: Optional[str] = None
     category: Optional[str] = None
-    sector: Optional[str] = None
-    industry: Optional[str] = None
+    sector_id: Optional[str] = None
+    industry_id: Optional[str] = None
     long_business_summary: Optional[str] = None
     dividend_amount: Optional[float] = None
     dividend_months: Optional[List[int]] = None

@@ -8,6 +8,8 @@ export const calendarEventsApiKeys = {
     tickerId
       ? ([...calendarEventsApiKeys.all, "upcoming", limit, tickerId] as const)
       : ([...calendarEventsApiKeys.all, "upcoming", limit] as const),
+  upcomingByTickerIds: (limit: number, tickerIds: string[]) =>
+    [...calendarEventsApiKeys.all, "upcomingByTickerIds", limit, tickerIds] as const,
 };
 
 export function createCalendarEventsApi(supabase: SupabaseClient<Database>) {
@@ -31,6 +33,29 @@ export function createCalendarEventsApi(supabase: SupabaseClient<Database>) {
       if (error) {
         console.error("Error fetching calendar events:", error);
         throw new Error("Failed to fetch upcoming events");
+      }
+
+      return data || [];
+    },
+    async getUpcomingEventsByTickerIds(
+      tickerIds: string[],
+      limit = 5,
+    ): Promise<CalendarEventsView[]> {
+      if (!tickerIds || tickerIds.length === 0) {
+        return [];
+      }
+
+      const { data, error } = await supabase
+        .from("calendar_events_with_tickers")
+        .select("*")
+        .gte("date", new Date().toISOString().split("T")[0]) // Events from today onward
+        .in("ticker_id", tickerIds) // Filter by list of tickerIds
+        .order("date", { ascending: true })
+        .limit(limit);
+
+      if (error) {
+        console.error("Error fetching calendar events by ticker IDs:", error);
+        throw new Error("Failed to fetch upcoming events by ticker IDs");
       }
 
       return data || [];

@@ -236,6 +236,8 @@ class YFTickerInfo(BaseModel):
     # Business information
     sector: Optional[str] = None
     industry: Optional[str] = None
+    region: Optional[str] = None
+    category: Optional[str] = None
     full_time_employees: Optional[int] = Field(None, alias="fullTimeEmployees")
     long_business_summary: Optional[str] = Field(None, alias="longBusinessSummary")
 

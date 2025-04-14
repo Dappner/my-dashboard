@@ -7,6 +7,7 @@ from the database based on configuration parameters.
 
 from typing import Dict, List, Any
 from src.core.logging_config import setup_logging
+from src.events.event_processor import PipelineConfig
 
 logger = setup_logging(name="ticker_selector")
 

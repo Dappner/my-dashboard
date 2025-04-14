@@ -84,7 +84,7 @@ class ModelTransformer:
             exchange=source.exchange,
             region=source.region,
             category=source.category,
-            sector_id=None,  # These would be mapped later
+            sector_id=None,
             industry_id=None,
             long_business_summary=source.long_business_summary,
             dividend_amount=source.last_dividend_value,
@@ -136,7 +136,7 @@ class ModelTransformer:
             # Fund specific
             total_assets=source.total_assets,
             nav_price=source.nav_price,
-            yield_=source.yield_value,
+            **{"yield": source.yield_value} , # Use a dictionary to assign the reserved keyword
             ytd_return=source.ytd_return,
             fund_family=source.fund_family,
             fund_inception_date=fund_inception_str,

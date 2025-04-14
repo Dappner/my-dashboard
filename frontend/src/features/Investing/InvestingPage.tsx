@@ -11,8 +11,8 @@ import SidebarKpis from "./components/SidebarKpis";
 import TickerEvents from "./components/TickerEvents";
 import TotalValueDisplay from "./components/TotalValueDisplay";
 import TransactionTable from "./components/TransactionTable";
-import { useCalendarEvents } from "./hooks/useCalendarEvents";
 import { useTransactions } from "./hooks/useTransactions";
+import { useUpcomingTickerEvents } from "./hooks/useUpcomingTickerEvents";
 
 export default function InvestingPage() {
 	const { transactions, isLoading: transactionsLoading } = useTransactions();
@@ -21,7 +21,7 @@ export default function InvestingPage() {
 		isLoading: eventsLoading,
 		isError: eventsError,
 		error: eventsErrorMsg,
-	} = useCalendarEvents(3);
+	} = useUpcomingTickerEvents(3);
 
 	const [timeframe, setTimeframe] = useState<Timeframe>("1M");
 	const [chartType, setChartType] = useState<"absolute" | "percentual">(

@@ -8,6 +8,7 @@ from typing import Dict, List, Any, Set, Optional
 from pydantic import BaseModel
 
 from src.core.logging_config import setup_logging
+from src.events.event_processor import PipelineConfig
 from src.services.ticker_selector import TickerSelector
 from src.services.ticker_processor import TickerProcessor
 
@@ -28,7 +29,7 @@ class Pipeline:
     Orchestrates the market data update process.
     """
 
-    def __init__(self, config: Dict[str, Any], supabase_client):
+    def __init__(self, config: PipelineConfig, supabase_client):
         """
         Initialize the pipeline.
 
@@ -65,7 +66,7 @@ class Pipeline:
             return self.result
 
         # 2. Process tickers
-        if self.config.get("batch_mode") and len(tickers) > 1:
+        if self.config.batch_mode and len(tickers) > 1:
             self._process_in_parallel(tickers)
         else:
             self._process_sequentially(tickers)
@@ -115,8 +116,8 @@ class Pipeline:
     def _process_in_parallel(self, tickers: List[Dict[str, Any]]) -> None:
         """Process tickers in parallel using thread pool."""
         # Determine batch size and max workers
-        batch_size = min(self.config.get("batch_size", 10), len(tickers))
-        max_workers = min(self.config.get("max_workers", 5), batch_size)
+        batch_size = min(self.config.batch_size, len(tickers))
+        max_workers = min(self.config.max_workers, batch_size)
 
         logger.info(f"Processing {len(tickers)} tickers in parallel with {max_workers} workers")
 

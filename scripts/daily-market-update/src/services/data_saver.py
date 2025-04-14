@@ -167,7 +167,7 @@ class DataSaver:
 
         try:
             # Convert model to dictionary for Supabase
-            finance_dict = finance_data.model_dump(exclude_none=True)
+            finance_dict = finance_data.model_dump(exclude_none=True, by_alias=True)
 
             # Upsert to database
             self.supabase.table("yh_finance_daily").upsert(
@@ -203,16 +203,35 @@ class DataSaver:
             return False
 
         try:
-            # Convert models to dictionaries for Supabase
-            event_dicts = [e.model_dump(exclude_none=True) for e in events]
+            # Ensure all events have a non-null date - this is crucial for the unique constraint
+            valid_events = []
+            for event in events:
+                # If date is missing, use today's date or skip this event
+                if not event.date:
+                    # For earnings events, use the first earnings date if available
+                    if event.event_type == "earnings" and event.earnings_dates and len(event.earnings_dates) > 0:
+                        event.date = event.earnings_dates[0]
+                    else:
+                        # Skip events with no date - they'll cause constraint violations
+                        logger.warning(f"Skipping {event.event_type} event for {symbol} with no date")
+                        continue
+                valid_events.append(event)
 
-            # Upsert to database
+            # Convert models to dictionaries for Supabase
+            event_dicts = [e.model_dump(exclude_none=True) for e in valid_events]
+
+            # Only proceed if we have valid events
+            if not event_dicts:
+                logger.warning(f"No valid events for {symbol} after date validation")
+                return False
+
+            # Use on_conflict="ticker_id,date,event_type" to properly handle the unique constraint
             self.supabase.table("calendar_events").upsert(
                 event_dicts,
                 on_conflict="ticker_id,date,event_type"
             ).execute()
 
-            logger.info(f"Saved {len(events)} calendar events for {symbol}")
+            logger.info(f"Saved {len(valid_events)} calendar events for {symbol}")
             return True
 
         except Exception as e:

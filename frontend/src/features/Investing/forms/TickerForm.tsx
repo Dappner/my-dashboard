@@ -16,7 +16,25 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useTickers } from "../hooks/useTickers";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
+const exchangeOptions = [
+	"NASDAQ",
+	"NYSE",
+	"AMEX",
+	"TSX",
+	"LSE",
+	"FRA",
+	"TSE",
+	"HKEX",
+	"SSE",
+];
 export const tickerFormSchema = z.object({
 	symbol: z.string().min(1, "Symbol is required").max(10),
 	name: z.string().optional(),
@@ -117,7 +135,21 @@ export function TickerForm({
 								<FormItem>
 									<FormLabel>Exchange</FormLabel>
 									<FormControl>
-										<Input placeholder="NASDAQ" {...field} />
+										<Select
+											onValueChange={field.onChange}
+											defaultValue={field.value}
+										>
+											<SelectTrigger>
+												<SelectValue placeholder="Select an exchange" />
+											</SelectTrigger>
+											<SelectContent>
+												{exchangeOptions.map((exchange) => (
+													<SelectItem key={exchange} value={exchange}>
+														{exchange}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
 									</FormControl>
 									<FormMessage />
 								</FormItem>

@@ -46,7 +46,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         pipeline_config = event_processor.create_pipeline_config()
 
         # Execute the pipeline
-        pipeline = Pipeline(pipeline_config.model_dump(), supabase)
+        pipeline = Pipeline(pipeline_config,supabase)
         result = pipeline.execute()
 
         # Prepare response

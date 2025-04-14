@@ -10,6 +10,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Any, Set
 from pydantic import BaseModel, field_validator
 from src.core.logging_config import setup_logging
+from src.models.db_models import DBQuoteType
 
 logger = setup_logging(name="event_processor")
 
@@ -53,7 +54,7 @@ class PipelineConfig(BaseModel):
 
     # Ticker selection
     specific_tickers: Optional[List[str]] = None
-    ticker_types: Optional[List[str]] = None  # e.g., ["EQUITY", "ETF", "INDEX"]
+    ticker_types: Optional[DBQuoteType] = None# e.g., ["EQUITY", "ETF", "INDEX"]
 
     # Batch processing
     batch_mode: bool = False
@@ -169,8 +170,11 @@ class EventProcessor:
 
         # Handle each event type
         if event_type == EventType.SCHEDULED:
-            # Default scheduled behavior - process all tickers
+            # Default scheduled behavior - Equity and ETF
+            config.ticker_types = ["EQUITY", "ETF", "MUTUALFUND"]
             pass
+        if event_type == EventType.UPDATE_INDICES:
+            config.ticker_types = ["INDEX"]
 
         elif event_type == EventType.UPDATE:
             # Force update specific tickers
