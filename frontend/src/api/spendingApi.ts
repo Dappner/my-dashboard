@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import type { Receipt, ReceiptItem, SpendingCategory } from "./receiptsApi";
+import type { Database } from "@/types/supabase";
 
-// Type definitions
 export interface MonthlyData {
 	month: string;
 	amount: number;
@@ -33,6 +33,8 @@ export type CategoryReceiptsResponse = {
 };
 
 export type CategoryDetailsResponse = SpendingCategory;
+export type DailySpending =
+	Database["grocery"]["Views"]["daily_spending"]["Row"];
 
 const getUTCDate = (year: number, month: number, day: number): string => {
 	return new Date(Date.UTC(year, month, day)).toISOString().split("T")[0];
@@ -52,6 +54,8 @@ export const spendingMetricsApiKeys = {
 		[...spendingMetricsApiKeys.all, "categoryReceipts", categoryId] as const,
 	categoryDetails: (categoryId: string) =>
 		[...spendingMetricsApiKeys.all, "categoryDetails", categoryId] as const,
+	dailySpending: (date: string) =>
+		[...spendingMetricsApiKeys.all, "dailySpending", date] as const,
 };
 
 export const spendingMetricsApi = {
@@ -214,14 +218,28 @@ export const spendingMetricsApi = {
 
 	async getCategoryReceipts(
 		categoryId: string,
+		selectedDate?: Date,
 	): Promise<CategoryReceiptsResponse> {
 		// Step 1: Get all receipt items with this category
-		const { data: receiptItems, error: itemsError } = await supabase
+		let query = supabase
 			.schema("grocery")
 			.from("receipt_items")
 			.select("id, receipt_id, item_name, total_price, quantity, unit_price")
 			.eq("category_id", categoryId);
 
+		// Apply date filtering if provided
+		if (selectedDate) {
+			const year = selectedDate.getUTCFullYear();
+			const month = selectedDate.getUTCMonth();
+			const monthStart = getUTCDate(year, month, 1);
+			const nextMonthStart = getUTCDate(year, month + 1, 1);
+
+			query = query
+				.gte("created_at", monthStart)
+				.lt("created_at", nextMonthStart);
+		}
+
+		const { data: receiptItems, error: itemsError } = await query;
 		if (itemsError) {
 			throw new Error(`Error fetching category items: ${itemsError.message}`);
 		}
@@ -265,7 +283,9 @@ export const spendingMetricsApi = {
 
 	async getCategoryDetails(
 		categoryId: string,
-	): Promise<CategoryDetailsResponse> {
+		selectedDate?: Date,
+	): Promise<CategoryDetailsResponse & { totalSpent?: number }> {
+		// Get basic category details
 		const { data, error } = await supabase
 			.schema("grocery")
 			.from("categories")
@@ -277,6 +297,48 @@ export const spendingMetricsApi = {
 			throw new Error(`Error fetching category details: ${error.message}`);
 		}
 
+		// If date is provided, also fetch spending total for this category in the selected month
+		if (selectedDate) {
+			const year = selectedDate.getUTCFullYear();
+			const month = selectedDate.getUTCMonth();
+			const monthStart = getUTCDate(year, month, 1);
+			const nextMonthStart = getUTCDate(year, month + 1, 1);
+
+			const { data: items, error: itemsError } = await supabase
+				.schema("grocery")
+				.from("receipt_items")
+				.select("total_price")
+				.eq("category_id", categoryId)
+				.gte("created_at", monthStart)
+				.lt("created_at", nextMonthStart);
+
+			if (!itemsError && items) {
+				const totalSpent = items.reduce(
+					(sum, item) => sum + (item.total_price || 0),
+					0,
+				);
+				return { ...data, totalSpent };
+			}
+		}
+
 		return data;
+	},
+	async getDailySpending(selectedDate: Date): Promise<DailySpending[]> {
+		const year = selectedDate.getUTCFullYear();
+		const month = selectedDate.getUTCMonth();
+		const monthStart = getUTCDate(year, month, 1);
+		const monthEnd = getUTCDate(year, month + 1, 0);
+
+		const { data, error } = await supabase
+			.schema("grocery")
+			.from("daily_spending")
+			.select("*")
+			.gte("date", monthStart)
+			.lte("date", monthEnd)
+			.order("date", { ascending: false });
+
+		if (error) throw new Error(`Daily spending data error: ${error.message}`);
+
+		return data || [];
 	},
 };

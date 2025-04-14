@@ -15,6 +15,7 @@ interface SpendingKpiCardsProps {
 	totalSpent: number;
 	receiptCount: number;
 	trend: number;
+	averageDailySpend: number;
 	categories: CategoryData[];
 	month: string;
 }
@@ -25,6 +26,7 @@ export const SpendingKpiCards: React.FC<SpendingKpiCardsProps> = ({
 	categories,
 	month,
 	trend,
+	averageDailySpend,
 }) => {
 	const topCategory = categories.reduce(
 		(max, category) => (category.amount > max.amount ? category : max),
@@ -32,7 +34,7 @@ export const SpendingKpiCards: React.FC<SpendingKpiCardsProps> = ({
 	);
 
 	return (
-		<div className="grid gap-4 md:grid-cols-3">
+		<div className="grid gap-4 md:grid-cols-4">
 			<Card className="hover:shadow-md transition-shadow">
 				<CardHeader>
 					<CardTitle className="text-lg flex items-center">
@@ -79,6 +81,17 @@ export const SpendingKpiCards: React.FC<SpendingKpiCardsProps> = ({
 					<p className="text-sm text-muted-foreground">
 						${topCategory.amount.toFixed(2)}
 					</p>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle className="text-lg">Average Daily Spend</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="text-2xl font-bold">
+						${averageDailySpend.toFixed(2)}
+					</div>
 				</CardContent>
 			</Card>
 		</div>

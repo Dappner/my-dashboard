@@ -3,70 +3,86 @@ import {
 	spendingMetricsApi,
 	spendingMetricsApiKeys,
 } from "@/api/spendingApi";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import React from "react";
 
-export function useSpendingMetrics(selectedDate: Date): {
-	spendingMetrics: SpendingMetrics;
-	isLoading: boolean;
-	error: Error | null;
-} {
+// Individual hooks for specific data needs
+export function useCurrentMonthData(selectedDate: Date) {
 	const dateKey = selectedDate.toISOString().split("T")[0];
-
-	const {
-		data: currentMonthData,
-		isLoading: currentLoading,
-		error: currentError,
-	} = useSuspenseQuery({
+	return useQuery({
 		queryKey: spendingMetricsApiKeys.currentMonth(dateKey),
 		queryFn: () => spendingMetricsApi.getCurrentMonth(selectedDate),
 		staleTime: 5 * 60 * 1000,
 	});
+}
 
-	const {
-		data: lastMonthData,
-		isLoading: lastLoading,
-		error: lastError,
-	} = useSuspenseQuery({
+export function useLastMonthData(selectedDate: Date) {
+	const dateKey = selectedDate.toISOString().split("T")[0];
+	return useQuery({
 		queryKey: spendingMetricsApiKeys.lastMonth(dateKey),
 		queryFn: () => spendingMetricsApi.getLastMonth(selectedDate),
 		staleTime: 5 * 60 * 1000,
 	});
+}
 
-	const {
-		data: monthlyData,
-		isLoading: monthlyLoading,
-		error: monthlyError,
-	} = useSuspenseQuery({
+// Computed hook that depends on other queries
+export function useMonthlyTrend(selectedDate: Date) {
+	const currentMonth = useCurrentMonthData(selectedDate);
+	const lastMonth = useLastMonthData(selectedDate);
+
+	// Calculate trend only when both queries have completed successfully
+	const trend = React.useMemo(() => {
+		if (currentMonth.data?.totalSpent && lastMonth.data && lastMonth.data > 0) {
+			return (
+				((currentMonth.data.totalSpent - lastMonth.data) / lastMonth.data) * 100
+			);
+		}
+		return 0;
+	}, [currentMonth.data, lastMonth.data]);
+
+	return {
+		trend,
+		isLoading: currentMonth.isLoading || lastMonth.isLoading,
+		error: currentMonth.error || lastMonth.error,
+	};
+}
+
+// Combined hook for spending dashboard
+export function useSpendingMetrics(selectedDate: Date) {
+	const currentMonth = useCurrentMonthData(selectedDate);
+	const monthlyTrend = useMonthlyTrend(selectedDate);
+	const dateKey = selectedDate.toISOString().split("T")[0];
+	const monthlyData = useQuery({
 		queryKey: spendingMetricsApiKeys.monthlyData(dateKey),
 		queryFn: () => spendingMetricsApi.getMonthlyData(selectedDate),
 		staleTime: 5 * 60 * 1000,
 	});
-
-	const {
-		data: categories,
-		isLoading: categoriesLoading,
-		error: categoriesError,
-	} = useSuspenseQuery({
+	const categories = useQuery({
 		queryKey: spendingMetricsApiKeys.categories(dateKey),
 		queryFn: () => spendingMetricsApi.getCategories(selectedDate),
 		staleTime: 5 * 60 * 1000,
 	});
 
-	const monthlyTrend =
-		lastMonthData && currentMonthData?.totalSpent
-			? ((currentMonthData.totalSpent - lastMonthData) / lastMonthData) * 100
-			: 0;
-
-	return {
-		spendingMetrics: {
-			totalSpent: currentMonthData?.totalSpent || 0,
-			receiptCount: currentMonthData?.receiptCount || 0,
-			monthlyTrend,
-			monthlyData: monthlyData || [],
-			categories: categories || [],
-		},
-		isLoading:
-			currentLoading || lastLoading || monthlyLoading || categoriesLoading,
-		error: currentError || lastError || monthlyError || categoriesError || null,
+	// Combine all data into a single metrics object
+	const metrics: SpendingMetrics = {
+		totalSpent: currentMonth.data?.totalSpent || 0,
+		receiptCount: currentMonth.data?.receiptCount || 0,
+		monthlyTrend: monthlyTrend.trend,
+		monthlyData: monthlyData.data || [],
+		categories: categories.data || [],
 	};
+
+	const isLoading =
+		currentMonth.isLoading ||
+		monthlyTrend.isLoading ||
+		monthlyData.isLoading ||
+		categories.isLoading;
+
+	const error =
+		currentMonth.error ||
+		monthlyTrend.error ||
+		monthlyData.error ||
+		categories.error;
+
+	return { spendingMetrics: metrics, isLoading, error };
 }

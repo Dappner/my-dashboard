@@ -17,6 +17,7 @@ import {
 import { CategoryCard } from "./components/CategoryCard";
 
 // Define colors for the pie chart
+// TODO: Global consistent color manager
 const COLORS = [
 	"#0088FE",
 	"#00C49F",

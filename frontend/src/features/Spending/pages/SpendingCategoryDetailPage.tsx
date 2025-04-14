@@ -18,10 +18,12 @@ import {
 	ResponsiveContainer,
 	Tooltip,
 } from "recharts";
-import {
-	useCategoryDetails,
-	useCategoryReceipts,
-} from "../hooks/useCategoryDetails";
+import { WheatIcon } from "lucide-react";
+import LoadingState from "@/components/layout/components/LoadingState";
+import { PageContainer } from "@/components/layout/components/PageContainer";
+import { MonthSwitcher } from "../components/MonthSwitcher";
+import { useState } from "react";
+import { useCategoryData } from "../hooks/useCategoryData";
 
 // Define colors for the pie chart
 const COLORS = [
@@ -39,66 +41,60 @@ const COLORS = [
 
 export default function SpendingCategoryDetailPage() {
 	const { categoryId } = useParams<{ categoryId: string }>();
+	const [selectedDate, setSelectedDate] = useState(new Date());
 
-	// Fetch category details and receipts
-	const { data: categoryDetails, isLoading: isLoadingDetails } =
-		useCategoryDetails(categoryId || "");
-	const { data: categoryData, isLoading: isLoadingReceipts } =
-		useCategoryReceipts(categoryId || "");
-
-	const isLoading = isLoadingDetails || isLoadingReceipts;
+	const {
+		details: categoryDetails,
+		totalSpent,
+		receipts,
+		items,
+		isLoading,
+	} = useCategoryData(categoryId || "", selectedDate);
 
 	// Prepare data for pie chart - receipt spending breakdown
 	const pieChartData =
-		categoryData?.receipts.map((receipt) => ({
+		receipts.map((receipt) => ({
 			name:
 				receipt.store_name ||
 				format(new Date(receipt.purchase_date), "MMM d, yyyy"),
-			value: categoryData.items
+			value: items
 				.filter((item) => item.receipt_id === receipt.id)
 				.reduce((sum, item) => sum + (item.total_price || 0), 0),
 			id: receipt.id,
 		})) || [];
 
+	if (isLoading) return <LoadingState />;
+
 	return (
-		<div className="container mx-auto py-6 space-y-6">
-			{/* Category Header */}
-			<Card>
-				<CardHeader className="pb-4">
-					{isLoadingDetails ? (
-						<>
-							<Skeleton className="h-8 w-3/4" />
-							<Skeleton className="h-4 w-1/2 mt-2" />
-						</>
-					) : (
-						<>
-							<div className="flex items-center gap-3">
-								<span className="text-2xl">🧾</span>
-								{/* Replace with a category-specific icon */}
-								<CardTitle className="text-3xl font-bold tracking-tight">
-									{categoryDetails?.name || "Unknown Category"}
-								</CardTitle>
-							</div>
-							<CardDescription className="text-base text-muted-foreground mt-1">
-								{categoryDetails?.description || "No description available"}
-							</CardDescription>
-						</>
-					)}
-				</CardHeader>
-				<CardContent>
-					{isLoading ? (
-						<Skeleton className="h-6 w-1/3" />
-					) : (
+		<PageContainer>
+			<header className="flex flex-row justify-between">
+				<div>
+					<div className="flex items-center gap-3">
+						{/* TODO: Add Icons to categories */}
+						<WheatIcon />
+						<h1 className="text-3xl font-bold tracking-tight">
+							{categoryDetails?.name || "Unknown Category"}
+						</h1>
+					</div>
+					<span className="text-base text-muted-foreground mt-1">
+						{categoryDetails?.description || "No description available"}
+					</span>
+					<div className="flex flex-col">
 						<p className="text-xl font-semibold text-primary">
-							Total Spent: ${categoryData?.totalSpent.toFixed(2) || "0.00"}
-							across {categoryData?.receipts.length || 0} receipts
+							Total Spent: ${totalSpent.toFixed(2) || "0.00"}
 						</p>
-					)}
-				</CardContent>
-			</Card>
+						<p className="text-base font-base text-muted-foreground">
+							{receipts.length || 0} receipts
+						</p>
+					</div>
+				</div>
+				<MonthSwitcher
+					selectedDate={selectedDate}
+					onDateChange={setSelectedDate}
+				/>
+			</header>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-				{/* Pie Chart */}
 				<Card>
 					<CardHeader>
 						<CardTitle className="text-xl font-semibold">
@@ -164,7 +160,7 @@ export default function SpendingCategoryDetailPage() {
 							Receipts with {categoryDetails?.name || "this category"}
 						</CardTitle>
 						<CardDescription>
-							Showing {categoryData?.receipts.length || 0} receipts
+							Showing {receipts.length || 0} receipts
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="max-h-[400px] overflow-hidden">
@@ -174,11 +170,11 @@ export default function SpendingCategoryDetailPage() {
 									<Skeleton key={i} className="h-20 w-full" />
 								))}
 							</div>
-						) : categoryData?.receipts.length ? (
+						) : receipts.length ? (
 							<ScrollArea className="h-full pr-4">
 								<div className="space-y-4">
-									{categoryData.receipts.map((receipt) => {
-										const receiptItems = categoryData.items.filter(
+									{receipts.map((receipt) => {
+										const receiptItems = items.filter(
 											(item) => item.receipt_id === receipt.id,
 										);
 										const receiptCategoryTotal = receiptItems.reduce(
@@ -243,6 +239,6 @@ export default function SpendingCategoryDetailPage() {
 					</CardContent>
 				</Card>
 			</div>
-		</div>
+		</PageContainer>
 	);
 }

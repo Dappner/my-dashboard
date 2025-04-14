@@ -9,7 +9,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { AppRoutes } from "@/navigation";
-import { format } from "date-fns";
+import { endOfMonth, format } from "date-fns";
 import { PieChartIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -19,7 +19,8 @@ import { SpendingKpiCards } from "./components/SpendingKpiCards";
 import { useRecentReceipts } from "./hooks/spendingMetricsHooks";
 import { useSpendingMetrics } from "./hooks/useSpendingMetrics";
 import { ActivityFeed } from "./widgets/ActivityFeed";
-import { MonthlySpendingChart } from "./widgets/MonthlySpendingChart";
+import { useDailySpending } from "./hooks/useDailySpending";
+import { SpendingChartTabs } from "./widgets/SpendingChartTabs";
 
 const NoDataState: React.FC = () => (
 	<div className="flex items-center justify-center min-h-screen">
@@ -32,8 +33,22 @@ export default function SpendingOverview() {
 
 	const { spendingMetrics, isLoading, error } =
 		useSpendingMetrics(selectedDate);
+	const { data: dailySpending } = useDailySpending({ selectedDate });
 
 	const { data: recentReceipts } = useRecentReceipts(selectedDate);
+	const averageDailySpend = useMemo(() => {
+		const daysElapsed = Math.min(
+			new Date().getDate(),
+			endOfMonth(selectedDate).getDate(),
+		);
+		const totalSpent = dailySpending?.reduce(
+			(sum, d) => sum + (d.total_amount || 0),
+			0,
+		);
+		return daysElapsed > 0 ? (totalSpent || 0) / daysElapsed : 0;
+	}, [dailySpending, selectedDate]);
+	//
+	//TODO: Is this necessary?
 	const queryDate = useMemo(() => {
 		const date = new Date(selectedDate);
 		date.setDate(1); // Use local day setter
@@ -60,22 +75,24 @@ export default function SpendingOverview() {
 					/>
 				</header>
 
-				{/* Top Row with Summary Cards and Category Pie Chart */}
 				<div className="grid gap-4 md:grid-cols-12">
-					{/* Left side content */}
 					<div className="md:col-span-8">
-						{/* KPI Cards */}
 						<div className="mb-6">
 							<SpendingKpiCards
 								totalSpent={spendingMetrics.totalSpent}
 								receiptCount={spendingMetrics.receiptCount}
 								categories={spendingMetrics.categories}
 								trend={spendingMetrics.monthlyTrend}
+								averageDailySpend={averageDailySpend}
 								month={format(queryDate, "MMMM yyyy")}
 							/>
 						</div>
 
-						<MonthlySpendingChart data={spendingMetrics.monthlyData} />
+						<SpendingChartTabs
+							dailySpending={dailySpending || []}
+							selectedDate={selectedDate}
+							monthlyData={spendingMetrics.monthlyData || []}
+						/>
 					</div>
 
 					<div className="md:col-span-4 gap-4 flex flex-col">
