@@ -10,12 +10,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import type { InsertTicker } from "@my-dashboard/shared";
-import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { useTickers } from "../hooks/useTickers";
 import {
 	Select,
 	SelectContent,
@@ -23,6 +17,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { InsertTicker } from "@my-dashboard/shared";
+import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { useTickers } from "../hooks/useTickers";
 
 const exchangeOptions = [
 	"NASDAQ",
