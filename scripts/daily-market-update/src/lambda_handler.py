@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime
 from typing import Dict, List, Any
 from pydantic import BaseModel
 from src.core.config import SUPABASE_URL, SUPABASE_KEY
@@ -61,6 +62,23 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 "totalProcessingTime": result.processing_time.get("total", 0)
             }
         }
+
+        if event.get('event_record_id'):
+            try:
+                status = "completed" if not result.failed else "failed"
+                error_message = None
+                if result.failed:
+                    error_message = ", ".join([f"{k}: {v}" for k, v in result.failed.items()])
+
+                supabase.table("ticker_events").update({
+                    "status": status,
+                    "completed_at": datetime.now().isoformat(),
+                    "error_message": error_message,
+                    "details": {"processing_results": result.model_dump()}
+                }).eq("id", event['event_record_id']).execute()
+
+            except Exception as e:
+                logger.error(f"Failed to update event status: {e}")
 
         logger.info("Lambda execution completed successfully", extra={"metrics": response["metrics"]})
         return response

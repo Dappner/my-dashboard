@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Ticker Processing Request",
+  "type": "object",
+  "required": ["type", "tickers"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["scheduled", "update", "initialize", "backfill", "update_indices", "update_etfs", "update_equities", "update_forex", "batch"]
+    },
+    "tickers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "event_record_id": {
+      "type": "string"
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "backfill": { "type": "boolean" },
+        "prices": { "type": "boolean" },
+        "info": { "type": "boolean" },
+        "calendar": { "type": "boolean" },
+        "fund_data": { "type": "boolean" },
+        "batch_mode": { "type": "boolean" },
+        "batch_size": { "type": "integer", "minimum": 1 },
+        "max_workers": { "type": "integer", "minimum": 1, "maximum": 10 }
+      }
+    }
+  }
+}

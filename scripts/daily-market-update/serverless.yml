@@ -18,6 +18,24 @@ provider:
           Action:
             - ssm:GetParameter
           Resource: "arn:aws:ssm:${aws:region}:${aws:accountId}:parameter/daily-market-update/*"
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: "arn:aws:logs:*:*:*"
+  apiGateway:
+    # Add API key required setting
+    apiKeys:
+      - name: daily-market-update-api-key
+        description: API Key for daily market update service
+    usagePlan:
+      quota:
+        limit: 1000
+        period: DAY
+      throttle:
+        burstLimit: 20
+        rateLimit: 10
 
 plugins:
   - serverless-python-requirements
@@ -25,6 +43,16 @@ plugins:
 custom:
   pythonRequirements:
     dockerizePip: true
+    layer: true # This will create a layer for dependencies
+    useStaticCache: true
+    useDownloadCache: true
+    slim: true # Slim down the package by removing unnecessary files
+    strip: true # Strip compiled libraries to reduce size
+    noDeploy: # Don't include these packages
+      - pytest
+      - coverage
+    dockerImage: public.ecr.aws/sam/build-python3.10:latest-x86_64
+    dockerExtraPipArgs: "--platform manylinux2014_x86_64 --only-binary=:all:"
 
 package:
   individually: true
@@ -43,41 +71,42 @@ functions:
   processTickerData:
     handler: src.lambda_handler.lambda_handler
     events:
-      # 6:00 AM Eastern Time
+      # Schedule events as before
       - schedule:
-          # 6:00 AM EDT = 10:00 UTC (March to November)
           rate: cron(0 10 ? * MON-SUN *)
           enabled: true
       - schedule:
-          # 6:00 AM EST = 11:00 UTC (November to March)
           rate: cron(0 11 ? * MON-SUN *)
           enabled: true
-      # 12:00 PM Eastern Time (Noon)
       - schedule:
-          # 12:00 PM EDT = 16:00 UTC (March to November)
           rate: cron(0 16 ? * MON-SUN *)
           enabled: true
       - schedule:
-          # 12:00 PM EST = 17:00 UTC (November to March)
           rate: cron(0 17 ? * MON-SUN *)
           enabled: true
-      # 5:30 PM Eastern Time (after NYSE close)
       - schedule:
-          # 5:30 PM EDT = 21:30 UTC (March to November)
           rate: cron(30 21 ? * MON-FRI *)
           enabled: true
       - schedule:
-          # 5:30 PM EST = 22:30 UTC (November to March)
           rate: cron(30 22 ? * MON-FRI *)
           enabled: true
-      # 12:00 AM Eastern Time (Midnight)
       - schedule:
-          # 12:00 AM EDT = 04:00 UTC (March to November)
           rate: cron(0 4 ? * MON-SUN *)
           enabled: true
       - schedule:
-          # 12:00 AM EST = 05:00 UTC (November to March)
           rate: cron(0 5 ? * MON-SUN *)
           enabled: true
+      # HTTP event with API key requirement
+      - http:
+          path: process-ticker
+          method: post
+          cors: true
+          private: true # This requires an API key
+          request:
+            schemas:
+              application/json:
+                schema: ${file(src/schemas/ticker-request-schema.json)}
+                name: TickerRequestModel
+                description: "Ticker processing request model"
     timeout: 300 # 5 minutes
     memorySize: 512

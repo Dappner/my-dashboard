@@ -286,6 +286,13 @@ export type Database = {
             foreignKeyName: "calendar_events_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
@@ -297,6 +304,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      forex_rates: {
+        Row: {
+          base_currency: string
+          created_at: string | null
+          date: string
+          id: string
+          rate: number
+          source: string | null
+          target_currency: string
+        }
+        Insert: {
+          base_currency: string
+          created_at?: string | null
+          date: string
+          id?: string
+          rate: number
+          source?: string | null
+          target_currency: string
+        }
+        Update: {
+          base_currency?: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          rate?: number
+          source?: string | null
+          target_currency?: string
+        }
+        Relationships: []
       }
       fund_asset_classes: {
         Row: {
@@ -340,6 +377,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "daily_positions"
             referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_asset_classes_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "fund_asset_classes_ticker_id_fkey"
@@ -404,6 +448,13 @@ export type Database = {
             foreignKeyName: "fund_sector_weightings_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fund_sector_weightings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
@@ -461,6 +512,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "daily_positions"
             referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "fund_top_holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "fund_top_holdings_ticker_id_fkey"
@@ -540,6 +598,13 @@ export type Database = {
             foreignKeyName: "historical_prices_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historical_prices_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
@@ -605,6 +670,13 @@ export type Database = {
             foreignKeyName: "holdings_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
@@ -644,6 +716,102 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      industries: {
+        Row: {
+          companies_count: number | null
+          created_at: string | null
+          description: string | null
+          employee_count: number | null
+          id: string
+          key: string
+          market_cap: number | null
+          market_weight: number | null
+          name: string
+          sector_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          companies_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          employee_count?: number | null
+          id?: string
+          key: string
+          market_cap?: number | null
+          market_weight?: number | null
+          name: string
+          sector_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          companies_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          employee_count?: number | null
+          id?: string
+          key?: string
+          market_cap?: number | null
+          market_weight?: number | null
+          name?: string
+          sector_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "industries_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["linked_sector_id"]
+          },
+          {
+            foreignKeyName: "industries_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sectors: {
+        Row: {
+          companies_count: number | null
+          created_at: string | null
+          description: string | null
+          employee_count: number | null
+          id: string
+          key: string
+          market_cap: number | null
+          market_weight: number | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          companies_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          employee_count?: number | null
+          id?: string
+          key: string
+          market_cap?: number | null
+          market_weight?: number | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          companies_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          employee_count?: number | null
+          id?: string
+          key?: string
+          market_cap?: number | null
+          market_weight?: number | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       stock_notes: {
         Row: {
@@ -687,6 +855,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "daily_positions"
             referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "stock_notes_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "stock_notes_ticker_id_fkey"
@@ -774,6 +949,13 @@ export type Database = {
             foreignKeyName: "suggested_trades_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suggested_trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
@@ -814,24 +996,95 @@ export type Database = {
           },
         ]
       }
+      ticker_events: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          details: Json | null
+          error_message: string | null
+          event_type: string
+          id: string
+          status: string
+          ticker_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          details?: Json | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          status?: string
+          ticker_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          details?: Json | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          status?: string
+          ticker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticker_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "ticker_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "ticker_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticker_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "ticker_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tickers: {
         Row: {
           backfill: boolean
           category: string | null
           cik: string | null
           created_at: string | null
+          currency: string | null
           dividend_amount: number | null
           dividend_months: number[] | null
           exchange: string | null
           id: string
-          industry: string | null
+          industry_id: string | null
           long_business_summary: string | null
           market_last_updated_at: string | null
           name: string | null
           quote_type: string
           region: string | null
-          sector: string | null
+          sector_id: string | null
           symbol: string
+          tradeable: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -839,18 +1092,20 @@ export type Database = {
           category?: string | null
           cik?: string | null
           created_at?: string | null
+          currency?: string | null
           dividend_amount?: number | null
           dividend_months?: number[] | null
           exchange?: string | null
           id?: string
-          industry?: string | null
+          industry_id?: string | null
           long_business_summary?: string | null
           market_last_updated_at?: string | null
           name?: string | null
           quote_type?: string
           region?: string | null
-          sector?: string | null
+          sector_id?: string | null
           symbol: string
+          tradeable?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -858,21 +1113,52 @@ export type Database = {
           category?: string | null
           cik?: string | null
           created_at?: string | null
+          currency?: string | null
           dividend_amount?: number | null
           dividend_months?: number[] | null
           exchange?: string | null
           id?: string
-          industry?: string | null
+          industry_id?: string | null
           long_business_summary?: string | null
           market_last_updated_at?: string | null
           name?: string | null
           quote_type?: string
           region?: string | null
-          sector?: string | null
+          sector_id?: string | null
           symbol?: string
+          tradeable?: boolean | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tickers_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "industries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickers_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["linked_industry_id"]
+          },
+          {
+            foreignKeyName: "tickers_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["linked_sector_id"]
+          },
+          {
+            foreignKeyName: "tickers_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -939,6 +1225,13 @@ export type Database = {
             foreignKeyName: "trades_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
@@ -981,7 +1274,6 @@ export type Database = {
       }
       users: {
         Row: {
-          cash_balance: number
           created_at: string | null
           email: string
           first_name: string | null
@@ -991,7 +1283,6 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          cash_balance?: number
           created_at?: string | null
           email: string
           first_name?: string | null
@@ -1001,7 +1292,6 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          cash_balance?: number
           created_at?: string | null
           email?: string
           first_name?: string | null
@@ -1024,6 +1314,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "daily_positions"
             referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "users_tracking_ticker_id_fkey"
+            columns: ["tracking_ticker_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "users_tracking_ticker_id_fkey"
@@ -1172,6 +1469,13 @@ export type Database = {
             foreignKeyName: "yh_finance_daily_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: true
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "yh_finance_daily_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: true
             referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
@@ -1218,6 +1522,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "daily_positions"
             referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "calendar_events_ticker_id_fkey"
@@ -1439,6 +1750,56 @@ export type Database = {
           },
         ]
       }
+      market_indices: {
+        Row: {
+          currency: string | null
+          exchange: string | null
+          id: string | null
+          index_type: string | null
+          industry_id: string | null
+          industry_key: string | null
+          industry_name: string | null
+          linked_industry_id: string | null
+          linked_sector_id: string | null
+          name: string | null
+          quote_type: string | null
+          sector_id: string | null
+          sector_key: string | null
+          sector_name: string | null
+          symbol: string | null
+          tradeable: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickers_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "industries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickers_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["linked_industry_id"]
+          },
+          {
+            foreignKeyName: "tickers_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["linked_sector_id"]
+          },
+          {
+            foreignKeyName: "tickers_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       portfolio_daily_metrics: {
         Row: {
           cash_balance: number | null
@@ -1485,6 +1846,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "daily_positions"
             referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "holdings_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "holdings_ticker_id_fkey"
@@ -1570,6 +1938,13 @@ export type Database = {
             foreignKeyName: "trades_ticker_id_fkey"
             columns: ["ticker_id"]
             isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
             referencedRelation: "ticker_daily_view"
             referencedColumns: ["ticker_id"]
           },
@@ -1624,6 +1999,61 @@ export type Database = {
         }
         Relationships: []
       }
+      ticker_historical_prices: {
+        Row: {
+          close_price: number | null
+          created_at: string | null
+          date: string | null
+          dividends: number | null
+          high_price: number | null
+          id: string | null
+          low_price: number | null
+          open_price: number | null
+          stock_splits: number | null
+          symbol: string | null
+          ticker_id: string | null
+          ticker_name: string | null
+          updated_at: string | null
+          volume: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historical_prices_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "historical_prices_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "historical_prices_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historical_prices_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "historical_prices_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trades_view: {
         Row: {
           exchange: string | null
@@ -1664,6 +2094,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "daily_positions"
             referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "trades_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "trades_ticker_id_fkey"
@@ -1717,7 +2154,13 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_unique_currency_pairs: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          base_currency: string
+          target_currency: string
+        }[]
+      }
     }
     Enums: {
       transaction_type_enum:

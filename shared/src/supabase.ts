@@ -996,6 +996,75 @@ export type Database = {
           },
         ]
       }
+      ticker_events: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          details: Json | null
+          error_message: string | null
+          event_type: string
+          id: string
+          status: string
+          ticker_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          details?: Json | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          status?: string
+          ticker_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          details?: Json | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          status?: string
+          ticker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticker_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "ticker_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_positions"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "ticker_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "market_indices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticker_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "ticker_daily_view"
+            referencedColumns: ["ticker_id"]
+          },
+          {
+            foreignKeyName: "ticker_events_ticker_id_fkey"
+            columns: ["ticker_id"]
+            isOneToOne: false
+            referencedRelation: "tickers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tickers: {
         Row: {
           backfill: boolean
