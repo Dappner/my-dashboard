@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
-import type { Receipt, ReceiptItem, SpendingCategory } from "./receiptsApi";
 import type { Database } from "@/types/supabase";
+import type { Receipt, ReceiptItem, SpendingCategory } from "./receiptsApi";
 
 export interface MonthlyData {
 	month: string;

@@ -1,3 +1,4 @@
+import type { DailySpending } from "@/api/spendingApi";
 import {
 	Card,
 	CardContent,
@@ -6,19 +7,18 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns";
+import { useMemo } from "react";
 import {
-	BarChart,
 	Bar,
+	BarChart,
+	CartesianGrid,
+	ResponsiveContainer,
+	Tooltip,
 	XAxis,
 	YAxis,
-	CartesianGrid,
-	Tooltip,
-	ResponsiveContainer,
 } from "recharts";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
-import { useMemo } from "react";
 import { MonthlySpendingChart } from "./MonthlySpendingChart";
-import type { DailySpending } from "@/api/spendingApi";
 
 interface SpendingChartTabsProps {
 	dailySpending: DailySpending[];

@@ -1,4 +1,4 @@
-import { spendingMetricsApiKeys, spendingMetricsApi } from "@/api/spendingApi";
+import { spendingMetricsApi, spendingMetricsApiKeys } from "@/api/spendingApi";
 import { useQuery } from "@tanstack/react-query";
 
 export function useCategoryData(categoryId: string, selectedDate?: Date) {

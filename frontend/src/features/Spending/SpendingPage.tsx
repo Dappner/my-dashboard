@@ -17,9 +17,9 @@ import { CategoryPieChart } from "./components/CategoryPieChart";
 import { MonthSwitcher } from "./components/MonthSwitcher";
 import { SpendingKpiCards } from "./components/SpendingKpiCards";
 import { useRecentReceipts } from "./hooks/spendingMetricsHooks";
+import { useDailySpending } from "./hooks/useDailySpending";
 import { useSpendingMetrics } from "./hooks/useSpendingMetrics";
 import { ActivityFeed } from "./widgets/ActivityFeed";
-import { useDailySpending } from "./hooks/useDailySpending";
 import { SpendingChartTabs } from "./widgets/SpendingChartTabs";
 
 const NoDataState: React.FC = () => (

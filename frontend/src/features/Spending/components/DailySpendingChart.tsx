@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
 	Card,
 	CardContent,
@@ -8,18 +7,19 @@ import {
 } from "@/components/ui/card";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDailySpending } from "./useDailySpending";
+import { addDays, format, isSameDay, subDays } from "date-fns";
+import React, { useState } from "react";
 import {
-	BarChart,
 	Bar,
-	XAxis,
-	YAxis,
-	Tooltip,
-	ResponsiveContainer,
+	BarChart,
 	CartesianGrid,
 	Legend,
+	ResponsiveContainer,
+	Tooltip,
+	XAxis,
+	YAxis,
 } from "recharts";
-import { addDays, format, isSameDay, subDays } from "date-fns";
+import { useDailySpending } from "./useDailySpending";
 
 // Utility to create default date range (last 30 days)
 const getDefaultDateRange = () => {

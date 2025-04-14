@@ -1,3 +1,5 @@
+import LoadingState from "@/components/layout/components/LoadingState";
+import { PageContainer } from "@/components/layout/components/PageContainer";
 import {
 	Card,
 	CardContent,
@@ -9,6 +11,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { WheatIcon } from "lucide-react";
+import { useState } from "react";
 import { useParams } from "react-router";
 import {
 	Cell,
@@ -18,11 +22,7 @@ import {
 	ResponsiveContainer,
 	Tooltip,
 } from "recharts";
-import { WheatIcon } from "lucide-react";
-import LoadingState from "@/components/layout/components/LoadingState";
-import { PageContainer } from "@/components/layout/components/PageContainer";
 import { MonthSwitcher } from "../components/MonthSwitcher";
-import { useState } from "react";
 import { useCategoryData } from "../hooks/useCategoryData";
 
 // Define colors for the pie chart
