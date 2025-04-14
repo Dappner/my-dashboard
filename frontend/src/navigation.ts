@@ -2,33 +2,33 @@
  * Navigation helper that provides structured access to application routes
  */
 export const AppRoutes = {
-  home: () => "/",
-  login: () => "/login",
+	home: () => "/",
+	login: () => "/login",
 
-  investing: {
-    dashboard: () => "/investing",
-    manage: () => "/investing/manage",
-    holdings: () => "/investing/holdings",
-    transactions: () => "/investing/transactions",
-    research: () => "/investing/research",
-    industry: (slug: string) => `/investing/industry/${slug}`,
-    sector: (slug: string) => `/investing/sector/${slug}`,
-    ticker: (exchange: string, symbol: string) =>
-      `/investing/ticker/${exchange}/${symbol}`,
-    alerts: () => "/investing/alerts",
-  },
+	investing: {
+		dashboard: () => "/investing",
+		manage: () => "/investing/manage",
+		holdings: () => "/investing/holdings",
+		transactions: () => "/investing/transactions",
+		research: () => "/investing/research",
+		industry: (slug: string) => `/investing/industry/${slug}`,
+		sector: (slug: string) => `/investing/sector/${slug}`,
+		ticker: (exchange: string, symbol: string) =>
+			`/investing/ticker/${exchange}/${symbol}`,
+		alerts: () => "/investing/alerts",
+	},
 
-  spending: {
-    dashboard: () => "/spending",
-    receipts: {
-      list: () => "/spending/receipts",
-      detail: (id: string) => `/spending/receipts/${id}`,
-    },
-    categories: {
-      list: () => "/spending/categories",
-      detail: (id: string) => `/spending/categories/${id}`,
-    },
-  },
+	spending: {
+		dashboard: () => "/spending",
+		receipts: {
+			list: () => "/spending/receipts",
+			detail: (id: string) => `/spending/receipts/${id}`,
+		},
+		categories: {
+			list: () => "/spending/categories",
+			detail: (id: string) => `/spending/categories/${id}`,
+		},
+	},
 
-  settings: () => "/settings",
+	settings: () => "/settings",
 };
