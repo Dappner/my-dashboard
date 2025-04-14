@@ -1,37 +1,49 @@
-import {
-	type SpendingMetrics,
-	spendingMetricsApi,
-	spendingMetricsApiKeys,
+import type {
+	CategoryData,
+	MonthlyData,
+	SpendingMetrics,
 } from "@/api/spendingApi";
+
+import { spendingMetricsApi, spendingMetricsApiKeys } from "@/api/spendingApi";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import { format } from "date-fns";
+import { useCallback, useMemo } from "react";
 
-// Individual hooks for specific data needs
-export function useCurrentMonthData(selectedDate: Date) {
-	const dateKey = selectedDate.toISOString().split("T")[0];
+/**
+ * Hook to fetch current month spending data
+ */
+export function useCurrentMonthSpending(selectedDate: Date) {
+	const cacheKey = format(selectedDate, "yyyy-MM");
+
 	return useQuery({
-		queryKey: spendingMetricsApiKeys.currentMonth(dateKey),
+		queryKey: spendingMetricsApiKeys.currentMonth(cacheKey),
 		queryFn: () => spendingMetricsApi.getCurrentMonth(selectedDate),
-		staleTime: 5 * 60 * 1000,
+		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
 }
 
-export function useLastMonthData(selectedDate: Date) {
-	const dateKey = selectedDate.toISOString().split("T")[0];
+/**
+ * Hook to fetch last month spending data
+ */
+export function useLastMonthSpending(selectedDate: Date) {
+	const cacheKey = format(selectedDate, "yyyy-MM");
+
 	return useQuery({
-		queryKey: spendingMetricsApiKeys.lastMonth(dateKey),
+		queryKey: spendingMetricsApiKeys.lastMonth(cacheKey),
 		queryFn: () => spendingMetricsApi.getLastMonth(selectedDate),
-		staleTime: 5 * 60 * 1000,
+		staleTime: 10 * 60 * 1000, // 10 minutes - historical data changes less frequently
 	});
 }
 
-// Computed hook that depends on other queries
+/**
+ * Hook to calculate monthly trend by comparing current month with last month
+ */
 export function useMonthlyTrend(selectedDate: Date) {
-	const currentMonth = useCurrentMonthData(selectedDate);
-	const lastMonth = useLastMonthData(selectedDate);
+	const currentMonth = useCurrentMonthSpending(selectedDate);
+	const lastMonth = useLastMonthSpending(selectedDate);
 
 	// Calculate trend only when both queries have completed successfully
-	const trend = React.useMemo(() => {
+	const trend = useMemo(() => {
 		if (currentMonth.data?.totalSpent && lastMonth.data && lastMonth.data > 0) {
 			return (
 				((currentMonth.data.totalSpent - lastMonth.data) / lastMonth.data) * 100
@@ -47,42 +59,93 @@ export function useMonthlyTrend(selectedDate: Date) {
 	};
 }
 
-// Combined hook for spending dashboard
-export function useSpendingMetrics(selectedDate: Date) {
-	const currentMonth = useCurrentMonthData(selectedDate);
-	const monthlyTrend = useMonthlyTrend(selectedDate);
-	const dateKey = selectedDate.toISOString().split("T")[0];
-	const monthlyData = useQuery({
-		queryKey: spendingMetricsApiKeys.monthlyData(dateKey),
+/**
+ * Hook to fetch monthly spending data for trend analysis
+ */
+export function useMonthlySpendingData(selectedDate: Date) {
+	const cacheKey = format(selectedDate, "yyyy-MM");
+
+	return useQuery<MonthlyData[]>({
+		queryKey: spendingMetricsApiKeys.monthlyData(cacheKey),
 		queryFn: () => spendingMetricsApi.getMonthlyData(selectedDate),
-		staleTime: 5 * 60 * 1000,
+		staleTime: 15 * 60 * 1000, // 15 minutes
 	});
-	const categories = useQuery({
-		queryKey: spendingMetricsApiKeys.categories(dateKey),
+}
+
+/**
+ * Hook to fetch spending categories
+ */
+export function useSpendingCategories(selectedDate: Date) {
+	const cacheKey = format(selectedDate, "yyyy-MM");
+
+	return useQuery<CategoryData[]>({
+		queryKey: spendingMetricsApiKeys.categories(cacheKey),
 		queryFn: () => spendingMetricsApi.getCategories(selectedDate),
 		staleTime: 5 * 60 * 1000,
 	});
+}
+
+/**
+ * Combined hook for spending dashboard
+ * Aggregates data from multiple sources into a unified metrics object
+ */
+export function useSpendingMetrics(selectedDate: Date) {
+	const currentMonth = useCurrentMonthSpending(selectedDate);
+	const monthlyTrend = useMonthlyTrend(selectedDate);
+	const monthlyData = useMonthlySpendingData(selectedDate);
+	const categories = useSpendingCategories(selectedDate);
+
+	// Function to get all related queries
+	const getQueries = useCallback(
+		() => [currentMonth, monthlyData, categories],
+		[currentMonth, monthlyData, categories],
+	);
+
+	// Compute overall loading state
+	const isLoading = useMemo(() => {
+		return getQueries().some((query) => query.isLoading);
+	}, [getQueries]);
+
+	// Compute overall error state
+	const error = useMemo(() => {
+		return getQueries().find((query) => query.error)?.error;
+	}, [getQueries]);
 
 	// Combine all data into a single metrics object
-	const metrics: SpendingMetrics = {
-		totalSpent: currentMonth.data?.totalSpent || 0,
-		receiptCount: currentMonth.data?.receiptCount || 0,
-		monthlyTrend: monthlyTrend.trend,
-		monthlyData: monthlyData.data || [],
-		categories: categories.data || [],
+	const spendingMetrics: SpendingMetrics | undefined = useMemo(() => {
+		// Only create metrics object if we have the minimal required data
+		if (!currentMonth.data) return undefined;
+
+		return {
+			totalSpent: currentMonth.data.totalSpent,
+			receiptCount: currentMonth.data.receiptCount,
+			monthlyTrend: monthlyTrend.trend,
+			monthlyData: monthlyData.data || [],
+			categories: categories.data || [],
+		};
+	}, [
+		currentMonth.data,
+		monthlyTrend.trend,
+		monthlyData.data,
+		categories.data,
+	]);
+
+	return {
+		spendingMetrics,
+		isLoading,
+		error,
+		// biome-ignore lint/complexity/noForEach: Fine.
+		refetch: () => getQueries().forEach((query) => query.refetch()),
 	};
+}
 
-	const isLoading =
-		currentMonth.isLoading ||
-		monthlyTrend.isLoading ||
-		monthlyData.isLoading ||
-		categories.isLoading;
+// Add a hook for recent receipts
+export function useRecentReceipts(selectedDate: Date) {
+	const cacheKey = format(selectedDate, "yyyy-MM");
 
-	const error =
-		currentMonth.error ||
-		monthlyTrend.error ||
-		monthlyData.error ||
-		categories.error;
-
-	return { spendingMetrics: metrics, isLoading, error };
+	return useQuery({
+		queryKey: ["receipts", "recent", cacheKey],
+		queryFn: () => spendingMetricsApi.getRecentReceipts(selectedDate),
+		staleTime: 2 * 60 * 1000, // 2 minutes - more recent data changes frequently
+	});
 }

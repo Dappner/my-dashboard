@@ -6,12 +6,20 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AppRoutes } from "@/navigation";
+import { format } from "date-fns";
 import { ReceiptIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export const ActivityFeed: React.FC<{ receipts: Receipt[] }> = ({
+interface ActivityFeedProps {
+	receipts: Receipt[];
+	isLoading?: boolean;
+}
+
+export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 	receipts,
+	isLoading = false,
 }) => {
 	return (
 		<Card className="hover:shadow-md transition-shadow h-full">
@@ -20,35 +28,54 @@ export const ActivityFeed: React.FC<{ receipts: Receipt[] }> = ({
 				<CardDescription>Last 5 Receipts</CardDescription>
 			</CardHeader>
 			<CardContent>
-				{receipts.length === 0 ? (
-					<p className="text-sm text-muted-foreground">
-						No receipts this month.
-					</p>
-				) : (
-					<ul className="space-y-3">
-						{receipts.map((receipt) => (
-							<li key={receipt.id}>
-								<Link
-									to={AppRoutes.spending.receipts.detail(receipt.id)}
-									className="flex items-center justify-between p-2 rounded-md hover:bg-muted transition-colors"
-								>
-									<div className="flex items-center">
-										<ReceiptIcon className="h-5 w-5 text-muted-foreground mr-2" />
-										<div>
-											<p className="text-sm font-medium">
-												{receipt.store_name || "Unknown Store"}
-											</p>
-											<p className="text-xs text-muted-foreground">
-												{receipt.purchase_date}
-											</p>
-										</div>
-									</div>
-									<p className="text-sm font-semibold">
-										${receipt.total_amount.toFixed(2)}
-									</p>
-								</Link>
-							</li>
+				{isLoading ? (
+					// Loading state
+					<div className="space-y-3">
+						{Array.from({ length: 3 }).map((_, index) => (
+							// biome-ignore lint/suspicious/noArrayIndexKey: Fine for skeleton
+							<Skeleton key={index} className="h-14 w-full rounded-md" />
 						))}
+					</div>
+				) : receipts.length === 0 ? (
+					// Empty state
+					<div className="text-sm text-muted-foreground text-center py-4">
+						<ReceiptIcon className="h-8 w-8 mx-auto mb-2 opacity-30" />
+						<p>No receipts this month</p>
+					</div>
+				) : (
+					// Receipts list
+					<ul className="space-y-3">
+						{receipts.map((receipt) => {
+							//TODO: INvestigate
+							const purchaseDate =
+								receipt.purchase_date instanceof Date
+									? receipt.purchase_date
+									: new Date(receipt.purchase_date);
+
+							return (
+								<li key={receipt.id}>
+									<Link
+										to={AppRoutes.spending.receipts.detail(receipt.id)}
+										className="flex items-center justify-between p-2 rounded-md hover:bg-muted transition-colors"
+									>
+										<div className="flex items-center">
+											<ReceiptIcon className="h-5 w-5 text-muted-foreground mr-2" />
+											<div>
+												<p className="text-sm font-medium">
+													{receipt.store_name || "Unknown Store"}
+												</p>
+												<p className="text-xs text-muted-foreground">
+													{format(purchaseDate, "PP")}
+												</p>
+											</div>
+										</div>
+										<p className="text-sm font-semibold">
+											${receipt.total_amount.toFixed(2)}
+										</p>
+									</Link>
+								</li>
+							);
+						})}
 					</ul>
 				)}
 			</CardContent>
