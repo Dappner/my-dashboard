@@ -2,19 +2,15 @@ import ErrorState from "@/components/layout/components/ErrorState";
 import LoadingState from "@/components/layout/components/LoadingState";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMonthParam } from "@/hooks/useMonthParam";
-import { spendingCategoriesRoute } from "@/routes/spending-routes";
-import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { PieChartIcon } from "lucide-react";
-import { CategoryPieChart } from "./components/CategoryPieChart";
 import { MonthSwitcher } from "./components/MonthSwitcher";
 import { SpendingKpiCards } from "./components/SpendingKpiCards";
-import { useRecentReceipts } from "./hooks/spendingMetricsHooks";
 import { useSpendingMetrics } from "./hooks/useSpendingMetrics";
 import { ActivityFeed } from "./widgets/ActivityFeed";
 import { SpendingChartTabs } from "./widgets/SpendingChartTabs";
+import CurrentMonthCategoryChart from "./widgets/CurrentMonthCategoryChart";
 
 export default function SpendingOverview() {
 	const { selectedDate, setSelectedDate } = useMonthParam();
@@ -24,8 +20,6 @@ export default function SpendingOverview() {
 		isLoading: metricsLoading,
 		error,
 	} = useSpendingMetrics(selectedDate);
-	const { data: recentReceipts, isLoading: receiptsLoading } =
-		useRecentReceipts(selectedDate);
 
 	const formattedMonth = format(selectedDate, "MMMM yyyy");
 	const isLoading = metricsLoading;
@@ -44,7 +38,7 @@ export default function SpendingOverview() {
 		<PageContainer className="min-h-screen">
 			<header className="mb-6 flex flex-row justify-center sm:justify-between items-start sm:items-center gap-4">
 				<div className="hidden sm:block">
-					<h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+					<h1 className="text-xl md:text-3xl font-semibold tracking-tight">
 						Spending Overview
 					</h1>
 				</div>
@@ -77,36 +71,8 @@ export default function SpendingOverview() {
 					</div>
 
 					<div className="md:col-span-4 gap-4 flex flex-col">
-						<Card>
-							<CardHeader className="flex flex-col">
-								<CardTitle className="text-lg font-semibold flex items-center">
-									<PieChartIcon className="size-4 mr-2" />
-									<Link
-										to={spendingCategoriesRoute.to}
-										className="hover:underline"
-									>
-										Spending by Category
-									</Link>
-								</CardTitle>
-								<p className="text-sm text-muted-foreground">
-									{formattedMonth}
-								</p>
-							</CardHeader>
-							<div className="p-6 pt-0">
-								{spendingMetrics.categories.length > 0 ? (
-									<CategoryPieChart categories={spendingMetrics.categories} />
-								) : (
-									<div className="h-[200px] flex items-center justify-center text-muted-foreground">
-										No categories for this month
-									</div>
-								)}
-							</div>
-						</Card>
-
-						<ActivityFeed
-							receipts={recentReceipts || []}
-							isLoading={receiptsLoading}
-						/>
+						<CurrentMonthCategoryChart formattedMonth={formattedMonth} />
+						<ActivityFeed />
 					</div>
 				</div>
 			)}

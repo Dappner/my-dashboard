@@ -1,4 +1,3 @@
-import type { Receipt } from "@/api/receiptsApi";
 import {
 	Card,
 	CardContent,
@@ -7,20 +6,17 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMonthParam } from "@/hooks/useMonthParam";
 import { spendingReceiptDetailRoute } from "@/routes/spending-routes";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ReceiptIcon } from "lucide-react";
+import { useRecentReceipts } from "../hooks/useSpendingMetrics";
 
-interface ActivityFeedProps {
-	receipts: Receipt[];
-	isLoading?: boolean;
-}
+export const ActivityFeed: React.FC = () => {
+	const { selectedDate } = useMonthParam();
+	const { data: receipts, isLoading } = useRecentReceipts(selectedDate);
 
-export const ActivityFeed: React.FC<ActivityFeedProps> = ({
-	receipts,
-	isLoading = false,
-}) => {
 	return (
 		<Card className="hover:shadow-md transition-shadow h-full">
 			<CardHeader className="pb-2">
@@ -41,7 +37,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 							<Skeleton key={index} className="h-14 w-full rounded-md" />
 						))}
 					</div>
-				) : receipts.length === 0 ? (
+				) : receipts?.length === 0 ? (
 					// Empty state
 					<div className="text-sm text-muted-foreground text-center py-4">
 						<ReceiptIcon className="h-8 w-8 mx-auto mb-2 opacity-30" />
@@ -50,7 +46,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 				) : (
 					// Receipts list
 					<ul className="space-y-3">
-						{receipts.map((receipt) => {
+						{receipts?.map((receipt) => {
 							const purchaseDate = new Date(receipt.purchase_date);
 
 							return (
