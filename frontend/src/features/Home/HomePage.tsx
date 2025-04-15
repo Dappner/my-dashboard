@@ -3,14 +3,14 @@ import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Card, CardContent } from "@/components/ui/card";
 import useUser from "@/hooks/useUser";
+import { investingDashboardRoute } from "@/routes/investing-routes";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { CheckSquare, DollarSign, GitCommit, TrendingUp } from "lucide-react";
 import PortfolioChart from "../Investing/components/PortfolioChart";
 import { usePortfolioMetrics } from "../Investing/hooks/usePortfolioMetrics";
 import { CategoryPieChart } from "../Spending/components/CategoryPieChart";
 import { useSpendingMetrics } from "../Spending/hooks/useSpendingMetrics";
-import { Link } from "@tanstack/react-router";
-import { investingDashboardRoute } from "@/routes/investing-routes";
 
 type ChessDay = { date: string; played: boolean };
 type CommitDay = { date: string; count: number };
