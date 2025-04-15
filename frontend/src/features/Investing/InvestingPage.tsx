@@ -4,137 +4,137 @@ import { PageContainer } from "@/components/layout/components/PageContainer";
 import type { Timeframe } from "@my-dashboard/shared";
 import { useState } from "react";
 import ChartTypeControls from "./components/ChartTypeControls";
-import HoldingsWidget from "./widgets/HoldingsWidget";
 import PortfolioChart from "./components/PortfolioChart";
-import PortfolioInsightsWidget from "./widgets/PortfolioInsightsWidget";
 import SidebarKpis from "./components/SidebarKpis";
 import TickerEvents from "./components/TickerEvents";
 import TotalValueDisplay from "./components/TotalValueDisplay";
 import TransactionTable from "./components/TransactionTable";
 import { useTransactions } from "./hooks/useTransactions";
 import { useUpcomingTickerEvents } from "./hooks/useUpcomingTickerEvents";
+import HoldingsWidget from "./widgets/HoldingsWidget";
+import PortfolioInsightsWidget from "./widgets/PortfolioInsightsWidget";
 
 export default function InvestingPage() {
-  const { transactions, isLoading: transactionsLoading } = useTransactions();
-  const {
-    events,
-    isLoading: eventsLoading,
-    isError: eventsError,
-    error: eventsErrorMsg,
-  } = useUpcomingTickerEvents(3);
+	const { transactions, isLoading: transactionsLoading } = useTransactions();
+	const {
+		events,
+		isLoading: eventsLoading,
+		isError: eventsError,
+		error: eventsErrorMsg,
+	} = useUpcomingTickerEvents(3);
 
-  const [timeframe, setTimeframe] = useState<Timeframe>("1M");
-  const [chartType, setChartType] = useState<"absolute" | "percentual">(
-    "absolute",
-  );
+	const [timeframe, setTimeframe] = useState<Timeframe>("1M");
+	const [chartType, setChartType] = useState<"absolute" | "percentual">(
+		"absolute",
+	);
 
-  const recentTransactions = transactions?.slice(0, 5);
+	const recentTransactions = transactions?.slice(0, 5);
 
-  return (
-    <PageContainer className="pt-0">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* === Main Column (Chart, Mobile Holdings, Transactions) === */}
-        <main className="lg:col-span-2 space-y-4">
-          <section className="space-y-2">
-            {/* Desktop */}
-            <div className="hidden md:flex md:justify-between md:mb-2 md:gap-4 md:items-end">
-              <TotalValueDisplay timeframe={timeframe} />
-              <div className="flex flex-row gap-4 ">
-                <TimeframeControls
-                  timeframe={timeframe}
-                  onTimeframeChange={setTimeframe}
-                />
-                <ChartTypeControls
-                  chartType={chartType}
-                  onChartTypeChange={setChartType}
-                />
-              </div>
-            </div>
+	return (
+		<PageContainer className="pt-0">
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				{/* === Main Column (Chart, Mobile Holdings, Transactions) === */}
+				<main className="lg:col-span-2 space-y-4">
+					<section className="space-y-2">
+						{/* Desktop */}
+						<div className="hidden md:flex md:justify-between md:mb-2 md:gap-4 md:items-end">
+							<TotalValueDisplay timeframe={timeframe} />
+							<div className="flex flex-row gap-4 ">
+								<TimeframeControls
+									timeframe={timeframe}
+									onTimeframeChange={setTimeframe}
+								/>
+								<ChartTypeControls
+									chartType={chartType}
+									onChartTypeChange={setChartType}
+								/>
+							</div>
+						</div>
 
-            {/* Chart Type Controls ABOVE chart (Mobile: below md) */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between mb-2 gap-2 px-2 pt-2 md:hidden">
-                <TotalValueDisplay timeframe={timeframe} />
-                <ChartTypeControls
-                  chartType={chartType}
-                  onChartTypeChange={setChartType}
-                />
-              </div>
-              <div className="md:hidden">
-                <SidebarKpis timeframe={timeframe} />
-              </div>
-            </div>
+						{/* Chart Type Controls ABOVE chart (Mobile: below md) */}
+						<div className="space-y-2">
+							<div className="flex items-center justify-between mb-2 gap-2 px-2 pt-2 md:hidden">
+								<TotalValueDisplay timeframe={timeframe} />
+								<ChartTypeControls
+									chartType={chartType}
+									onChartTypeChange={setChartType}
+								/>
+							</div>
+							<div className="md:hidden">
+								<SidebarKpis timeframe={timeframe} />
+							</div>
+						</div>
 
-            {/* Chart */}
-            <PortfolioChart timeframe={timeframe} type={chartType} />
+						{/* Chart */}
+						<PortfolioChart timeframe={timeframe} type={chartType} />
 
-            {/* Timeframe Controls BELOW chart (Mobile: below md) */}
-            <div className="flex justify-center mt-3 md:hidden">
-              <TimeframeControls
-                timeframe={timeframe}
-                onTimeframeChange={setTimeframe}
-              />
-            </div>
-          </section>
+						{/* Timeframe Controls BELOW chart (Mobile: below md) */}
+						<div className="flex justify-center mt-3 md:hidden">
+							<TimeframeControls
+								timeframe={timeframe}
+								onTimeframeChange={setTimeframe}
+							/>
+						</div>
+					</section>
 
-          <div className="hidden md:flex lg:hidden">
-            <SidebarKpis timeframe={timeframe} />
-          </div>
-          {/* --- Holdings Section (MOBILE ONLY) --- */}
-          <section className="block lg:hidden">
-            <SectionHeader
-              title="Holdings"
-              linkTo="/investing/holdings"
-              linkText="View Details"
-            />
+					<div className="hidden md:flex lg:hidden">
+						<SidebarKpis timeframe={timeframe} />
+					</div>
+					{/* --- Holdings Section (MOBILE ONLY) --- */}
+					<section className="block lg:hidden">
+						<SectionHeader
+							title="Holdings"
+							linkTo="/investing/holdings"
+							linkText="View Details"
+						/>
 
-            <HoldingsWidget />
-          </section>
+						<HoldingsWidget />
+					</section>
 
-          <section>
-            <SectionHeader
-              title="Recent Transactions"
-              linkTo="/investing/transactions"
-              linkText="View All"
-            />
-            <TransactionTable
-              transactions={recentTransactions || []}
-              isLoading={transactionsLoading}
-              actions={false}
-            />
-          </section>
-        </main>
+					<section>
+						<SectionHeader
+							title="Recent Transactions"
+							linkTo="/investing/transactions"
+							linkText="View All"
+						/>
+						<TransactionTable
+							transactions={recentTransactions || []}
+							isLoading={transactionsLoading}
+							actions={false}
+						/>
+					</section>
+				</main>
 
-        {/* === Right Sidebar (Desktop Holdings, Insights, Events) === */}
-        <aside className="space-y-6">
-          <section className="hidden lg:block">
-            <SidebarKpis timeframe={timeframe} />
-          </section>
-          {/* --- Holdings Section (DESKTOP ONLY) --- */}
-          <section className="hidden lg:block">
-            <SectionHeader
-              title="Holdings"
-              linkTo="/investing/holdings"
-              linkText="View Details"
-            />
+				{/* === Right Sidebar (Desktop Holdings, Insights, Events) === */}
+				<aside className="space-y-6">
+					<section className="hidden lg:block">
+						<SidebarKpis timeframe={timeframe} />
+					</section>
+					{/* --- Holdings Section (DESKTOP ONLY) --- */}
+					<section className="hidden lg:block">
+						<SectionHeader
+							title="Holdings"
+							linkTo="/investing/holdings"
+							linkText="View Details"
+						/>
 
-            <HoldingsWidget />
-          </section>
-          <section>
-            <SectionHeader title="Insights" />
-            <PortfolioInsightsWidget timeframe={timeframe} />
-          </section>
-          <section>
-            <SectionHeader title="Upcoming Events" />
-            <TickerEvents
-              events={events}
-              isLoading={eventsLoading}
-              isError={eventsError}
-              error={eventsErrorMsg}
-            />
-          </section>
-        </aside>
-      </div>
-    </PageContainer>
-  );
+						<HoldingsWidget />
+					</section>
+					<section>
+						<SectionHeader title="Insights" />
+						<PortfolioInsightsWidget timeframe={timeframe} />
+					</section>
+					<section>
+						<SectionHeader title="Upcoming Events" />
+						<TickerEvents
+							events={events}
+							isLoading={eventsLoading}
+							isError={eventsError}
+							error={eventsErrorMsg}
+						/>
+					</section>
+				</aside>
+			</div>
+		</PageContainer>
+	);
 }
