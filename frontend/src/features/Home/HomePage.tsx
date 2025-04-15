@@ -125,7 +125,7 @@ export default function HomePage() {
 	if (isLoading) return <LoadingState />;
 
 	return (
-		<PageContainer>
+		<PageContainer className="px-2 sm:px-0">
 			<section className="space-y-2">
 				<div className="flex justify-between items-center">
 					<h2 className="text-base font-semibold sm:text-lg">Investing</h2>

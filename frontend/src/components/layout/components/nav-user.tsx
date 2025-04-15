@@ -33,6 +33,60 @@ export function NavUser() {
 	const initials =
 		(user.first_name || "N").charAt(0) + user.last_name?.charAt(0);
 
+	if (isMobile) {
+		return (
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<Button variant="ghost" size="icon" className="rounded-full">
+						<Avatar className="size-10">
+							<AvatarImage alt={fullName} />
+							<AvatarFallback>{initials}</AvatarFallback>
+						</Avatar>
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent
+					className="min-w-56 rounded-lg"
+					side="bottom"
+					align="end"
+					sideOffset={4}
+				>
+					<DropdownMenuLabel className="p-0 font-normal">
+						<div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
+							<Avatar className="h-8 w-8 rounded-lg">
+								<AvatarImage alt={fullName} />
+								<AvatarFallback className="rounded-lg">
+									{initials}
+								</AvatarFallback>
+							</Avatar>
+							<div className="grid flex-1 text-left text-sm leading-tight">
+								<span className="truncate font-semibold">{fullName}</span>
+								<span className="truncate text-xs">{user.email}</span>
+							</div>
+						</div>
+					</DropdownMenuLabel>
+					<DropdownMenuSeparator />
+					<DropdownMenuGroup>
+						<DropdownMenuItem className="cursor-pointer">
+							<BadgeCheck className="mr-2 h-4 w-4" />
+							Account
+						</DropdownMenuItem>
+						<DropdownMenuItem className="cursor-pointer">
+							<Bell className="mr-2 h-4 w-4" />
+							Notifications
+						</DropdownMenuItem>
+					</DropdownMenuGroup>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem
+						onClick={signOutAndInvalidate}
+						className="cursor-pointer"
+					>
+						<LogOut className="mr-2 h-4 w-4" />
+						Log out
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		);
+	}
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>

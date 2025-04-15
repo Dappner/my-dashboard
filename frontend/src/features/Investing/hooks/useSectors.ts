@@ -22,7 +22,7 @@ export const useSectors = (options: UseSectorsOptions = {}) => {
 	} = useQuery<Sector[]>({
 		queryKey: queryKeys.sectors.all,
 		queryFn: () => api.sectors.getAll(),
-		staleTime: queryOptions.staleTime,
+		staleTime: queryOptions.staleTime || 600,
 		retry: queryOptions.retry,
 		enabled: queryOptions.enabled ?? true,
 	});

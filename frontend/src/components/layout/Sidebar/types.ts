@@ -17,6 +17,7 @@ export interface NavBarSection {
 	rootName?: string;
 	icon?: LucideIcon;
 	isActive?: boolean;
+	actions?: null;
 	items?: {
 		title: string;
 		url: string;

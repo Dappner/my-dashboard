@@ -32,7 +32,7 @@ export const useIndustries = (options: UseIndustriesOptions = {}) => {
 	} = useQuery<Industry[]>({
 		queryKey,
 		queryFn,
-		staleTime: queryOptions.staleTime,
+		staleTime: queryOptions.staleTime || 600,
 		retry: queryOptions.retry,
 		enabled: queryOptions.enabled ?? true,
 	});

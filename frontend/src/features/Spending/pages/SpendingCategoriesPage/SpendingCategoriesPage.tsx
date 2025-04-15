@@ -82,9 +82,6 @@ export function SpendingCategoriesPage() {
 	return (
 		<PageContainer>
 			<header className="mb-6 flex flex-col sm:flex-row sm:justify-between items-center gap-4">
-				<h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
-					Spending Categories
-				</h1>
 				<div className="flex items-center gap-3">
 					<MonthSwitcher
 						selectedDate={selectedDate}
@@ -144,7 +141,7 @@ export function SpendingCategoriesPage() {
 										label={({ name, percent }) =>
 											window.innerWidth > 640
 												? `${name} (${(percent * 100).toFixed(0)}%)`
-												: false
+												: ""
 										}
 									>
 										{processedCategories.map((entry, index) => (

@@ -7,6 +7,7 @@ export const navBarSections: NavBarSection[] = [
 		url: "/investing",
 		rootName: "Overview",
 		icon: ChartNoAxesCombined,
+		actions: null,
 		items: [
 			{
 				title: "Holdings",
