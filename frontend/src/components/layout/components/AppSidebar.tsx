@@ -1,67 +1,43 @@
-import { Button } from "@/components/ui/button";
-import {
-	Sidebar,
-	SidebarContent,
-	SidebarFooter,
-	useSidebar,
-} from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
-import { useEffect, useRef } from "react";
-import { NavMain } from "./nav-main";
+import { useSidebar } from "../Sidebar/providers/SidebarProvider";
+import { SidebarContent } from "../Sidebar/components/SidebarContent";
+import { Sidebar } from "../Sidebar/Sidebar";
 import { NavUser } from "./nav-user";
+import { SidebarHeader } from "../Sidebar/components/SidebarHeader";
+import { SidebarRoutes } from "../Sidebar/components/SidebarRoutes";
+import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
-	const { isMobile, state, toggleSidebar } = useSidebar();
+  const { isMobile, state } = useSidebar();
+  const expanded = state === "expanded" || isMobile;
 
-	const hasLoaded = useRef(false);
-
-	// Loads State from Sidebar
-	useEffect(() => {
-		if (!isMobile && !hasLoaded.current) {
-			const savedState = localStorage.getItem("sidebarState") as
-				| "expanded"
-				| "collapsed"
-				| null;
-			if (savedState && savedState !== state) {
-				toggleSidebar();
-			}
-			hasLoaded.current = true;
-		}
-	}, [isMobile, toggleSidebar, state]); // Dependencies included but effect only runs once
-
-	// Save state to localStorage when it changes
-	useEffect(() => {
-		if (!isMobile && hasLoaded.current) {
-			localStorage.setItem("sidebarState", state);
-		}
-	}, [state, isMobile]);
-
-	return (
-		<Sidebar collapsible="icon">
-			<SidebarContent>
-				<NavMain />
-			</SidebarContent>
-			<SidebarFooter>
-				<Link to="/investing/alerts" className="flex justify-center w-full">
-					<Button
-						variant="ghost"
-						className={`w-full justify-start ${
-							state === "collapsed" && !isMobile ? "size-10 p-0" : ""
-						}`}
-					>
-						<Bell className="size-5" />
-						<span
-							className={`${
-								state === "collapsed" && !isMobile ? "hidden" : "ml-2"
-							} truncate font-semibold`}
-						>
-							Alerts
-						</span>
-					</Button>
-				</Link>
-				<NavUser />
-			</SidebarFooter>
-		</Sidebar>
-	);
+  return (
+    <Sidebar>
+      {!isMobile && <SidebarHeader>Dashboard</SidebarHeader>}
+      <SidebarContent>
+        <SidebarRoutes />
+      </SidebarContent>
+      <footer>
+        <div className="px-2">
+          <Link
+            to="/settings"
+            className={cn(
+              "flex items-center py-2 px-3 my-1 rounded-md text-sm font-medium transition-colors",
+              "hover:bg-accent hover:text-accent-foreground",
+              !expanded && "justify-center",
+            )}
+            activeOptions={{ exact: true }}
+            activeProps={{ className: "bg-accent text-accent-foreground" }}
+          >
+            <Bell className={cn("size-5", expanded && "mr-2")} />
+            {expanded && <span>Alerts</span>}
+          </Link>
+        </div>
+        <div className="border-t">
+          <NavUser />
+        </div>
+      </footer>
+    </Sidebar>
+  );
 }

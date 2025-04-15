@@ -25,6 +25,10 @@
 
 - Add + button to receipts in Spending
 
+Generally:
+
+1. Why do links not allow cursor-pointer?
+
 ## Larger Features
 
 **Investing**
@@ -49,7 +53,7 @@
 - Hookup API to chess to scrape whether I played Chess that Day
 - Better sidebar
   - Other issue is state of sidebar caching (moves on open if it's closed)
-  - If I'm on Investing and I open sidebar all investing pages should be open. It should maube take up fuill screen on mobile (as an overlay?)
+  - If I'm on Investing and I open sidebar all investing pages should be open. It should maybe take up full screen on mobile (as an overlay?)
   - This will need a custom integration....
 
 # FORMULAS USED
