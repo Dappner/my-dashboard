@@ -12,75 +12,75 @@ import type { AppRouteObject } from "@/types";
 import { Outlet } from "react-router-dom";
 
 export const investingRoutes: AppRouteObject[] = [
-  {
-    path: "investing",
-    element: <Outlet />,
-    handle: {
-      crumb: () => "Investing",
-    },
-    children: [
-      {
-        index: true,
-        element: <InvestingPage />,
-        handle: {
-          title: "Investment Dashboard",
-        },
-      },
-      {
-        path: "manage",
-        element: <ManageInvestingPage />,
-        handle: { title: "Manage Investments", crumb: () => "Manage" },
-      },
-      {
-        path: "holdings",
-        element: <HoldingsPage />,
-        handle: { title: "Holdings", crumb: () => "Holdings" },
-      },
-      {
-        path: "transactions",
-        element: <TransactionsPage />,
-        handle: { title: "Transactions", crumb: () => "Transactions" },
-      },
-      {
-        path: "research",
-        element: <ResearchPage />,
-        handle: { title: "Research", crumb: () => "Research" },
-      },
-      {
-        path: "forex",
-        element: <ForexPage />,
-        handle: { title: "Forex", crumb: () => "Forex" },
-      },
-      {
-        path: "industry/:industrySlug",
-        element: <IndustryPage />,
-        handle: {
-          title: "Industry Performance",
-          crumb: ({ params }) => `Industry: ${params.industrySlug || ""}`,
-        },
-      },
-      {
-        path: "sector/:sectorSlug",
-        element: <SectorPage />,
-        handle: {
-          title: "Sector Performance",
-          crumb: ({ params }) => `Sector: ${params.sectorSlug || ""}`,
-        },
-      },
-      {
-        path: "ticker/:exchange/:ticker",
-        element: <TickerPage />,
-        handle: {
-          title: "Stock Details",
-          crumb: ({ params }) =>
-            params.ticker ? `Stock: ${params.ticker.toUpperCase()}` : "Stock",
-        },
-      },
-      {
-        path: "alerts",
-        element: <AlertsPage />,
-        handle: { title: "Alerts", crumb: () => "Alerts" },
-      },
-    ],
-  },
+	{
+		path: "investing",
+		element: <Outlet />,
+		handle: {
+			crumb: () => "Investing",
+		},
+		children: [
+			{
+				index: true,
+				element: <InvestingPage />,
+				handle: {
+					title: "Investment Dashboard",
+				},
+			},
+			{
+				path: "manage",
+				element: <ManageInvestingPage />,
+				handle: { title: "Manage Investments", crumb: () => "Manage" },
+			},
+			{
+				path: "holdings",
+				element: <HoldingsPage />,
+				handle: { title: "Holdings", crumb: () => "Holdings" },
+			},
+			{
+				path: "transactions",
+				element: <TransactionsPage />,
+				handle: { title: "Transactions", crumb: () => "Transactions" },
+			},
+			{
+				path: "research",
+				element: <ResearchPage />,
+				handle: { title: "Research", crumb: () => "Research" },
+			},
+			{
+				path: "forex",
+				element: <ForexPage />,
+				handle: { title: "Forex", crumb: () => "Forex" },
+			},
+			{
+				path: "industry/:industrySlug",
+				element: <IndustryPage />,
+				handle: {
+					title: "Industry Performance",
+					crumb: ({ params }) => `Industry: ${params.industrySlug || ""}`,
+				},
+			},
+			{
+				path: "sector/:sectorSlug",
+				element: <SectorPage />,
+				handle: {
+					title: "Sector Performance",
+					crumb: ({ params }) => `Sector: ${params.sectorSlug || ""}`,
+				},
+			},
+			{
+				path: "ticker/:exchange/:ticker",
+				element: <TickerPage />,
+				handle: {
+					title: "Stock Details",
+					crumb: ({ params }) =>
+						params.ticker ? `Stock: ${params.ticker.toUpperCase()}` : "Stock",
+				},
+			},
+			{
+				path: "alerts",
+				element: <AlertsPage />,
+				handle: { title: "Alerts", crumb: () => "Alerts" },
+			},
+		],
+	},
 ];
