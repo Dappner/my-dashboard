@@ -1,4 +1,11 @@
-import { ChartNoAxesCombined, CreditCard, Settings2Icon } from "lucide-react";
+import {
+	BookOpen,
+	ChartNoAxesCombined,
+	Clock,
+	CreditCard,
+	ListChecks,
+	Settings2Icon,
+} from "lucide-react";
 import type { NavBarSection } from "./types";
 
 export const navBarSections: NavBarSection[] = [
@@ -47,34 +54,34 @@ export const navBarSections: NavBarSection[] = [
 			},
 		],
 	},
-	// {
-	// 	title: "Habits",
-	// 	url: "/habits",
-	// 	icon: ListChecks,
-	// 	rootName: "Overview",
-	// 	items: [
-	// 		{
-	// 			title: "Chess",
-	// 			url: "chess",
-	// 		},
-	// 		{
-	// 			title: "Github",
-	// 			url: "github",
-	// 		},
-	// 	],
-	// },
-	// {
-	// 	title: "Time Tracking",
-	// 	url: "/time-tracking",
-	// 	rootName: "Overview",
-	// 	icon: Clock,
-	// },
-	// {
-	// 	title: "Reading",
-	// 	url: "/reading",
-	// 	icon: BookOpen,
-	// 	rootName: "Overview",
-	// },
+	{
+		title: "Habits",
+		url: "/habits",
+		icon: ListChecks,
+		rootName: "Overview",
+		items: [
+			{
+				title: "Chess",
+				url: "chess",
+			},
+			{
+				title: "Github",
+				url: "github",
+			},
+		],
+	},
+	{
+		title: "Time Tracking",
+		url: "/time-tracking",
+		rootName: "Overview",
+		icon: Clock,
+	},
+	{
+		title: "Reading",
+		url: "/reading",
+		icon: BookOpen,
+		rootName: "Overview",
+	},
 	{
 		title: "Settings",
 		url: "/settings",
