@@ -1,6 +1,7 @@
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMonthParam } from "@/hooks/useMonthParam";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefreshCwIcon } from "lucide-react";
 import { useCallback, useEffect } from "react";
@@ -19,7 +20,6 @@ import {
 	useSpendingCategories,
 } from "../../hooks/spendingMetricsHooks";
 import { CategoryCard } from "./components/CategoryCard";
-import { useMonthParam } from "@/hooks/useMonthParam";
 
 export function SpendingCategoriesPage() {
 	const { selectedDate, setSelectedDate } = useMonthParam();

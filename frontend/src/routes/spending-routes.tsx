@@ -4,8 +4,8 @@ import ReceiptsPage from "@/features/Spending/pages/ReceiptsPage";
 import { SpendingCategoriesPage } from "@/features/Spending/pages/SpendingCategoriesPage/SpendingCategoriesPage";
 import SpendingCategoryDetailPage from "@/features/Spending/pages/SpendingCategoryDetailPage";
 import { createRoute } from "@tanstack/react-router";
-import { layoutRoute } from ".";
 import { z } from "zod";
+import { layoutRoute } from ".";
 
 const monthSearchSchema = z.object({
 	month: z
