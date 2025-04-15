@@ -3,50 +3,50 @@ import LoginPage from "@/features/Auth/Login";
 import HomePage from "@/features/Home/HomePage";
 import SettingsPage from "@/features/Settings/SettingsPage";
 import {
-	createRootRoute,
-	createRoute,
-	createRouter,
+  createRootRoute,
+  createRoute,
+  createRouter,
 } from "@tanstack/react-router";
 import { investingRoutes } from "./investing-routes";
 import { spendingRoutes } from "./spending-routes";
+import AuthWrapper from "@/components/auth/Authwrapper";
 
-export const rootRoute = createRootRoute({});
+export const rootRoute = createRootRoute({
+  component: AuthWrapper,
+});
+
+export const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "login",
+  component: LoginPage,
+});
 
 export const layoutRoute = createRoute({
-	path: "/",
-	getParentRoute: () => rootRoute,
-	component: Layout,
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: Layout,
 });
 
-// Home Route
 export const homeRoute = createRoute({
-	getParentRoute: () => layoutRoute,
-	path: "/",
-	component: HomePage,
+  path: "home",
+  getParentRoute: () => layoutRoute,
+  component: HomePage,
 });
 
-// Settings Route
 export const settingsRoute = createRoute({
-	getParentRoute: () => layoutRoute,
-	path: "/settings",
-	component: SettingsPage,
+  getParentRoute: () => layoutRoute,
+  path: "settings",
+  component: SettingsPage,
 });
 
-// Login Route (outside main layout)
-export const loginRoute = createRoute({
-	getParentRoute: () => rootRoute,
-	path: "login",
-	component: LoginPage,
-});
-
-// The root router that includes all routes
 const routeTree = rootRoute.addChildren([
-	homeRoute,
-	...investingRoutes,
-	...spendingRoutes,
-	settingsRoute,
-	loginRoute,
+  loginRoute,
+  layoutRoute.addChildren([
+    homeRoute,
+    settingsRoute,
+    ...investingRoutes,
+    ...spendingRoutes,
+  ]),
 ]);
 
-// Create and export the router
 export const router = createRouter({ routeTree });

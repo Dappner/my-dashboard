@@ -1,16 +1,16 @@
 import KpiCard from "@/components/customs/KpiCard";
 import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 import { PageContainer } from "@/components/layout/components/PageContainer";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import useUser from "@/hooks/useUser";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { CheckSquare, DollarSign, GitCommit, TrendingUp } from "lucide-react";
-import { Link } from "react-router-dom";
 import PortfolioChart from "../Investing/components/PortfolioChart";
 import { usePortfolioMetrics } from "../Investing/hooks/usePortfolioMetrics";
 import { CategoryPieChart } from "../Spending/components/CategoryPieChart";
 import { useSpendingMetrics } from "../Spending/hooks/useSpendingMetrics";
+import { Link } from "@tanstack/react-router";
+import { investingDashboardRoute } from "@/routes/investing-routes";
 
 type ChessDay = { date: string; played: boolean };
 type CommitDay = { date: string; count: number };
@@ -116,7 +116,6 @@ export default function HomePage() {
 	const { metrics, isLoading: metricsLoading } = usePortfolioMetrics("ALL");
 
 	const queryDate = new Date();
-	const currentMonth = format(queryDate, "MMMM yyyy");
 	const { spendingMetrics, isLoading: spendingLoading } =
 		useSpendingMetrics(queryDate);
 	const { data: habitsData, isLoading: habitsLoading } = useHabitsData(userId);
@@ -132,7 +131,7 @@ export default function HomePage() {
 					<div className="flex justify-between items-center">
 						<h2 className="text-base font-semibold sm:text-lg">Investing</h2>
 						<Link
-							to="/investing"
+							to={investingDashboardRoute.to}
 							className="text-xs text-blue-500 hover:underline sm:text-sm"
 						>
 							Details
@@ -201,12 +200,13 @@ export default function HomePage() {
 							positiveChange={true}
 							// compact
 						/>
-						<div className="col-span-2">
-							<CategoryPieChart
-								categories={spendingMetrics.categories}
-								month={currentMonth}
-							/>
-						</div>
+						<Card className="col-span-2">
+							<CardContent>
+								<CategoryPieChart
+									categories={spendingMetrics?.categories || []}
+								/>
+							</CardContent>
+						</Card>
 					</div>
 				</section>
 
@@ -214,12 +214,11 @@ export default function HomePage() {
 				<section className="space-y-2">
 					<div className="flex justify-between items-center">
 						<h2 className="text-base font-semibold sm:text-lg">Habits</h2>
-						<Link
-							to="/habits"
-							className="text-xs text-blue-500 hover:underline sm:text-sm"
-						>
-							Details
-						</Link>
+						{/* <Link */}
+						{/*   className="text-xs text-blue-500 hover:underline sm:text-sm" */}
+						{/* > */}
+						{/*   Details */}
+						{/* </Link> */}
 					</div>
 					<CompactHabitsTracker
 						habitsData={habitsData || { chess: [], commits: [] }}

@@ -24,15 +24,15 @@ export default function ResearchOverview() {
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-				<div className="lg:col-span-2 space-y-8 sm:px-8">
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:px-8">
+				<div className="lg:col-span-2 space-y-8 ">
 					<StatsOverview />
 				</div>
-				<div className="lg:col-span-1 sm:pr-8">
+				<div className="lg:col-span-1 ">
 					<WatchlistSidebar />
 				</div>
 				<section className="lg:col-span-3">
-					<h2 className="text-xl font-semibold text-gray-900 mb-4 px-8">
+					<h2 className="text-xl font-semibold text-gray-900 mb-4 sm:px-8">
 						Sectors & Industries
 					</h2>
 					<SectorsAndIndustries />

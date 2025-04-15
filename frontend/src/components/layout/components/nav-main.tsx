@@ -15,19 +15,16 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
-	BookOpen,
 	ChartNoAxesCombined,
 	ChevronRight,
-	Clock,
 	CreditCard,
 	Home,
-	ListChecks,
 	type LucideIcon,
 	Settings2Icon,
 } from "lucide-react";
 import type { MouseEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
 
 type NavBarItem = {
 	title: string;
@@ -40,7 +37,6 @@ type NavBarItem = {
 		url: string;
 	}[];
 };
-
 const navBarItems: NavBarItem[] = [
 	{
 		title: "Investing",
@@ -62,7 +58,7 @@ const navBarItems: NavBarItem[] = [
 			},
 			{
 				title: "Forex",
-				url: "/investing/forex",
+				url: "/investing/research",
 			},
 			{
 				title: "Manage",
@@ -86,34 +82,34 @@ const navBarItems: NavBarItem[] = [
 			},
 		],
 	},
-	{
-		title: "Habits",
-		url: "/habits",
-		icon: ListChecks,
-		rootName: "Overview",
-		items: [
-			{
-				title: "Chess",
-				url: "chess",
-			},
-			{
-				title: "Github",
-				url: "github",
-			},
-		],
-	},
-	{
-		title: "Time Tracking",
-		url: "/time-tracking",
-		rootName: "Overview",
-		icon: Clock,
-	},
-	{
-		title: "Reading",
-		url: "/reading",
-		icon: BookOpen,
-		rootName: "Overview",
-	},
+	// {
+	// 	title: "Habits",
+	// 	url: "/habits",
+	// 	icon: ListChecks,
+	// 	rootName: "Overview",
+	// 	items: [
+	// 		{
+	// 			title: "Chess",
+	// 			url: "chess",
+	// 		},
+	// 		{
+	// 			title: "Github",
+	// 			url: "github",
+	// 		},
+	// 	],
+	// },
+	// {
+	// 	title: "Time Tracking",
+	// 	url: "/time-tracking",
+	// 	rootName: "Overview",
+	// 	icon: Clock,
+	// },
+	// {
+	// 	title: "Reading",
+	// 	url: "/reading",
+	// 	icon: BookOpen,
+	// 	rootName: "Overview",
+	// },
 	{
 		title: "Settings",
 		url: "/settings",
@@ -121,22 +117,16 @@ const navBarItems: NavBarItem[] = [
 		icon: Settings2Icon,
 	},
 ];
-
 export function NavMain() {
 	const navigate = useNavigate();
-	const location = useLocation();
 	const { open } = useSidebar();
 
 	const handleClick = (e: MouseEvent<HTMLButtonElement>, url: string) => {
 		if (!open) {
 			e.preventDefault();
 			e.stopPropagation();
-			navigate(url);
+			navigate({ to: url });
 		}
-	};
-
-	const isCurrentUrl = (url: string) => {
-		return location.pathname === url;
 	};
 
 	return (
@@ -144,15 +134,14 @@ export function NavMain() {
 			<SidebarGroupLabel>Platform</SidebarGroupLabel>
 			<SidebarMenu>
 				<SidebarMenuItem key="Home">
-					<SidebarMenuButton
-						className={
-							location.pathname === "/"
-								? "bg-gray-200 rounded-md hover:bg-gray-200"
-								: ""
-						}
-						asChild
-					>
-						<Link to="/">
+					<SidebarMenuButton asChild>
+						<Link
+							to={"/home"}
+							activeOptions={{ exact: true }}
+							activeProps={{
+								className: "bg-gray-200 rounded-md hover:bg-gray-200",
+							}}
+						>
 							<Home className="size-5" />
 							<span>Home</span>
 						</Link>
@@ -187,17 +176,15 @@ export function NavMain() {
 							</CollapsibleTrigger>
 							<CollapsibleContent>
 								<SidebarMenuSub>
-									{/* Add the main section as the first item in the dropdown */}
 									<SidebarMenuSubItem key={`${item.title}-main`}>
-										<SidebarMenuSubButton
-											className={
-												isCurrentUrl(item.url)
-													? "bg-gray-200 hover:bg-gray-200"
-													: ""
-											}
-											asChild
-										>
-											<Link to={item.url}>
+										<SidebarMenuSubButton asChild>
+											<Link
+												to={item.url}
+												activeOptions={{ exact: true }}
+												activeProps={{
+													className: "bg-gray-200 rounded-md hover:bg-gray-200",
+												}}
+											>
 												<span>{item.rootName}</span>
 											</Link>
 										</SidebarMenuSubButton>
@@ -206,15 +193,15 @@ export function NavMain() {
 									{/* Original subitems */}
 									{item.items?.map((subItem) => (
 										<SidebarMenuSubItem key={subItem.title}>
-											<SidebarMenuSubButton
-												className={
-													isCurrentUrl(subItem.url)
-														? "bg-gray-200 hover:bg-gray-200 "
-														: ""
-												}
-												asChild
-											>
-												<Link to={subItem.url}>
+											<SidebarMenuSubButton asChild>
+												<Link
+													to={subItem.url}
+													activeOptions={{ exact: true }}
+													activeProps={{
+														className:
+															"bg-gray-200 rounded-md hover:bg-gray-200",
+													}}
+												>
 													<span>{subItem.title}</span>
 												</Link>
 											</SidebarMenuSubButton>
