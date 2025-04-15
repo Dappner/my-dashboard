@@ -9,8 +9,8 @@ import { MonthSwitcher } from "./components/MonthSwitcher";
 import { SpendingKpiCards } from "./components/SpendingKpiCards";
 import { useSpendingMetrics } from "./hooks/useSpendingMetrics";
 import { ActivityFeed } from "./widgets/ActivityFeed";
-import { SpendingChartTabs } from "./widgets/SpendingChartTabs";
 import CurrentMonthCategoryChart from "./widgets/CurrentMonthCategoryChart";
+import { SpendingChartTabs } from "./widgets/SpendingChartTabs";
 
 export default function SpendingOverview() {
 	const { selectedDate, setSelectedDate } = useMonthParam();

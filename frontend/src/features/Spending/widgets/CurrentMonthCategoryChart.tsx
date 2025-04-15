@@ -1,10 +1,10 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMonthParam } from "@/hooks/useMonthParam";
 import { spendingCategoriesRoute } from "@/routes/spending-routes";
+import { Link } from "@tanstack/react-router";
 import { PieChartIcon } from "lucide-react";
 import { CategoryPieChart } from "../components/CategoryPieChart";
 import { useSpendingMetrics } from "../hooks/useSpendingMetrics";
-import { useMonthParam } from "@/hooks/useMonthParam";
-import { Link } from "@tanstack/react-router";
 
 interface CurrentMonthCategoryChartProps {
 	formattedMonth: string;
