@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { useIndustries } from "@/features/Investing/hooks/useIndustries";
-import { AppRoutes } from "@/navigation";
-import { Link } from "react-router-dom";
+import { investingIndustryRoute } from "@/routes/investing-routes";
+import { Link } from "@tanstack/react-router";
+import { useEntityMappings } from "../hooks/useEntityMappings";
 
 interface IndustryDisplayProps {
 	industryId?: string;
@@ -12,18 +12,19 @@ export function IndustryDisplay({
 	industryId,
 	asLink = false,
 }: IndustryDisplayProps) {
-	const { industries = [], isLoading } = useIndustries();
+	const { industryMap, isLoading } = useEntityMappings();
 
 	if (isLoading) return <Skeleton className="h-4 w-24 inline-block" />;
 	if (!industryId) return <span className="text-muted">-</span>;
 
-	const industry = industries.find((i) => i.id === industryId);
+	const industry = industryMap.get(industryId);
 	if (!industry) return <span>-</span>;
 
 	if (asLink) {
 		return (
 			<Link
-				to={AppRoutes.investing.industry(industry.id)}
+				to={investingIndustryRoute.to}
+				params={{ industrySlug: industry.key }}
 				className="text-blue-600 hover:underline"
 			>
 				{industry.name}

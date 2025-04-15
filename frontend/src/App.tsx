@@ -1,27 +1,19 @@
-import Layout from "@/components/layout/Layout";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider } from "@tanstack/react-router";
 import { SheetProvider } from "./contexts/SheetContext";
-import { loginRoute, routeConfig } from "./routes";
+import { router } from "./routes";
 
-const router = createBrowserRouter([
-	{
-		element: <Layout />,
-		children: routeConfig,
-	},
-	{
-		path: loginRoute.path,
-		element: loginRoute.element,
-	},
-	// { path: "*", element: <NotFoundPage /> } // 404 Route
-]);
+// Register the router instance for type safety
+declare module "@tanstack/react-router" {
+	interface Register {
+		router: typeof router;
+	}
+}
 
 function App() {
 	return (
-		<div>
-			<SheetProvider>
-				<RouterProvider router={router} />
-			</SheetProvider>
-		</div>
+		<SheetProvider>
+			<RouterProvider router={router} />
+		</SheetProvider>
 	);
 }
 export default App;

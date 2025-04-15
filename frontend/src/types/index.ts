@@ -1,17 +1,18 @@
-import type { RouteObject } from "react-router-dom";
-
-export interface AppRouteHandle<
-	TParams extends Record<string, string> = Record<string, string>,
-> {
-	crumb?: (data: {
-		data: unknown;
-		params: TParams;
-	}) => React.ReactNode;
-	title?: string;
+import type { Route, RouteComponent } from "@tanstack/react-router";
+// New TanStack Router types
+export interface AppRouteMeta {
+  title?: string;
+  breadcrumb?: (options: { params: Record<string, string> }) => React.ReactNode;
+  requiresAuth?: boolean;
+  standalone?: boolean;
 }
 
-export type AppRouteObject = RouteObject & {
-	// biome-ignore lint/suspicious/noExplicitAny: This is delicate and is best achieved with any... Can't think of a better way..
-	handle?: AppRouteHandle<any>;
-	children?: AppRouteObject[];
+export type AppRouteComponent = RouteComponent & {
+  meta?: AppRouteMeta;
 };
+
+export type AppRoute = Route<{
+  meta: AppRouteMeta;
+  params: Record<string, string>;
+  search: Record<string, string>;
+}>;

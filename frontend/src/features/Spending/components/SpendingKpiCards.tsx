@@ -7,9 +7,9 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AppRoutes } from "@/navigation";
+import { spendingCategoryDetailRoute } from "@/routes/spending-routes";
+import { Link } from "@tanstack/react-router";
 import { CalendarIcon, Receipt as ReceiptIcon, TrendingUp } from "lucide-react";
-import { Link } from "react-router-dom";
 import { SpendingTrendIndicator } from "./SpendingTrendIndicator";
 
 interface SpendingKpiCardsProps {
@@ -88,7 +88,8 @@ export const SpendingKpiCards: React.FC<SpendingKpiCardsProps> = ({
 						<>
 							<Link
 								className="text-xl font-bold hover:underline"
-								to={AppRoutes.spending.categories.detail(topCategory.id)}
+								to={spendingCategoryDetailRoute.to}
+								params={{ categoryId: topCategory.id }}
 							>
 								{topCategory.name}
 							</Link>

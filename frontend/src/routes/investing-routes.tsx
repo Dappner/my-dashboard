@@ -8,79 +8,97 @@ import ResearchPage from "@/features/Investing/pages/Research/ResearchPage";
 import TickerPage from "@/features/Investing/pages/Research/TickerPage";
 import SectorPage from "@/features/Investing/pages/SectorPage";
 import TransactionsPage from "@/features/Investing/pages/Transactions/TransactionsPage";
-import type { AppRouteObject } from "@/types";
-import { Outlet } from "react-router-dom";
+import { createRoute } from "@tanstack/react-router";
+import { layoutRoute } from ".";
 
-export const investingRoutes: AppRouteObject[] = [
-	{
-		path: "investing",
-		element: <Outlet />,
-		handle: {
-			crumb: () => "Investing",
-		},
-		children: [
-			{
-				index: true,
-				element: <InvestingPage />,
-				handle: {
-					title: "Investment Dashboard",
-				},
-			},
-			{
-				path: "manage",
-				element: <ManageInvestingPage />,
-				handle: { title: "Manage Investments", crumb: () => "Manage" },
-			},
-			{
-				path: "holdings",
-				element: <HoldingsPage />,
-				handle: { title: "Holdings", crumb: () => "Holdings" },
-			},
-			{
-				path: "transactions",
-				element: <TransactionsPage />,
-				handle: { title: "Transactions", crumb: () => "Transactions" },
-			},
-			{
-				path: "research",
-				element: <ResearchPage />,
-				handle: { title: "Research", crumb: () => "Research" },
-			},
-			{
-				path: "forex",
-				element: <ForexPage />,
-				handle: { title: "Forex", crumb: () => "Forex" },
-			},
-			{
-				path: "industry/:industrySlug",
-				element: <IndustryPage />,
-				handle: {
-					title: "Industry Performance",
-					crumb: ({ params }) => `Industry: ${params.industrySlug || ""}`,
-				},
-			},
-			{
-				path: "sector/:sectorSlug",
-				element: <SectorPage />,
-				handle: {
-					title: "Sector Performance",
-					crumb: ({ params }) => `Sector: ${params.sectorSlug || ""}`,
-				},
-			},
-			{
-				path: "ticker/:exchange/:ticker",
-				element: <TickerPage />,
-				handle: {
-					title: "Stock Details",
-					crumb: ({ params }) =>
-						params.ticker ? `Stock: ${params.ticker.toUpperCase()}` : "Stock",
-				},
-			},
-			{
-				path: "alerts",
-				element: <AlertsPage />,
-				handle: { title: "Alerts", crumb: () => "Alerts" },
-			},
-		],
-	},
+// Parent investing route
+export const investingRoute = createRoute({
+	getParentRoute: () => layoutRoute,
+	path: "investing",
+});
+
+// Dashboard route
+export const investingDashboardRoute = createRoute({
+	getParentRoute: () => investingRoute,
+	path: "/",
+	component: InvestingPage,
+});
+
+// Manage route
+export const investingManageRoute = createRoute({
+	getParentRoute: () => investingRoute,
+	path: "manage",
+	component: ManageInvestingPage,
+});
+
+// Holdings route
+export const investingHoldingsRoute = createRoute({
+	getParentRoute: () => investingRoute,
+	path: "holdings",
+	component: HoldingsPage,
+});
+
+// Transactions route
+export const investingTransactionsRoute = createRoute({
+	getParentRoute: () => investingRoute,
+	path: "transactions",
+	component: TransactionsPage,
+});
+
+// Research route
+export const investingResearchRoute = createRoute({
+	getParentRoute: () => investingRoute,
+	path: "research",
+	component: ResearchPage,
+});
+
+// Forex route
+export const investingForexRoute = createRoute({
+	getParentRoute: () => investingRoute,
+	path: "forex",
+	component: ForexPage,
+});
+
+// Industry route
+export const investingIndustryRoute = createRoute({
+	getParentRoute: () => investingRoute,
+	path: "industry/$industrySlug",
+	component: IndustryPage,
+});
+
+// Sector route
+export const investingSectorRoute = createRoute({
+	getParentRoute: () => investingRoute,
+	path: "sector/$sectorSlug",
+	component: SectorPage,
+});
+
+// Ticker route
+export const investingTickerRoute = createRoute({
+	getParentRoute: () => investingRoute,
+	path: "ticker/$exchange/$ticker",
+	component: TickerPage,
+});
+
+// Alerts route
+export const investingAlertsRoute = createRoute({
+	getParentRoute: () => investingRoute,
+	path: "alerts",
+	component: AlertsPage,
+});
+
+// Export all investing routes as an array to be added to the router
+export const investingRoutes = [
+	investingRoute.addChildren([
+		investingDashboardRoute,
+		investingManageRoute,
+		investingHoldingsRoute,
+		investingTransactionsRoute,
+		investingResearchRoute,
+		investingForexRoute,
+		investingIndustryRoute,
+		investingSectorRoute,
+		investingTickerRoute,
+		investingAlertsRoute,
+	]),
 ];

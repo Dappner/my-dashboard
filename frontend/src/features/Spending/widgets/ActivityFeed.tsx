@@ -7,10 +7,10 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AppRoutes } from "@/navigation";
+import { spendingReceiptDetailRoute } from "@/routes/spending-routes";
+import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ReceiptIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 
 interface ActivityFeedProps {
 	receipts: Receipt[];
@@ -55,7 +55,8 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 							return (
 								<li key={receipt.id}>
 									<Link
-										to={AppRoutes.spending.receipts.detail(receipt.id)}
+										to={spendingReceiptDetailRoute.to}
+										params={{ receiptId: receipt.id }}
 										className="flex items-center justify-between p-2 rounded-md hover:bg-muted transition-colors"
 									>
 										<div className="flex items-center">

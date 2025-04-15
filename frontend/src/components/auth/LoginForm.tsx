@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
-import { AppRoutes } from "@/navigation";
+import { homeRoute } from "@/routes";
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
 export function LoginForm({
@@ -28,7 +28,7 @@ export function LoginForm({
 				toast.error(`Login failed: ${error.message}`);
 			} else {
 				toast.success("Successfully logged in!");
-				navigate(AppRoutes.home());
+				navigate({ to: homeRoute.to });
 			}
 		} catch (error) {
 			toast.error("An unexpected error occurred");

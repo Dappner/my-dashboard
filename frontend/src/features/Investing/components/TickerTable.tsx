@@ -9,10 +9,14 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { monthsShort } from "@/features/Investing/constants";
-import { AppRoutes } from "@/navigation";
+import {
+	investingIndustryRoute,
+	investingSectorRoute,
+	investingTickerRoute,
+} from "@/routes/investing-routes";
 import type { Ticker } from "@my-dashboard/shared";
+import { Link } from "@tanstack/react-router";
 import { Pencil, Trash2 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
 import { useEntityMappings } from "../hooks/useEntityMappings";
 import { IndustryDisplay } from "./IndustryDisplay";
 import { SectorDisplay } from "./SectorDisplay";
@@ -37,25 +41,16 @@ export function TickerTable({
 	emptyMessage = "No tickers available",
 }: TickerTableProps) {
 	const { sectorMap, industryMap } = useEntityMappings();
-	const navigate = useNavigate();
 	// Helper for rendering Symbol cell with click handler
-	const onSymbolClick = (ticker: Ticker) => {
-		navigate(AppRoutes.investing.ticker(ticker.exchange || "", ticker.symbol));
-	};
 	const renderSymbol = (ticker: Ticker) => (
-		<button
-			type="button"
+		<Link
+			to={investingTickerRoute.to}
+			params={{ ticker: ticker.symbol || "", exchange: ticker.exchange || "" }}
 			className="font-bold cursor-pointer hover:underline"
-			onClick={() => onSymbolClick(ticker)}
-			onKeyDown={(e) => {
-				if (e.key === "Enter" || e.key === " ") {
-					onSymbolClick(ticker);
-				}
-			}}
 			tabIndex={0}
 		>
 			{ticker.symbol}
-		</button>
+		</Link>
 	);
 
 	// Helper for rendering dividend months
@@ -87,21 +82,26 @@ export function TickerTable({
 		if (ticker.exchange === "YHD" && ticker.quote_type === "INDEX") {
 			// Determine if this is a sector or industry index based on ID patterns or naming
 			if (ticker.sector_id && !ticker.industry_id) {
-				// This is likely a sector index
-				const sectorKey = sectorMap.get(ticker.sector_id)?.key;
+				const sectorKey = sectorMap.get(ticker.sector_id)?.key || "";
 				return (
 					<Button variant="outline" size="sm" asChild>
-						<Link to={AppRoutes.investing.sector(sectorKey || "")}>
+						<Link
+							to={investingSectorRoute.to}
+							params={{ sectorSlug: sectorKey }}
+						>
 							View Sector
 						</Link>
 					</Button>
 				);
 			}
 			if (ticker.industry_id) {
-				const industryKey = industryMap.get(ticker.industry_id)?.key;
+				const industryKey = industryMap.get(ticker.industry_id)?.key || "";
 				return (
 					<Button variant="outline" size="sm" asChild>
-						<Link to={AppRoutes.investing.industry(industryKey || "")}>
+						<Link
+							to={investingIndustryRoute.to}
+							params={{ industrySlug: industryKey }}
+						>
 							View Industry
 						</Link>
 					</Button>
@@ -113,11 +113,11 @@ export function TickerTable({
 		return (
 			<Button variant="outline" size="sm" asChild>
 				<Link
-					to={
-						ticker.exchange && ticker.symbol
-							? AppRoutes.investing.ticker(ticker.exchange, ticker.symbol)
-							: "#"
-					}
+					to={investingTickerRoute.to}
+					params={{
+						exchange: ticker.exchange || "",
+						ticker: ticker.symbol || "",
+					}}
 				>
 					View Details
 				</Link>

@@ -1,9 +1,9 @@
 import type { CategoryData } from "@/api/spendingApi";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { AppRoutes } from "@/navigation";
+import { spendingCategoryDetailMonthRoute } from "@/routes/spending-routes";
+import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { memo } from "react";
-import { Link } from "react-router-dom";
 
 type CategoryCardProps = {
 	category: CategoryData;
@@ -22,7 +22,8 @@ export const CategoryCard = memo(
 		const monthParam = format(currentMonth, "yyyy-MM");
 		return (
 			<Link
-				to={`${AppRoutes.spending.categories.detail(category.id)}/${monthParam}`}
+				to={spendingCategoryDetailMonthRoute.to}
+				params={{ categoryId: category.id, month: monthParam }}
 			>
 				<Card className="overflow-hidden transition-all hover:shadow-md">
 					<CardContent className="p-0">

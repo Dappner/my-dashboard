@@ -2,10 +2,10 @@ import ErrorState from "@/components/layout/components/ErrorState";
 import LoadingState from "@/components/layout/components/LoadingState";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { useMonthParam } from "@/hooks/useMonthParam";
-import { AppRoutes } from "@/navigation";
+import { spendingCategoriesRoute } from "@/routes/spending-routes";
+import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { PieChartIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 import { CategoryPieChart } from "./components/CategoryPieChart";
 import { MonthSwitcher } from "./components/MonthSwitcher";
 import { SpendingKpiCards } from "./components/SpendingKpiCards";
@@ -91,7 +91,7 @@ export default function SpendingOverview() {
 								<h3 className="text-lg font-semibold flex items-center">
 									<PieChartIcon className="h-4 w-4 mr-2" />
 									<Link
-										to={AppRoutes.spending.categories.list()}
+										to={spendingCategoriesRoute.to}
 										className="hover:underline"
 									>
 										Spending by Category

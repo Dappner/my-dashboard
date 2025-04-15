@@ -13,11 +13,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { AppRoutes } from "@/navigation";
+import { spendingReceiptsRoute } from "@/routes/spending-routes";
+import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { PencilIcon, PieChartIcon } from "lucide-react";
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { CategoryPieChart } from "../../components/CategoryPieChart";
 import ReceiptHeader from "./components/ReceiptHeader";
@@ -25,8 +25,9 @@ import ReceiptImage from "./components/ReceiptImage";
 import ReceiptItemsList from "./components/ReceiptItemsList";
 import { useReceipt } from "./useReceipt";
 
+const route = getRouteApi("/spending/receipts/$receiptId");
 export default function ReceiptDetailPage() {
-	const { receiptId } = useParams<{ receiptId: string }>();
+	const { receiptId } = route.useParams();
 	const { user } = useAuthContext();
 	const navigate = useNavigate();
 	const [isImageOpen, setIsImageOpen] = useState(false);
@@ -56,7 +57,7 @@ export default function ReceiptDetailPage() {
 			const result = await deleteReceipt();
 			if (result.success) {
 				toast.success("Receipt deleted successfully");
-				navigate(AppRoutes.spending.receipts.list());
+				navigate({ to: spendingReceiptsRoute.to });
 			} else {
 				toast.error(`Failed to delete receipt: ${result.error}`);
 			}

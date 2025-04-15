@@ -7,9 +7,9 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { AppRoutes } from "@/navigation";
+import { investingTickerRoute } from "@/routes/investing-routes";
 import type { Holding } from "@my-dashboard/shared";
-import { useNavigate } from "react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useHoldings } from "../hooks/useHoldings";
 
 export default function HoldingsWidget() {
@@ -17,9 +17,13 @@ export default function HoldingsWidget() {
 	const { holdings, isLoading, isError } = useHoldings();
 
 	const handleHoldingClick = (holding: Holding) => {
-		navigate(
-			AppRoutes.investing.ticker(holding.exchange || "", holding.symbol || ""),
-		);
+		navigate({
+			to: investingTickerRoute.to,
+			params: {
+				ticker: holding.symbol || "",
+				exchange: holding.exchange || "",
+			},
+		});
 	};
 
 	return (
