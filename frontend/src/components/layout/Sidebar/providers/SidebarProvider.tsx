@@ -3,95 +3,100 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { SidebarContextProps, SidebarState } from "../types";
 
 const SidebarContext = createContext<SidebarContextProps | undefined>(
-	undefined,
+  undefined,
 );
 
 export function useSidebar() {
-	const context = useContext(SidebarContext);
-	if (!context) {
-		throw new Error("useSidebar must be used within a SidebarProvider");
-	}
-	return context;
+  const context = useContext(SidebarContext);
+  if (!context) {
+    throw new Error("useSidebar must be used within a SidebarProvider");
+  }
+  return context;
 }
 
 interface SidebarProviderProps {
-	children: React.ReactNode;
-	defaultState?: SidebarState;
+  children: React.ReactNode;
+  defaultState?: SidebarState;
 }
 
 export function SidebarProvider({
-	children,
-	defaultState = "expanded",
+  children,
+  defaultState = "expanded",
 }: SidebarProviderProps) {
-	const initializedRef = useRef(false);
-	const isMobile = useIsMobile();
+  const initializedRef = useRef(false);
+  const isMobile = useIsMobile();
 
-	// Initialize state with potentially saved value from localStorage
-	const getInitialState = (): SidebarState => {
-		if (typeof window === "undefined" || isMobile) {
-			return defaultState;
-		}
+  // Initialize state with potentially saved value from localStorage
+  const getInitialState = (): SidebarState => {
+    if (typeof window === "undefined") {
+      return defaultState;
+    }
 
-		const savedState = localStorage.getItem(
-			"sidebarState",
-		) as SidebarState | null;
-		return savedState || defaultState;
-	};
+    // On mobile, always start with the sidebar collapsed
+    if (isMobile) {
+      return "collapsed";
+    }
 
-	const [state, setState] = useState<SidebarState>(getInitialState);
-	const [isOpen, setIsOpen] = useState(false);
+    const savedState = localStorage.getItem(
+      "sidebarState",
+    ) as SidebarState | null;
+    return savedState || defaultState;
+  };
 
-	// Marks as init after the first render...
-	useEffect(() => {
-		initializedRef.current = true;
-	}, []);
+  const [state, setState] = useState<SidebarState>(getInitialState);
+  const [isOpen, setIsOpen] = useState(false);
 
-	// Save state to localStorage when it changes (desktop only)
-	useEffect(() => {
-		// Only save after having initialization
-		if (!isMobile && initializedRef.current) {
-			localStorage.setItem("sidebarState", state);
-		}
-	}, [state, isMobile]);
+  // Marks as init after the first render...
+  useEffect(() => {
+    initializedRef.current = true;
+  }, []);
 
-	useEffect(() => {
-		if (!isMobile) {
-			setIsOpen(false);
-		}
-	}, [isMobile]);
+  // Save state to localStorage when it changes (desktop only)
+  useEffect(() => {
+    // Only save after having initialization
+    if (!isMobile && initializedRef.current) {
+      localStorage.setItem("sidebarState", state);
+    }
+  }, [state, isMobile]);
 
-	const toggleSidebar = () => {
-		if (isMobile) {
-			setIsOpen(!isOpen);
-		} else {
-			setState(state === "expanded" ? "collapsed" : "expanded");
-		}
-	};
+  useEffect(() => {
+    if (!isMobile) {
+      setIsOpen(false);
+    }
+  }, [isMobile]);
 
-	const closeSidebar = () => {
-		if (isMobile) {
-			setIsOpen(false);
-		}
-	};
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setIsOpen(!isOpen);
+    } else {
+      setState(state === "expanded" ? "collapsed" : "expanded");
+    }
+  };
 
-	const openSidebar = () => {
-		if (isMobile) {
-			setIsOpen(true);
-		}
-	};
+  const closeSidebar = () => {
+    if (isMobile) {
+      setIsOpen(false);
+    }
+  };
 
-	return (
-		<SidebarContext.Provider
-			value={{
-				state,
-				isMobile,
-				isOpen,
-				toggleSidebar,
-				closeSidebar,
-				openSidebar,
-			}}
-		>
-			{children}
-		</SidebarContext.Provider>
-	);
+  const openSidebar = () => {
+    if (isMobile) {
+      setIsOpen(true);
+    }
+  };
+
+  return (
+    <SidebarContext.Provider
+      value={{
+        state,
+        isMobile,
+        isOpen,
+        toggleSidebar,
+        closeSidebar,
+        openSidebar,
+      }}
+    >
+      {children}
+    </SidebarContext.Provider>
+  );
 }
