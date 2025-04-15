@@ -16,6 +16,7 @@ import { useDailySpending } from "./hooks/useDailySpending";
 import { useSpendingMetrics } from "./hooks/useSpendingMetrics";
 import { ActivityFeed } from "./widgets/ActivityFeed";
 import { SpendingChartTabs } from "./widgets/SpendingChartTabs";
+import { Button } from "@/components/ui/button";
 
 export default function SpendingOverview() {
 	const { selectedDate, setSelectedDate } = useMonthParam();
@@ -62,7 +63,9 @@ export default function SpendingOverview() {
 						<h3 className="text-xl font-medium mb-2">
 							No spending data available for {formattedMonth}
 						</h3>
-						<p>Use the month selector above to navigate to a month with data</p>
+						<Button onClick={() => setSelectedDate(new Date())}>
+							Set to Current
+						</Button>
 					</div>
 				</div>
 			) : (

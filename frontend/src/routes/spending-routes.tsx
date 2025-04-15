@@ -5,6 +5,15 @@ import { SpendingCategoriesPage } from "@/features/Spending/pages/SpendingCatego
 import SpendingCategoryDetailPage from "@/features/Spending/pages/SpendingCategoryDetailPage";
 import { createRoute } from "@tanstack/react-router";
 import { layoutRoute } from ".";
+import { z } from "zod";
+
+const monthSearchSchema = z.object({
+	month: z
+		.string()
+		.regex(/^\d{4}-\d{2}$/, "Month must be in format YYYY-MM")
+		.optional()
+		.transform((val) => (val ? val : undefined)),
+});
 
 // Parent spending route
 export const spendingRoute = createRoute({
@@ -17,13 +26,7 @@ export const spendingDashboardRoute = createRoute({
 	getParentRoute: () => spendingRoute,
 	path: "/",
 	component: SpendingPage,
-});
-
-// Dashboard with month parameter
-export const spendingDashboardMonthRoute = createRoute({
-	getParentRoute: () => spendingRoute,
-	path: "$month",
-	component: SpendingPage,
+	validateSearch: monthSearchSchema,
 });
 
 // Receipts parent route
@@ -42,7 +45,7 @@ export const spendingReceiptsListRoute = createRoute({
 // Receipt detail route
 export const spendingReceiptDetailRoute = createRoute({
 	getParentRoute: () => spendingReceiptsRoute,
-	path: "$receiptId",
+	path: "/$receiptId",
 	component: ReceiptDetailPage,
 });
 
@@ -57,13 +60,7 @@ export const spendingCategoriesListRoute = createRoute({
 	getParentRoute: () => spendingCategoriesRoute,
 	path: "/",
 	component: SpendingCategoriesPage,
-});
-
-// Categories with month parameter
-export const spendingCategoriesMonthRoute = createRoute({
-	getParentRoute: () => spendingCategoriesRoute,
-	path: "$month",
-	component: SpendingCategoriesPage,
+	// validateSearch: zodValidator(monthSearchSchema),
 });
 
 // Category detail route
@@ -71,28 +68,19 @@ export const spendingCategoryDetailRoute = createRoute({
 	getParentRoute: () => spendingCategoriesRoute,
 	path: "$categoryId",
 	component: SpendingCategoryDetailPage,
-});
-
-// Category detail with month parameter
-export const spendingCategoryDetailMonthRoute = createRoute({
-	getParentRoute: () => spendingCategoriesRoute,
-	path: "$categoryId/$month",
-	component: SpendingCategoryDetailPage,
+	validateSearch: monthSearchSchema,
 });
 
 // Export all spending routes as an array to be added to the router
 export const spendingRoutes = [
 	spendingRoute.addChildren([
 		spendingDashboardRoute,
-		spendingDashboardMonthRoute,
 		spendingReceiptsRoute.addChildren([
 			spendingReceiptsListRoute,
 			spendingReceiptDetailRoute,
 		]),
 		spendingCategoriesRoute.addChildren([
 			spendingCategoriesListRoute,
-			spendingCategoriesMonthRoute,
-			spendingCategoryDetailMonthRoute,
 			spendingCategoryDetailRoute,
 		]),
 	]),

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useSidebar } from "../providers/SidebarProvider";
 
 interface SidebarHeaderProps {
@@ -10,13 +10,17 @@ export function SidebarHeader({ children }: SidebarHeaderProps) {
 	const { toggleSidebar, state, isMobile } = useSidebar();
 
 	return (
-		<div className="h-14 flex items-center px-4 border-b">
+		<div className="h-14 flex items-center justify-between px-4 border-b">
+			{(state === "expanded" || isMobile) && children}
 			{!isMobile && (
 				<Button variant="ghost" size="icon" onClick={toggleSidebar}>
-					<Menu className="h-5 w-5" />
+					<ChevronRight
+						className={`size-5 transition-transform duration-300 ${
+							state === "expanded" ? "rotate-180" : "rotate-0"
+						}`}
+					/>
 				</Button>
 			)}
-			{(state === "expanded" || isMobile) && children}
 		</div>
 	);
 }

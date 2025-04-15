@@ -90,6 +90,7 @@ export const SpendingKpiCards: React.FC<SpendingKpiCardsProps> = ({
 								className="text-xl font-bold hover:underline"
 								to={spendingCategoryDetailRoute.to}
 								params={{ categoryId: topCategory.id }}
+								search={(prev) => ({ ...prev })}
 							>
 								{topCategory.name}
 							</Link>

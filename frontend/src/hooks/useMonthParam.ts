@@ -1,34 +1,28 @@
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { format, parse } from "date-fns";
 
 export function useMonthParam(defaultMonth = new Date()) {
-	const params = useParams({ strict: false });
-	const month = params.month as string | undefined;
-	const navigate = useNavigate();
+  // Get the month from search params instead of path params
+  const { month } = useSearch({ strict: false });
+  const navigate = useNavigate();
 
-	// Parse month from URL if available, or use default
-	const selectedDate = month
-		? parse(month, "yyyy-MM", new Date())
-		: defaultMonth;
+  // Parse month from URL if available, or use default
+  const selectedDate = month
+    ? parse(month, "yyyy-MM", new Date())
+    : defaultMonth;
 
-	// Function to update URL when month changes
-	const setSelectedDate = (newDate: Date) => {
-		const formattedMonth = format(newDate, "yyyy-MM");
+  // Function to update URL when month changes
+  const setSelectedDate = (newDate: Date) => {
+    const formattedMonth = format(newDate, "yyyy-MM");
 
-		// Get the current path without the month parameter
-		const pathParts = window.location.pathname.split("/");
-		const basePathParts = pathParts.filter(
-			(part) => !part.match(/^\d{4}-\d{2}$/),
-		);
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        month: formattedMonth,
+      }),
+      replace: true,
+    });
+  };
 
-		// Build the new path with the month parameter
-		const newPath = [...basePathParts, formattedMonth].join("/");
-
-		navigate({
-			to: newPath,
-			replace: true,
-		});
-	};
-
-	return { selectedDate, setSelectedDate };
+  return { selectedDate, setSelectedDate };
 }

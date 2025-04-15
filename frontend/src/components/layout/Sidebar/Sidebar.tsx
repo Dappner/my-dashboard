@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ChevronLeft } from "lucide-react";
-import { useEffect } from "react";
 import { useSidebar } from "./providers/SidebarProvider";
 
 interface SidebarProps {
@@ -12,25 +11,9 @@ interface SidebarProps {
 export function Sidebar({ children, className }: SidebarProps) {
 	const { state, isMobile, isOpen, closeSidebar } = useSidebar();
 
-	// Handle click outside to close sidebar on mobile
-	useEffect(() => {
-		if (!isMobile || !isOpen) return;
-
-		const handleClickOutside = (e: MouseEvent) => {
-			const target = e.target as HTMLElement;
-			if (!target.closest('[data-sidebar="true"]')) {
-				closeSidebar();
-			}
-		};
-
-		document.addEventListener("mousedown", handleClickOutside);
-		return () => document.removeEventListener("mousedown", handleClickOutside);
-	}, [isMobile, isOpen, closeSidebar]);
-
 	if (isMobile) {
 		return (
 			<>
-				{/* Mobile Overlay Sidebar */}
 				<div
 					data-sidebar="true"
 					className={cn(

@@ -28,6 +28,7 @@
 Generally:
 
 1. Why do links not allow cursor-pointer?
+2. Fix Dates everywhere. It's a fucking mess...
 
 ## Larger Features
 

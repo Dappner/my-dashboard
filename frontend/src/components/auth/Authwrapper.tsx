@@ -1,4 +1,3 @@
-import LoadingSpinner from "@/components/layout/components/LoadingSpinner";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { loginRoute } from "@/routes";
 import { Outlet, useNavigate } from "@tanstack/react-router";
@@ -19,9 +18,7 @@ function AuthWrapper() {
 
 	if (isLoading) {
 		return (
-			<div className="flex min-h-screen items-center justify-center">
-				<LoadingSpinner />
-			</div>
+			<div className="flex min-h-screen items-center bg-gray-50 justify-center" />
 		);
 	}
 

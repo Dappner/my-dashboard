@@ -28,20 +28,22 @@ export function SidebarNavItem({
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
-				<Link
-					to={href}
-					onClick={onClick}
-					className={cn(
-						"flex items-center py-2 px-3 my-1 rounded-md text-sm font-normal transition-colors",
-						"hover:bg-accent hover:text-accent-foreground",
-						!expanded && "justify-center",
-					)}
-					activeOptions={{ exact: true }}
-					activeProps={{ className: "bg-accent text-accent-foreground" }}
-				>
-					{Icon && <Icon className={cn("size-4", expanded && "mr-2")} />}
-					{expanded && <span>{title}</span>}
-				</Link>
+				<div className={expanded ? "border-l-1 border-gray-300 pl-2" : ""}>
+					<Link
+						to={href}
+						onClick={onClick}
+						className={cn(
+							"flex items-center py-2 px-3 rounded-md text-sm font-normal transition-colors",
+							"hover:bg-accent hover:text-accent-foreground",
+							!expanded && "justify-center",
+						)}
+						activeOptions={{ exact: true }}
+						activeProps={{ className: "bg-accent text-accent-foreground" }}
+					>
+						{Icon && <Icon className={cn("size-4", expanded && "mr-2")} />}
+						{expanded && <span>{title}</span>}
+					</Link>
+				</div>
 			</TooltipTrigger>
 			<TooltipContent
 				side="right"

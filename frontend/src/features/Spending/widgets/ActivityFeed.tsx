@@ -24,7 +24,12 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 	return (
 		<Card className="hover:shadow-md transition-shadow h-full">
 			<CardHeader className="pb-2">
-				<CardTitle className="text-lg">Recent Activity</CardTitle>
+				<CardTitle className="text-lg flex flex-row justify-between">
+					<span>Recent Activity</span>
+					<Link className="text-sm" to={"/spending/receipts"}>
+						See Details
+					</Link>
+				</CardTitle>
 				<CardDescription>Last 5 Receipts</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -46,11 +51,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 					// Receipts list
 					<ul className="space-y-3">
 						{receipts.map((receipt) => {
-							//TODO: INvestigate
-							const purchaseDate =
-								receipt.purchase_date instanceof Date
-									? receipt.purchase_date
-									: new Date(receipt.purchase_date);
+							const purchaseDate = new Date(receipt.purchase_date);
 
 							return (
 								<li key={receipt.id}>

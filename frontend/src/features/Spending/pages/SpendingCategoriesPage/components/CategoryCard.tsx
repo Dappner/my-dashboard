@@ -1,28 +1,21 @@
 import type { CategoryData } from "@/api/spendingApi";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { spendingCategoryDetailRoute } from "@/routes/spending-routes";
 import { Link } from "@tanstack/react-router";
-import { format } from "date-fns";
 import { memo } from "react";
 
 type CategoryCardProps = {
 	category: CategoryData;
 	percentage?: number;
-	currentMonth: Date;
 	color?: string;
 };
 
 export const CategoryCard = memo(
-	({
-		category,
-		percentage,
-		color = "#0088FE",
-		currentMonth,
-	}: CategoryCardProps) => {
-		const monthParam = format(currentMonth, "yyyy-MM");
+	({ category, percentage, color = "#0088FE" }: CategoryCardProps) => {
 		return (
 			<Link
-				to={"/spending/categories/$categoryId/$month"}
-				params={{ categoryId: category.id, month: monthParam }}
+				to={spendingCategoryDetailRoute.to}
+				params={{ categoryId: category.id }}
 			>
 				<Card className="overflow-hidden transition-all hover:shadow-md">
 					<CardContent className="p-0">

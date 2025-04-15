@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefreshCwIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import {
 	Cell,
 	Legend,
@@ -19,10 +19,10 @@ import {
 	useSpendingCategories,
 } from "../../hooks/spendingMetricsHooks";
 import { CategoryCard } from "./components/CategoryCard";
+import { useMonthParam } from "@/hooks/useMonthParam";
 
 export function SpendingCategoriesPage() {
-	//TODO: Can't useMonthParam -> It leads to infinite fetchs (80 + network requests in 10 seconds.)
-	const [selectedDate, setSelectedDate] = useState(new Date());
+	const { selectedDate, setSelectedDate } = useMonthParam();
 	const queryClient = useQueryClient();
 
 	const {
@@ -182,7 +182,6 @@ export function SpendingCategoriesPage() {
 										category={category}
 										percentage={percentage}
 										color={CATEGORY_COLORS[index % CATEGORY_COLORS.length]}
-										currentMonth={selectedDate}
 									/>
 								);
 							})}
@@ -193,6 +192,13 @@ export function SpendingCategoriesPage() {
 						<p className="text-muted-foreground">
 							No spending categories found for this period.
 						</p>
+
+						<Button
+							className="py-4"
+							onClick={() => setSelectedDate(new Date())}
+						>
+							Set to Current
+						</Button>
 					</div>
 				)}
 			</div>
