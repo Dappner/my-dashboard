@@ -3,7 +3,6 @@ import Layout from "@/components/layout/Layout";
 import LoginPage from "@/features/Auth/Login";
 import HabitsPage from "@/features/Habits/HabitsPage";
 import HomePage from "@/features/Home/HomePage";
-import SettingsPage from "@/features/Settings/SettingsPage";
 import TimePage from "@/features/Time/TimePage";
 import {
 	createRootRoute,
@@ -12,9 +11,12 @@ import {
 } from "@tanstack/react-router";
 import { investingRoutes } from "./investing-routes";
 import { spendingRoutes } from "./spending-routes";
+import AccountPage from "@/features/Account/AccountPage";
+import NotFoundComponent from "@/components/layout/NotFoundComponent";
 
 export const rootRoute = createRootRoute({
 	component: AuthWrapper,
+	notFoundComponent: NotFoundComponent,
 });
 
 export const loginRoute = createRoute({
@@ -35,12 +37,6 @@ export const homeRoute = createRoute({
 	component: HomePage,
 });
 
-export const settingsRoute = createRoute({
-	getParentRoute: () => layoutRoute,
-	path: "settings",
-	component: SettingsPage,
-});
-
 export const habitsRoute = createRoute({
 	getParentRoute: () => layoutRoute,
 	path: "habits",
@@ -52,16 +48,21 @@ export const timeRoute = createRoute({
 	path: "time-tracking",
 	component: TimePage,
 });
+export const accountRoute = createRoute({
+	getParentRoute: () => layoutRoute,
+	path: "account",
+	component: AccountPage,
+});
 
 const routeTree = rootRoute.addChildren([
 	loginRoute,
 	layoutRoute.addChildren([
 		homeRoute,
-		settingsRoute,
 		...investingRoutes,
 		...spendingRoutes,
 		habitsRoute,
 		timeRoute,
+		accountRoute,
 	]),
 ]);
 

@@ -11,7 +11,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMonthParam } from "@/hooks/useMonthParam";
-import { spendingCategoryDetailRoute } from "@/routes/spending-routes";
+import {
+	spendingCategoryDetailRoute,
+	spendingReceiptDetailRoute,
+} from "@/routes/spending-routes";
 import { format } from "date-fns";
 import { WheatIcon } from "lucide-react";
 import {
@@ -24,6 +27,7 @@ import {
 } from "recharts";
 import { MonthSwitcher } from "../components/MonthSwitcher";
 import { useCategoryData } from "../hooks/useCategoryData";
+import { Link } from "@tanstack/react-router";
 
 // Define colors for the pie chart
 const COLORS = [
@@ -189,9 +193,13 @@ export default function SpendingCategoryDetailPage() {
 											>
 												<div className="flex justify-between items-start">
 													<div>
-														<h4 className="font-medium">
+														<Link
+															to={spendingReceiptDetailRoute.to}
+															params={{ receiptId: receipt.id }}
+															className="font-medium hover:underline"
+														>
 															{receipt.store_name || "Unknown Store"}
-														</h4>
+														</Link>
 														<p className="text-sm text-muted-foreground">
 															{format(
 																new Date(receipt.purchase_date),
@@ -217,7 +225,7 @@ export default function SpendingCategoryDetailPage() {
 															className="text-sm flex justify-between"
 														>
 															<span>
-																{item.item_name}
+																{item.readable_name}
 																{item.quantity ? ` (${item.quantity})` : ""}
 															</span>
 															<span>

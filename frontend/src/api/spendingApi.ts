@@ -224,7 +224,9 @@ export const spendingMetricsApi = {
 		let query = supabase
 			.schema("grocery")
 			.from("receipt_items")
-			.select("id, receipt_id, item_name, total_price, quantity, unit_price")
+			.select(
+				"id, receipt_id, item_name, readable_name, total_price, quantity, unit_price",
+			)
 			.eq("category_id", categoryId);
 
 		// Apply date filtering if provided
