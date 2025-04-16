@@ -4,7 +4,6 @@ import {
 	Clock,
 	CreditCard,
 	ListChecks,
-	Settings2Icon,
 } from "lucide-react";
 import type { NavBarSection } from "./types";
 
@@ -81,11 +80,5 @@ export const navBarSections: NavBarSection[] = [
 		url: "/reading",
 		icon: BookOpen,
 		rootName: "Overview",
-	},
-	{
-		title: "Settings",
-		url: "/settings",
-		rootName: "General",
-		icon: Settings2Icon,
 	},
 ];

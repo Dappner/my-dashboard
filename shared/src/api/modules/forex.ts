@@ -1,13 +1,15 @@
 import { Database } from "@/supabase";
-import { CurrencyPair, ForexRate } from "@/types";
+import { CurrencyPair, CurrencyType, ForexRate } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const forexApiKeys = {
   all: ["forex"] as const,
   historicalRates: (base?: string, target?: string, startDate?: string, endDate?: string) =>
     [...forexApiKeys.all, "historicalRates", base, target, startDate, endDate] as const,
+  latestRates: () =>
+    [...forexApiKeys.all, "latestRates"] as const,
   latestRate: (base?: string, target?: string) =>
-    [...forexApiKeys.all, "latestRate", base, target] as const,
+    [...forexApiKeys.all, "latestRates", base, target] as const,
   currencyPairs: () =>
     [...forexApiKeys.all, "currencyPairs"] as const,
 };
@@ -16,19 +18,22 @@ export const forexApiKeys = {
 export function createForexApi(supabase: SupabaseClient<Database>) {
   return {
     async getHistoricalRates(
-      baseCurrency?: string,
-      targetCurrency?: string,
+      baseCurrency?: CurrencyType,
+      targetCurrency?: CurrencyType,
       startDate?: string,
       endDate?: string
     ): Promise<ForexRate[]> {
-      if (!baseCurrency || !targetCurrency) return [];
-
       let query = supabase
         .from("forex_rates")
         .select("*")
-        .eq("base_currency", baseCurrency)
-        .eq("target_currency", targetCurrency)
         .order("date", { ascending: true });
+
+      if (baseCurrency) {
+        query.eq("base_currency", baseCurrency)
+      }
+      if (targetCurrency) {
+        query.eq("target_currency", targetCurrency)
+      }
 
       // Apply date range if provided
       if (startDate) {
@@ -47,8 +52,23 @@ export function createForexApi(supabase: SupabaseClient<Database>) {
       return (data as ForexRate[]) || [];
     },
 
-    async getLatestRate(baseCurrency?: string, targetCurrency?: string): Promise<ForexRate | null> {
-      if (!baseCurrency || !targetCurrency) return null;
+    async getLatestRates(): Promise<ForexRate[] | null> {
+      //TODO : This is synced to the amount of supported currencies.
+      const { data, error } = await supabase
+        .from("forex_rates")
+        .select("*")
+        .eq("base_currency", "USD")
+        .order("date", { ascending: false })
+        .limit(5)
+
+      if (error) {
+        throw new Error(`Failed to fetch latest rate: ${error.message}`);
+      }
+
+      return (data as ForexRate[]) || null;
+    },
+
+    async getLatestRate(baseCurrency: CurrencyType, targetCurrency: CurrencyType): Promise<ForexRate | null> {
 
       const { data, error } = await supabase
         .from("forex_rates")
@@ -57,7 +77,7 @@ export function createForexApi(supabase: SupabaseClient<Database>) {
         .eq("target_currency", targetCurrency)
         .order("date", { ascending: false })
         .limit(1)
-        .single();
+        .single()
 
       if (error) {
         throw new Error(`Failed to fetch latest rate: ${error.message}`);

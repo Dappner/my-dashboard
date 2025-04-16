@@ -317,31 +317,31 @@ export type Database = {
       }
       forex_rates: {
         Row: {
-          base_currency: string
+          base_currency: Database["grocery"]["Enums"]["currency_type"]
           created_at: string | null
           date: string
           id: string
           rate: number
           source: string | null
-          target_currency: string
+          target_currency: Database["grocery"]["Enums"]["currency_type"]
         }
         Insert: {
-          base_currency: string
+          base_currency: Database["grocery"]["Enums"]["currency_type"]
           created_at?: string | null
           date: string
           id?: string
           rate: number
           source?: string | null
-          target_currency: string
+          target_currency: Database["grocery"]["Enums"]["currency_type"]
         }
         Update: {
-          base_currency?: string
+          base_currency?: Database["grocery"]["Enums"]["currency_type"]
           created_at?: string | null
           date?: string
           id?: string
           rate?: number
           source?: string | null
-          target_currency?: string
+          target_currency?: Database["grocery"]["Enums"]["currency_type"]
         }
         Relationships: []
       }
@@ -1173,6 +1173,7 @@ export type Database = {
       transactions: {
         Row: {
           created_at: string | null
+          currency: Database["grocery"]["Enums"]["currency_type"]
           id: string
           is_dividend_reinvestment: boolean | null
           note_text: string | null
@@ -1188,6 +1189,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          currency?: Database["grocery"]["Enums"]["currency_type"]
           id?: string
           is_dividend_reinvestment?: boolean | null
           note_text?: string | null
@@ -1203,6 +1205,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          currency?: Database["grocery"]["Enums"]["currency_type"]
           id?: string
           is_dividend_reinvestment?: boolean | null
           note_text?: string | null
@@ -1289,7 +1292,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
-          preferred_currency: string
+          preferred_currency: Database["grocery"]["Enums"]["currency_type"]
           tracking_ticker_id: string | null
           updated_at: string | null
         }
@@ -1299,7 +1302,7 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
-          preferred_currency?: string
+          preferred_currency?: Database["grocery"]["Enums"]["currency_type"]
           tracking_ticker_id?: string | null
           updated_at?: string | null
         }
@@ -1309,7 +1312,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
-          preferred_currency?: string
+          preferred_currency?: Database["grocery"]["Enums"]["currency_type"]
           tracking_ticker_id?: string | null
           updated_at?: string | null
         }
@@ -2239,6 +2242,7 @@ export type Database = {
       }
     }
     Enums: {
+      currency_type: "USD" | "EUR" | "GBP" | "JPY" | "CAD" | "AUD" | "CNY"
       transaction_type_enum:
         | "buy"
         | "sell"
@@ -2381,6 +2385,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      currency_type: ["USD", "EUR", "GBP", "JPY", "CAD", "AUD", "CNY"],
       transaction_type_enum: ["buy", "sell", "dividend", "deposit", "withdraw"],
     },
   },

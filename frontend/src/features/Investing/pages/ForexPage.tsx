@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/table";
 import { useCurrencyPairs } from "@/hooks/useCurrencyPairs";
 import { useHistoricalForexRates } from "@/hooks/useHistoricalForexRates";
-import { useLatestForexRate } from "@/hooks/useLatestForexRate";
+import { useLatestForexRate } from "@/hooks/useLatestForexRates";
 import type { CurrencyPair, ForexRate, Timeframe } from "@my-dashboard/shared";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";

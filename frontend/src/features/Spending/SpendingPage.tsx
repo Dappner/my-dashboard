@@ -2,6 +2,7 @@ import ErrorState from "@/components/layout/components/ErrorState";
 import LoadingState from "@/components/layout/components/LoadingState";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Button } from "@/components/ui/button";
+import { useCurrencyConversion } from "@/hooks/useCurrencyConversion";
 import { useMonthParam } from "@/hooks/useMonthParam";
 import { format } from "date-fns";
 import { PieChartIcon } from "lucide-react";
@@ -14,6 +15,7 @@ import { SpendingChartTabs } from "./widgets/SpendingChartTabs";
 
 export default function SpendingOverview() {
 	const { selectedDate, setSelectedDate } = useMonthParam();
+	const { formatCurrency } = useCurrencyConversion();
 
 	const {
 		spendingMetrics,

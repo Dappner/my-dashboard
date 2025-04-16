@@ -11,7 +11,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
-import useUser from "@/hooks/useUser";
+import { useUser } from "@/contexts/UserContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
@@ -21,7 +21,7 @@ export function NavUser() {
 	const { isMobile, state } = useSidebar();
 	const queryClient = useQueryClient();
 	const { signOut } = useAuth();
-	const { user } = useUser();
+	const { currentUser: user } = useUser();
 
 	const signOutAndInvalidate = () => {
 		queryClient.invalidateQueries();

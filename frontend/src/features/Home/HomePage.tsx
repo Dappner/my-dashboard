@@ -2,7 +2,6 @@ import KpiCard from "@/components/customs/KpiCard";
 import LoadingState from "@/components/layout/components/LoadingState";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import useUser from "@/hooks/useUser";
 import { investingDashboardRoute } from "@/routes/investing-routes";
 import { spendingCategoriesRoute } from "@/routes/spending-routes";
 import { Link } from "@tanstack/react-router";
@@ -19,14 +18,12 @@ import {
 } from "./components/HabitsTracker";
 
 export default function HomePage() {
-	const { user } = useUser();
-	const userId = user?.id;
 	const { metrics, isLoading: metricsLoading } = usePortfolioMetrics("ALL");
 
 	const queryDate = new Date();
 	const { spendingMetrics, isLoading: spendingLoading } =
 		useSpendingMetrics(queryDate);
-	const { data: habitsData, isLoading: habitsLoading } = useHabitsData(userId);
+	const { data: habitsData, isLoading: habitsLoading } = useHabitsData();
 
 	const isLoading = metricsLoading || spendingLoading || habitsLoading;
 
