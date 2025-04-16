@@ -113,6 +113,20 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "receipt_items_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipt_items_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "receipts_with_items"
+            referencedColumns: ["receipt_id"]
+          },
         ]
       }
       receipts: {
@@ -173,6 +187,10 @@ export type Database = {
     Views: {
       daily_spending: {
         Row: {
+          currency_code: Database["grocery"]["Enums"]["currency_type"] | null
+          currency_receipt_count: number | null
+          currency_total_amount: number | null
+          currency_total_discount: number | null
           date: string | null
           receipt_count: number | null
           stores: string[] | null
