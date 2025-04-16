@@ -6,7 +6,7 @@ import { investingDashboardRoute } from "@/routes/investing-routes";
 import { spendingCategoriesRoute } from "@/routes/spending-routes";
 import { Link } from "@tanstack/react-router";
 import { PieChartIcon, TrendingUp } from "lucide-react";
-import PortfolioChart from "../Investing/components/PortfolioChart";
+import PortfolioChart from "../Investing/components/PortfolioChart/PortfolioChart";
 import { usePortfolioMetrics } from "../Investing/hooks/usePortfolioMetrics";
 import { CategoryPieChart } from "../Spending/components/CategoryPieChart";
 import { SpendingKpiCards } from "../Spending/components/SpendingKpiCards";

@@ -18,7 +18,7 @@ export default function TickerHeader({ ticker, isLoading }: TickerHeaderProps) {
 
 	//TODO: Let's get more recent pricing during market. And put that somewhere...
 	const { data: latestHistoricalPrice, isLoading: priceLoading } = useQuery({
-		queryKey: [ticker, "latestPrice"],
+		queryKey: [ticker.id, "latestPrice"],
 		queryFn: async () => {
 			const { data } = await supabase
 				.from("historical_prices")

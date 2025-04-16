@@ -1,15 +1,15 @@
 import ErrorState from "@/components/layout/components/ErrorState";
 import LoadingState from "@/components/layout/components/LoadingState";
 import { Card } from "@/components/ui/card";
-import type { ChartConfig } from "@/components/ui/chart";
 import {
 	ChartContainer,
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
 import useUser from "@/hooks/useUser";
-import type { PortfolioDailyMetric, Timeframe } from "@my-dashboard/shared";
-import { format, isValid, parseISO, subDays } from "date-fns"; // Added subDays
+import { formatDate, parseDate } from "@/lib/utils";
+import type { Timeframe } from "@my-dashboard/shared";
+import { format, isValid, subDays } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import {
 	CartesianGrid,
@@ -20,23 +20,15 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-import { usePortfolioDailyMetrics } from "../hooks/usePortfolioDailyMetrics";
-import { useTickerHistoricalPrices } from "../pages/Research/hooks/useTickerHistoricalPrices";
-
-function parseDateSafe(dateString: string | null | undefined): Date | null {
-	if (!dateString) return null;
-	try {
-		const date = parseISO(dateString);
-		return isValid(date) ? date : null; // Simpler check
-	} catch {
-		console.warn("Failed to parse date:", dateString);
-		return null;
-	}
-}
-
-function formatDateKey(date: Date | null): string | null {
-	return date ? format(date, "yyyy-MM-dd") : null;
-}
+import { usePortfolioDailyMetrics } from "../../hooks/usePortfolioDailyMetrics";
+import { useTickerHistoricalPrices } from "../../pages/Research/hooks/useTickerHistoricalPrices";
+import { chartConfig } from "./chartConfig";
+import { CustomPortfolioTooltip } from "./components/CustomPortfolioTooltip";
+import {
+	Y_AXIS_WIDTH,
+	Y_DOMAIN_MIN_PERCENT_PADDING,
+	Y_DOMAIN_PADDING_PERCENT,
+} from "./constants";
 
 interface ChartDataPoint {
 	date: Date;
@@ -45,22 +37,12 @@ interface ChartDataPoint {
 	totalPortfolio?: number;
 }
 
-const chartConfig = {
-	totalPortfolio: { label: "Total Value", color: "#3b82f6" }, // Blue
-	portfolio: { label: "Portfolio %", color: "#10b981" }, // Green
-	indexFund: { label: "Benchmark %", color: "#f97316" }, // Orange
-} satisfies ChartConfig;
-
 type ChartDataKey = keyof typeof chartConfig;
 
 interface PortfolioChartProps {
 	timeframe: Timeframe;
 	type: "absolute" | "percentual"; // Determines calculation method
 }
-
-const Y_AXIS_WIDTH = 60;
-const Y_DOMAIN_PADDING_PERCENT = 0.1;
-const Y_DOMAIN_MIN_PERCENT_PADDING = 5;
 
 export default function PortfolioChart({
 	timeframe,
@@ -100,17 +82,14 @@ export default function PortfolioChart({
 			return [];
 		}
 
-		const sortedMetrics: PortfolioDailyMetric[] = [...dailyMetrics].sort(
-			(a, b) =>
-				(parseDateSafe(a.current_date)?.getTime() ?? 0) -
-				(parseDateSafe(b.current_date)?.getTime() ?? 0),
-		);
-
 		if (type === "absolute") {
-			return sortedMetrics
+			return dailyMetrics
 				.map((val): ChartDataPoint | null => {
-					const currentDate = parseDateSafe(val.current_date);
-					if (!currentDate) return null;
+					console.assert(
+						val.current_date != null,
+						"I thought these are always defined",
+					);
+					const currentDate = parseDate(val.current_date || "");
 					const totalValue = Number(val.total_portfolio_value ?? Number.NaN);
 					if (Number.isFinite(totalValue)) {
 						return {
@@ -129,7 +108,8 @@ export default function PortfolioChart({
 			const benchmarkPriceMap = new Map<string, number>();
 			if (historicalPrices) {
 				for (const hp of historicalPrices) {
-					const dateKey = formatDateKey(parseDateSafe(hp.date));
+					console.assert(hp.date == null, "Thought these couldn't be null");
+					const dateKey = formatDate(hp.date);
 					if (
 						dateKey &&
 						typeof hp.close_price === "number" &&
@@ -150,12 +130,13 @@ export default function PortfolioChart({
 
 			const results: ChartDataPoint[] = [];
 
-			for (let i = 0; i < sortedMetrics.length; i++) {
-				const metric = sortedMetrics[i];
-				const currentDate = parseDateSafe(metric.current_date);
+			for (let i = 0; i < dailyMetrics.length; i++) {
+				const metric = dailyMetrics[i];
+				console.assert(metric.current_date != null, "I though valid date");
+				const currentDate = parseDate(metric.current_date || "");
 				if (!currentDate) continue;
 
-				const dateKey = formatDateKey(currentDate);
+				const dateKey = formatDate(currentDate);
 				const currentBenchmarkPrice = dateKey
 					? benchmarkPriceMap.get(dateKey)
 					: undefined;
@@ -190,7 +171,7 @@ export default function PortfolioChart({
 					const maxAttempts = 7; // Look back up to a week for a previous price
 
 					while (attempts < maxAttempts && prevPrice === undefined) {
-						const prevDateKey = formatDateKey(lookbackDate);
+						const prevDateKey = formatDate(lookbackDate);
 						if (prevDateKey) {
 							prevPrice = benchmarkPriceMap.get(prevDateKey);
 						}
@@ -549,83 +530,17 @@ export default function PortfolioChart({
 						/>
 						<ChartTooltip
 							cursor={{
-								// Use CSS variables if defined, otherwise fallback
 								stroke: "hsl(var(--foreground, 222.2 84% 4.9%))",
 								strokeWidth: 1,
 								strokeDasharray: "3 3",
 							}}
 							content={
-								<ChartTooltipContent
-									formatter={(value, name) => {
-										if (
-											typeof value !== "number" ||
-											!Number.isFinite(value) ||
-											!(name in chartConfig)
-										) {
-											return null;
-										}
-										const key = name as ChartDataKey;
-										// Ensure the key matches the current chart type context
-										if (type === "absolute" && key !== "totalPortfolio") {
-											return null;
-										}
-										if (
-											type === "percentual" &&
-											key !== "portfolio" &&
-											key !== "indexFund"
-										) {
-											return null;
-										}
-
-										const config = chartConfig[key];
-										const label = config.label;
-										const formattedValue =
-											type === "absolute"
-												? `$${value.toLocaleString(undefined, {
-														minimumFractionDigits: 2,
-														maximumFractionDigits: 2,
-													})}`
-												: `${value.toFixed(2)}%`;
-										return (
-											<div className="flex items-center gap-2">
-												<span
-													className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
-													style={{ backgroundColor: config.color }}
-												/>
-												<div className="flex flex-1 justify-between leading-none">
-													<span className="text-muted-foreground">{label}</span>
-													<span className="font-bold">{formattedValue}</span>
-												</div>
-											</div>
-										);
-									}}
-									labelFormatter={(label, payload) => {
-										// console.log('Tooltip labelFormatter:', { label, payload }); // Debug log
-										const dateFromPayload = payload?.[0]?.payload?.date;
-										const dateToFormat =
-											dateFromPayload instanceof Date &&
-											isValid(dateFromPayload)
-												? dateFromPayload
-												: label instanceof Date && isValid(label)
-													? label
-													: null;
-										return dateToFormat
-											? format(dateToFormat, "MMM d, yyyy")
-											: null; // Return null if date is invalid
-									}}
-									// Use CSS variables for background/border if possible
-									className="bg-background/90 backdrop-blur-sm shadow-lg rounded-md p-2 border border-border/70"
-									itemStyle={{ padding: 0, border: "none" }} // Let formatter handle item style
-									labelStyle={{
-										fontSize: "0.85rem",
-										fontWeight: "bold",
-										marginBottom: "4px",
-									}}
+								<CustomPortfolioTooltip
+									chartType={type}
+									chartConfig={chartConfig}
 								/>
 							}
-							// Ensure tooltip triggers even if lines are thin
-							isAnimationActive={false} // Can sometimes interfere
-							// useTranslate3d={true} // May improve performance/positioning
+							isAnimationActive={false}
 						/>
 						<Legend
 							verticalAlign="top" // Recharts default layout properties

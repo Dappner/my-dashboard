@@ -38,6 +38,7 @@ const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
 		return null;
 	}
 
+	console.log(payload);
 	const dataPoint = chartData.find((item) => item.date === label);
 
 	return (
@@ -47,7 +48,7 @@ const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
 
 			{dataPoint?.transactions?.map((transaction) => (
 				<div
-					key={`${transaction.transaction_date}-${transaction.type}`} // Unique key
+					key={`${transaction.transaction_date}-${transaction.type}-${transaction.price_per_share}`} // Unique key
 					className={`mt-2 ${
 						transaction.type === "buy" ? "text-green-600" : "text-blue-600"
 					}`}

@@ -45,7 +45,7 @@ export default function HoldingsPanel({
 			<div className="max-w-full pointer-events-auto">
 				<div className="bg-white border-t border-r rounded-r-sm shadow-[0_-2px_4px_rgba(0,0,0,0.1)]">
 					{/* Header with toggle */}
-					<div className="flex items-center justify-between p-3 border-b">
+					<div className="flex items-center gap-2 p-3 border-b">
 						<h3 className="text-lg font-semibold">Holdings</h3>
 						<Button
 							variant="ghost"

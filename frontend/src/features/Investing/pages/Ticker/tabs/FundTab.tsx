@@ -4,7 +4,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { chartColors } from "@/constants";
 import { useEntityMappings } from "@/features/Investing/hooks/useEntityMappings";
 import { useFundsData } from "@/features/Investing/hooks/useFundsData";
-import { formatDate, formatLargeNumber, formatPercent } from "@/lib/formatting";
+import { formatLargeNumber, formatPercent } from "@/lib/formatting";
+import { formatDate } from "@/lib/utils";
 import {
 	Bar,
 	BarChart,
@@ -98,7 +99,7 @@ export default function FundTab({
 								/>
 								<DataRow
 									label="Inception Date"
-									value={formatDate(yhFinanceData.fund_inception_date || "")}
+									value={formatDate(yhFinanceData.fund_inception_date)}
 								/>
 								<DataRow label="Legal Type" value={yhFinanceData.legal_type} />
 								<DataRow

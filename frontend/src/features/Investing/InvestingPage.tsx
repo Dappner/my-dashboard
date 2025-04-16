@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout/components/PageContainer";
 import type { Timeframe } from "@my-dashboard/shared";
 import { useState } from "react";
 import ChartTypeControls from "./components/ChartTypeControls";
-import PortfolioChart from "./components/PortfolioChart";
+import PortfolioChart from "./components/PortfolioChart/PortfolioChart";
 import SidebarKpis from "./components/SidebarKpis";
 import TickerEvents from "./components/TickerEvents";
 import TotalValueDisplay from "./components/TotalValueDisplay";
