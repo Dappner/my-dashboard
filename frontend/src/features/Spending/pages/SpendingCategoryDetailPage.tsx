@@ -15,6 +15,7 @@ import {
 	spendingCategoryDetailRoute,
 	spendingReceiptDetailRoute,
 } from "@/routes/spending-routes";
+import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { WheatIcon } from "lucide-react";
 import {
@@ -27,7 +28,6 @@ import {
 } from "recharts";
 import { MonthSwitcher } from "../components/MonthSwitcher";
 import { useCategoryData } from "../hooks/useCategoryData";
-import { Link } from "@tanstack/react-router";
 
 // Define colors for the pie chart
 const COLORS = [

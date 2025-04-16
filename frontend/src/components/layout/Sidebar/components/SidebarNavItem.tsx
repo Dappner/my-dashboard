@@ -39,6 +39,7 @@ export function SidebarNavItem({
 						)}
 						activeOptions={{ exact: true }}
 						activeProps={{ className: "bg-accent text-accent-foreground" }}
+						resetScroll
 					>
 						{Icon && <Icon className={cn("size-4", expanded && "mr-2")} />}
 						{expanded && <span>{title}</span>}

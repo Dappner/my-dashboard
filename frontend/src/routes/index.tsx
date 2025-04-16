@@ -1,5 +1,7 @@
 import AuthWrapper from "@/components/auth/Authwrapper";
 import Layout from "@/components/layout/Layout";
+import NotFoundComponent from "@/components/layout/NotFoundComponent";
+import AccountPage from "@/features/Account/AccountPage";
 import LoginPage from "@/features/Auth/Login";
 import HabitsPage from "@/features/Habits/HabitsPage";
 import HomePage from "@/features/Home/HomePage";
@@ -11,8 +13,6 @@ import {
 } from "@tanstack/react-router";
 import { investingRoutes } from "./investing-routes";
 import { spendingRoutes } from "./spending-routes";
-import AccountPage from "@/features/Account/AccountPage";
-import NotFoundComponent from "@/components/layout/NotFoundComponent";
 
 export const rootRoute = createRootRoute({
 	component: AuthWrapper,

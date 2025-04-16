@@ -1289,6 +1289,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          preferred_currency: string
           tracking_ticker_id: string | null
           updated_at: string | null
         }
@@ -1298,6 +1299,7 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
+          preferred_currency?: string
           tracking_ticker_id?: string | null
           updated_at?: string | null
         }
@@ -1307,6 +1309,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          preferred_currency?: string
           tracking_ticker_id?: string | null
           updated_at?: string | null
         }
