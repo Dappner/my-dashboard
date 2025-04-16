@@ -20,7 +20,6 @@ import { Input } from "@/components/ui/input";
 import useUser from "@/hooks/useUser";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircleIcon, UserIcon } from "lucide-react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -37,29 +36,15 @@ type UserFormValues = z.infer<typeof userFormSchema>;
 export default function AccountPage() {
 	const { user, updateUser, isLoading: isUserLoading } = useUser();
 
-	// Initialize form with fallback values
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(userFormSchema),
 		defaultValues: {
-			firstName: "",
-			lastName: "",
-			preferredCurrency: "EUR", // Hardcode fallback to EUR
+			firstName: user?.first_name || "",
+			lastName: user?.last_name || "",
+			preferredCurrency: user?.preferred_currency,
 		},
 	});
 
-	// Sync form with user data when user is available
-	useEffect(() => {
-		if (user) {
-			const newValues = {
-				firstName: user.first_name || "",
-				lastName: user.last_name || "",
-				preferredCurrency: user.preferred_currency || "EUR",
-			};
-			console.log("User data:", user);
-			console.log("Resetting form with:", newValues);
-			form.reset(newValues);
-		}
-	}, [user, form]);
 	async function onSubmit(data: UserFormValues) {
 		if (!user) return;
 
@@ -159,7 +144,7 @@ export default function AccountPage() {
 											/>
 											<FormDescription>
 												This will be used to display all monetary values in the
-												application
+												application (Only spending rn)
 											</FormDescription>
 											<FormMessage />
 										</FormItem>

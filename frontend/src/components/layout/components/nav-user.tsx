@@ -10,7 +10,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import useUser from "@/hooks/useUser";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -129,9 +129,11 @@ export function NavUser() {
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<DropdownMenuItem className="cursor-pointer">
-						<BadgeCheck />
-						Account
+					<DropdownMenuItem asChild>
+						<Link to="/account" className="cursor-pointer">
+							<BadgeCheck className="mr-2 h-4 w-4" />
+							Account
+						</Link>
 					</DropdownMenuItem>
 					<DropdownMenuItem className="cursor-pointer">
 						<Bell />

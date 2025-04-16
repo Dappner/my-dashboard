@@ -150,6 +150,7 @@ export function useSpendingMetrics(selectedDate: Date) {
 	const spendingMetrics: SpendingMetrics | undefined = useMemo(() => {
 		// Only create metrics object if we have the minimal required data
 		if (!currentMonth.data) return undefined;
+		console.log(currentMonth.data);
 
 		return {
 			totalSpent: currentMonth.data.totalSpent,

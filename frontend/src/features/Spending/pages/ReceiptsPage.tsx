@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { useAuthContext } from "@/contexts/AuthContext";
 import { ReceiptIcon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ReceiptCard } from "../components/ReceiptCard";
@@ -11,7 +10,6 @@ interface UploadSuccessResult {
 }
 
 export default function ReceiptsPage() {
-	const { user } = useAuthContext();
 	const { uploadReceipt, isUploading } = useReceiptUpload();
 
 	const {
@@ -22,7 +20,7 @@ export default function ReceiptsPage() {
 		fetchNextPage,
 		hasNextPage,
 		isFetchingNextPage,
-	} = useReceipts(user?.id);
+	} = useReceipts();
 
 	const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];

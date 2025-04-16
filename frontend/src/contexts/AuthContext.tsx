@@ -1,52 +1,55 @@
 import { supabase } from "@/lib/supabase";
-import type { Session, User } from "@supabase/supabase-js";
-import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
+import { useQueryClient } from "@tanstack/react-query";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-export interface AuthContextType {
+interface AuthContextType {
 	session: Session | null;
-	user: User | null;
-	signIn: (email: string, password: string) => Promise<void>;
-	signOut: () => Promise<void>;
 	isLoading: boolean;
+	isAuthenticated: boolean;
+	userId: string | null;
+	// biome-ignore lint/suspicious/noExplicitAny: TODO: Improve
+	signIn: (email: string, password: string) => Promise<any>;
+	signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const [session, setSession] = useState<Session | null>(null);
-	const [user, setUser] = useState<User | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const queryClient = useQueryClient();
 
+	// Authentication effect - runs once on mount
 	useEffect(() => {
-		setIsLoading(true);
+		// Get initial session
 		supabase.auth.getSession().then(({ data: { session } }) => {
 			setSession(session);
-			setUser(session?.user ?? null);
 			setIsLoading(false);
 		});
 
+		// Set up auth listener
 		const {
 			data: { subscription },
 		} = supabase.auth.onAuthStateChange((_event, session) => {
 			setSession(session);
-			setUser(session?.user ?? null);
 			setIsLoading(false);
 		});
 
 		return () => subscription.unsubscribe();
 	}, []);
 
+	// Authentication methods
 	const signIn = async (email: string, password: string) => {
 		setIsLoading(true);
 		try {
-			const { error } = await supabase.auth.signInWithPassword({
+			const { data, error } = await supabase.auth.signInWithPassword({
 				email,
 				password,
 			});
-			if (error) throw error;
+			return { data, error };
 		} finally {
 			setIsLoading(false);
 		}
@@ -55,32 +58,36 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	const signOut = async () => {
 		setIsLoading(true);
 		try {
-			const { error } = await supabase.auth.signOut();
-			if (error) throw error;
+			await supabase.auth.signOut();
+			queryClient.clear(); // Clear all query cache on logout
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	const value = {
-		session,
-		user,
-		signIn,
-		signOut,
-		isLoading,
-	};
+	const userId = useMemo(() => session?.user?.id || null, [session]);
+	const isAuthenticated = !!session?.user?.id;
 
-	return (
-		<AuthContext.Provider value={value}> {children} </AuthContext.Provider>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: I think it's fine
+	const value = useMemo(
+		() => ({
+			session,
+			isLoading,
+			isAuthenticated,
+			userId,
+			signIn,
+			signOut,
+		}),
+		[session, isLoading, isAuthenticated, userId],
 	);
+
+	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-const useAuthContext = () => {
+export const useAuth = () => {
 	const context = useContext(AuthContext);
 	if (context === undefined) {
-		throw new Error("useAuthContext must be used within an AuthProvider");
+		throw new Error("useAuth must be used within an AuthProvider");
 	}
 	return context;
 };
-
-export { AuthProvider, AuthContext, useAuthContext };

@@ -1,28 +1,50 @@
-import { useAuthContext } from "@/contexts/AuthContext";
-import { loginRoute } from "@/routes";
-import { Outlet, useNavigate } from "@tanstack/react-router";
+import LoadingState from "@/components/layout/components/LoadingState";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUser } from "@/contexts/UserContext";
+import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
-function AuthWrapper() {
-	const { user, isLoading } = useAuthContext();
+export default function AuthWrapper() {
+	const { isLoading: authLoading, isAuthenticated, session } = useAuth();
+	const { isLoading: userLoading, currentUser } = useUser();
 	const navigate = useNavigate();
+	const location = useLocation();
+	const isLoginPage = location.pathname === "/login";
+
+	// Combine loading states from both auth and user contexts
+	const isLoading = authLoading || (isAuthenticated && userLoading);
+
+	// Full authentication requires both auth session and loaded user data
+	const isFullyAuthenticated = isAuthenticated && !!currentUser;
 
 	useEffect(() => {
-		if (!isLoading && !user) {
-			navigate({
-				to: loginRoute.to,
-				replace: true,
-			});
+		// Only redirect when all loading is complete
+		if (!isLoading) {
+			if (!session && !isLoginPage) {
+				// Not authenticated and not on login page - redirect to login
+				navigate({ to: "/login", replace: true });
+			} else if (isFullyAuthenticated && isLoginPage) {
+				// Fully authenticated but on login page - redirect to home
+				navigate({ to: "/home", replace: true });
+			}
 		}
-	}, [isLoading, user, navigate]);
+	}, [isLoading, session, isFullyAuthenticated, isLoginPage, navigate]);
 
+	// Show loading state while authentication is being determined or user data is loading
 	if (isLoading) {
-		return (
-			<div className="flex min-h-screen items-center bg-gray-50 justify-center" />
-		);
+		return <LoadingState />;
 	}
 
-	return <Outlet />;
-}
+	// Render outlet only if:
+	// 1. On login page and not authenticated, or
+	// 2. Fully authenticated (auth + user data) and not on login page
+	if (
+		(isLoginPage && !isAuthenticated) ||
+		(isFullyAuthenticated && !isLoginPage)
+	) {
+		return <Outlet />;
+	}
 
-export default AuthWrapper;
+	// Render a blank page during redirection
+	return <LoadingState />;
+}

@@ -7,7 +7,7 @@ import {
 	FormLabel,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
-import { useAuthContext } from "@/contexts/AuthContext";
+import { useUser } from "@/contexts/UserContext";
 import { useTickers } from "@/features/Investing/hooks/useTickers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type {
@@ -99,7 +99,7 @@ export function TransactionForm({
 	tradeId,
 	onClose,
 }: TransactionFormProps) {
-	const { user } = useAuthContext();
+	const { currentUser: user } = useUser();
 	const mode = tradeId ? "update" : "create";
 
 	const { tickers, isLoading: tickersLoading } = useTickers();

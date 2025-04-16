@@ -1,14 +1,14 @@
 import { userApi, userApiKeys } from "@/api/usersApi";
-import { useAuthContext } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function useUser() {
 	const queryClient = useQueryClient();
-	const { user: authUser } = useAuthContext();
+	const { userId } = useAuth();
 	const { data: user, isLoading } = useQuery({
-		queryFn: () => userApi.getUser(authUser?.id),
+		queryFn: () => userApi.getUser(userId || undefined),
 		queryKey: userApiKeys.all,
-		enabled: !!authUser,
+		enabled: !!userId,
 	});
 
 	const updateUserMutation = useMutation({

@@ -1,88 +1,101 @@
-import useUser from "@/hooks/useUser";
-import type { User } from "@/types/userTypes";
-import type React from "react";
+import { userApi, userApiKeys } from "@/api/usersApi";
+import {
+	CURRENCY_SYMBOLS,
+	type SupportedCurrency,
+	formatCurrencyValue,
+} from "@/lib/currencyUtils";
+import type { UpdateUser, User } from "@/types/userTypes";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useMemo } from "react";
+import { useAuth } from "./AuthContext";
 
-type UserContextType = {
-	currentUser?: User | null;
+interface UserContextType {
+	currentUser: User | null;
 	isLoading: boolean;
-	displayCurrency: string;
-	formatCurrency: (amount: number, options?: { compact?: boolean }) => string;
-	getCurrencySymbol: (currencyCode?: string) => string;
-};
+	// biome-ignore lint/suspicious/noExplicitAny: TODO: Improve
+	updateUserProfile: (data: Partial<UpdateUser>) => Promise<any>;
+
+	// Currency and formatting utilities
+	displayCurrency: SupportedCurrency;
+	formatCurrency: (
+		amount: number,
+		options?: { compact?: boolean; decimals?: number },
+	) => string;
+	getCurrencySymbol: (currencyCode?: SupportedCurrency) => string;
+}
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
-
-const currencySymbols: Record<string, string> = {
-	USD: "$",
-	EUR: "€",
-	GBP: "£",
-	JPY: "¥",
-	CAD: "C$",
-	AUD: "A$",
-	CNY: "¥",
-};
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
-	const { user, isLoading } = useUser();
+	const { userId, isAuthenticated } = useAuth();
+	const queryClient = useQueryClient();
 
-	const displayCurrency = user?.preferred_currency || "USD";
+	// Only fetch user data when we have a userId
+	const { data: currentUser, isLoading } = useQuery({
+		queryKey: userApiKeys.all,
+		queryFn: () => userApi.getUser(userId || undefined),
+		enabled: !!userId && isAuthenticated,
+	});
 
-	// Get currency symbol for a given currency code
-	const getCurrencySymbol = (currencyCode?: string): string => {
-		const code = currencyCode || displayCurrency;
-		return currencySymbols[code] || "$";
-	};
+	// Update user profile mutation
+	const updateUserMutation = useMutation({
+		mutationFn: userApi.updateUser,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: userApiKeys.all });
+		},
+	});
 
-	// Format currency with proper symbol and format
-	const formatCurrency = (
-		amount: number,
-		options?: { compact?: boolean },
-	): string => {
-		const symbol = getCurrencySymbol();
-
-		if (options?.compact) {
-			if (Math.abs(amount) >= 1e9) {
-				return `${symbol}${(amount / 1e9).toFixed(1)}B`;
-			}
-			if (Math.abs(amount) >= 1e6) {
-				return `${symbol}${(amount / 1e6).toFixed(1)}M`;
-			}
-			if (Math.abs(amount) >= 1e3) {
-				return `${symbol}${(amount / 1e3).toFixed(1)}K`;
-			}
+	// Wrap updateUser to make it more convenient
+	const updateUserProfile = async (data: Partial<UpdateUser>) => {
+		if (!userId || !currentUser) {
+			throw new Error("Cannot update user profile: User not authenticated");
 		}
 
-		// Standard formatting
-		return new Intl.NumberFormat("en-US", {
-			style: "currency",
-			currency: displayCurrency,
-			maximumFractionDigits: 2,
-		}).format(amount);
+		return updateUserMutation.mutateAsync({
+			id: userId,
+			...data,
+		});
 	};
 
-	// TODO: ?
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// Currency and formatting utilities
+	const displayCurrency =
+		(currentUser?.preferred_currency as SupportedCurrency) || "USD";
+
+	const getCurrencySymbol = (currencyCode?: SupportedCurrency): string => {
+		const code = currencyCode || displayCurrency;
+		return CURRENCY_SYMBOLS[code] || "$";
+	};
+
+	const formatCurrency = (
+		amount: number,
+		options?: { compact?: boolean; decimals?: number },
+	): string => {
+		return formatCurrencyValue(amount, displayCurrency, options);
+	};
+
+	// Create context value
+	// biome-ignore lint/correctness/useExhaustiveDependencies: IDGAF
 	const value = useMemo(
 		() => ({
-			currentUser: user,
+			currentUser: currentUser || null,
 			isLoading,
+			updateUserProfile,
 			displayCurrency,
 			formatCurrency,
 			getCurrencySymbol,
 		}),
-		[user, isLoading, displayCurrency],
+		[currentUser, isLoading, updateUserMutation.isPending, displayCurrency],
 	);
 
 	return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
-export const useUserPreferences = () => {
+export const useUser = () => {
 	const context = useContext(UserContext);
 	if (context === undefined) {
-		throw new Error("useUserPreferences must be used within a UserProvider");
+		throw new Error("useUser must be used within a UserProvider");
 	}
 	return context;
 };

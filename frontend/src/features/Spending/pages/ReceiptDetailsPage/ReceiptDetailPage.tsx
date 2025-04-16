@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuthContext } from "@/contexts/AuthContext";
+import { useUser } from "@/contexts/UserContext";
 import { spendingReceiptsRoute } from "@/routes/spending-routes";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
@@ -28,7 +28,7 @@ import { useReceipt } from "./useReceipt";
 const route = getRouteApi("/spending/receipts/$receiptId");
 export default function ReceiptDetailPage() {
 	const { receiptId } = route.useParams();
-	const { user } = useAuthContext();
+	const { currentUser: user } = useUser();
 	const navigate = useNavigate();
 	const [isImageOpen, setIsImageOpen] = useState(false);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);

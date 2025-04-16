@@ -1,13 +1,13 @@
-import { useAuthContext } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 
 export function useReceiptUpload() {
 	const [isUploading, setIsUploading] = useState(false);
-	const { user } = useAuthContext();
+	const { userId } = useAuth();
 
 	const uploadReceipt = async (file: File) => {
-		if (!user || !file) return;
+		if (!userId || !file) return;
 
 		try {
 			setIsUploading(true);
@@ -17,7 +17,7 @@ export function useReceiptUpload() {
 				.schema("grocery")
 				.from("receipts")
 				.insert({
-					user_id: user.id,
+					user_id: userId,
 					purchase_date: new Date().toISOString().split("T")[0], // ISO date only
 					total_amount: 0, // Placeholder, update later if OCR provides it
 				})
@@ -28,7 +28,7 @@ export function useReceiptUpload() {
 
 			// Upload the image to the receipts bucket
 			const fileExt = file.name.split(".").pop();
-			const filePath = `${user.id}/${receipt.id}.${fileExt}`;
+			const filePath = `${userId}/${receipt.id}.${fileExt}`;
 			const { error: uploadError } = await supabase.storage
 				.from("receipts")
 				.upload(filePath, file, {

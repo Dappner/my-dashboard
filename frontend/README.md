@@ -25,10 +25,9 @@
 
 - Add + button to receipts in Spending
 
-Generally:
+**Generally**: 2. Fix Dates everywhere. It's a fucking mess... 3. Minor tweaks to new sidebar
 
-1. Why do links not allow cursor-pointer?
-2. Fix Dates everywhere. It's a fucking mess...
+- When exactly should only the current section be open etc...
 
 ## Larger Features
 
@@ -40,22 +39,21 @@ Generally:
     Unrealized P/L, Unrealized P/L per share net of dividends (% and ABS)
 - Lambda function that fetches data for ticker once it is added to the tickers table / the backfill is set to true.
   - Maybe a button to "run lambda for that ticker"
+- Currency Conversion for Transactions and Holdings etc...
 
 **Spending**
 
+- Convert all currencies in Spending to use users preferred currency.
 - Enable better spending tracking (so I quickly log spend e.g. 2 beers at night out)
-- Subscription Management? (easier to add spending )
-- Better Spending Overiew Page (sucks right now)
+- Voice Memo feature - QUickly talk about transaction that gets dumped into s3 and then processed.
+- Subscription Management? (easier to add spending ) (prob not)
 - Edit Transaction....
+  - Slight more improvements needded
 
 **General**
 
 - Hookup Github to scrape whether I wrote code etc (lines changed? Repos?)
 - Hookup API to chess to scrape whether I played Chess that Day
-- Better sidebar
-  - Other issue is state of sidebar caching (moves on open if it's closed)
-  - If I'm on Investing and I open sidebar all investing pages should be open. It should maybe take up full screen on mobile (as an overlay?)
-  - This will need a custom integration....
 
 # FORMULAS USED
 

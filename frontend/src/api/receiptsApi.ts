@@ -45,7 +45,6 @@ export const receiptsApiKeys = {
 
 export const receiptsApi = {
 	async getReceiptsWithItems(
-		userId: string,
 		page = 1,
 	): Promise<{ receipts: ReceiptWithItems[]; nextPage?: number }> {
 		const pageSize = 10; // adjust page size as needed
@@ -55,7 +54,6 @@ export const receiptsApi = {
 			.schema("grocery")
 			.from("receipts_with_items")
 			.select("*", { count: "exact" })
-			.eq("user_id", userId)
 			.order("purchase_date", { ascending: false })
 			.range(start, end);
 
