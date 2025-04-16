@@ -1,6 +1,6 @@
+import useUser from "@/hooks/useUser";
 import type React from "react";
 import { createContext, useContext } from "react";
-import useUser from "@/hooks/useUser";
 
 type UserContextType = {
 	displayCurrency: string;
