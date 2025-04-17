@@ -5,4 +5,4 @@ export interface ChartDataPoint {
   totalPortfolio?: number;
 }
 
-export type ChartDataKey = keyof ChartDataPoint;
+export type ChartDataKey = "totalPortfolio" | "portfolio" | "indexFund";

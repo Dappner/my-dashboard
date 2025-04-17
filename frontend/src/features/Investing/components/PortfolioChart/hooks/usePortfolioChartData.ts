@@ -23,7 +23,6 @@ export function usePortfolioChartData(
 ): {
   data: ChartDataPoint[];
   isLoading: boolean;
-  hasHistoricalData: boolean;
 } {
   const { dailyMetrics, isLoading: metricsLoading } =
     usePortfolioDailyMetrics(timeframe);
@@ -172,13 +171,9 @@ export function usePortfolioChartData(
 
   const isLoading =
     metricsLoading || (shouldFetchHistorical && historicalPricesLoading);
-  const hasHistoricalData = Boolean(
-    historicalPrices && historicalPrices.length > 0,
-  );
 
   return {
     data,
     isLoading,
-    hasHistoricalData,
   };
 }
