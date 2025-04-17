@@ -48,7 +48,11 @@
 - Voice Memo feature - QUickly talk about transaction that gets dumped into s3 and then processed.
 - Subscription Management? (easier to add spending ) (prob not)
 - Edit Transaction....
+
   - Slight more improvements needded
+
+- BIG: Change Schema name to spending, create a spending table, and make receipts link to it
+  - Essentially, spending should also be receiptless (in case I am using e.g. a voice memo)
 
 **General**
 
