@@ -1,7 +1,6 @@
 import {
 	BookOpen,
 	ChartNoAxesCombined,
-	Clock,
 	CreditCard,
 	ListChecks,
 } from "lucide-react";
@@ -67,13 +66,11 @@ export const navBarSections: NavBarSection[] = [
 				title: "Github",
 				url: "github",
 			},
+			{
+				title: "Time Tracking",
+				url: "time",
+			},
 		],
-	},
-	{
-		title: "Time Tracking",
-		url: "/time-tracking",
-		rootName: "Overview",
-		icon: Clock,
 	},
 	{
 		title: "Reading",
