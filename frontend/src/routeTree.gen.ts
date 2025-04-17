@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as SpendingRoutesImport } from './routes/spending-routes'
+import { Route as ReadingRoutesImport } from './routes/reading-routes'
 import { Route as InvestingRoutesImport } from './routes/investing-routes'
 import { Route as IndexImport } from './routes/index'
 
@@ -20,6 +21,12 @@ import { Route as IndexImport } from './routes/index'
 const SpendingRoutesRoute = SpendingRoutesImport.update({
   id: '/spending-routes',
   path: '/spending-routes',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ReadingRoutesRoute = ReadingRoutesImport.update({
+  id: '/reading-routes',
+  path: '/reading-routes',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,6 +60,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvestingRoutesImport
       parentRoute: typeof rootRoute
     }
+    '/reading-routes': {
+      id: '/reading-routes'
+      path: '/reading-routes'
+      fullPath: '/reading-routes'
+      preLoaderRoute: typeof ReadingRoutesImport
+      parentRoute: typeof rootRoute
+    }
     '/spending-routes': {
       id: '/spending-routes'
       path: '/spending-routes'
@@ -68,12 +82,14 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/investing-routes': typeof InvestingRoutesRoute
+  '/reading-routes': typeof ReadingRoutesRoute
   '/spending-routes': typeof SpendingRoutesRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/investing-routes': typeof InvestingRoutesRoute
+  '/reading-routes': typeof ReadingRoutesRoute
   '/spending-routes': typeof SpendingRoutesRoute
 }
 
@@ -81,27 +97,35 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/investing-routes': typeof InvestingRoutesRoute
+  '/reading-routes': typeof ReadingRoutesRoute
   '/spending-routes': typeof SpendingRoutesRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/investing-routes' | '/spending-routes'
+  fullPaths: '/' | '/investing-routes' | '/reading-routes' | '/spending-routes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/investing-routes' | '/spending-routes'
-  id: '__root__' | '/' | '/investing-routes' | '/spending-routes'
+  to: '/' | '/investing-routes' | '/reading-routes' | '/spending-routes'
+  id:
+    | '__root__'
+    | '/'
+    | '/investing-routes'
+    | '/reading-routes'
+    | '/spending-routes'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   InvestingRoutesRoute: typeof InvestingRoutesRoute
+  ReadingRoutesRoute: typeof ReadingRoutesRoute
   SpendingRoutesRoute: typeof SpendingRoutesRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InvestingRoutesRoute: InvestingRoutesRoute,
+  ReadingRoutesRoute: ReadingRoutesRoute,
   SpendingRoutesRoute: SpendingRoutesRoute,
 }
 
@@ -117,6 +141,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/investing-routes",
+        "/reading-routes",
         "/spending-routes"
       ]
     },
@@ -125,6 +150,9 @@ export const routeTree = rootRoute
     },
     "/investing-routes": {
       "filePath": "investing-routes.tsx"
+    },
+    "/reading-routes": {
+      "filePath": "reading-routes.tsx"
     },
     "/spending-routes": {
       "filePath": "spending-routes.tsx"

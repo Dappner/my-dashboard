@@ -5,7 +5,6 @@ import AccountPage from "@/features/Account/AccountPage";
 import LoginPage from "@/features/Auth/Login";
 import HabitsPage from "@/features/Habits/HabitsPage";
 import HomePage from "@/features/Home/HomePage";
-import ReadingPage from "@/features/Reading/ReadingPage";
 import {
 	createRootRoute,
 	createRoute,
@@ -13,6 +12,7 @@ import {
 	useNavigate,
 } from "@tanstack/react-router";
 import { investingRoutes } from "./investing-routes";
+import { readingRoutes } from "./reading-routes";
 import { spendingRoutes } from "./spending-routes";
 
 export const rootRoute = createRootRoute({
@@ -51,12 +51,6 @@ export const accountRoute = createRoute({
 	component: AccountPage,
 });
 
-export const readingRoute = createRoute({
-	getParentRoute: () => layoutRoute,
-	path: "reading",
-	component: ReadingPage,
-});
-
 export const splatRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	path: "$",
@@ -73,9 +67,8 @@ const routeTree = rootRoute.addChildren([
 		homeRoute,
 		...investingRoutes,
 		...spendingRoutes,
+		...readingRoutes,
 		habitsRoute,
-		accountRoute,
-		readingRoute,
 		splatRoute,
 	]),
 ]);

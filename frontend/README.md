@@ -58,6 +58,8 @@
 
 - Hookup Github to scrape whether I wrote code etc (lines changed? Repos?)
 - Hookup API to chess to scrape whether I played Chess that Day
+- Add persistQueryClient for some data (forex....?)
+  - <https://tanstack.com/query/latest/docs/framework/react/plugins/persistQueryClient>
 
 # FORMULAS USED
 
