@@ -1,4 +1,4 @@
-import type { ReceiptWithItems } from "@/api/receiptsApi";
+import { receiptsApi, type ReceiptWithItems } from "@/api/receiptsApi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,7 @@ const getCategoryIcon = (category: string | null) => {
 
 export const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt }) => {
 	const [isImageOpen, setIsImageOpen] = useState(false);
+	const [imageUrl, setImageUrl] = useState<string | null>(null);
 	const navigate = useNavigate();
 
 	const primaryCategory = receipt.items[0]?.category_name || "Uncategorized";
@@ -60,6 +61,20 @@ export const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt }) => {
 		});
 	};
 
+	const handleOpenImage = async () => {
+		if (!imageUrl && receipt.receipt_image_path) {
+			try {
+				const url = await receiptsApi.getReceiptImageUrl(
+					receipt.receipt_image_path,
+				);
+				setImageUrl(url);
+			} catch (error) {
+				console.error("Failed to load image:", error);
+			}
+		}
+		setIsImageOpen(true);
+	};
+
 	return (
 		<Card className="overflow-hidden border border-gray-200 rounded-lg h-full flex flex-col">
 			<CardHeader className="p-4 border-b border-gray-100">
@@ -67,7 +82,10 @@ export const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt }) => {
 					<div className="flex items-center gap-3">
 						<Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
 							<DialogTrigger asChild>
-								<Avatar className="h-10 w-10 cursor-pointer">
+								<Avatar
+									className="h-10 w-10 cursor-pointer"
+									onClick={handleOpenImage}
+								>
 									<AvatarImage
 										src={receipt.imageUrl || ""}
 										alt={receipt.store_name || undefined}
@@ -78,11 +96,16 @@ export const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt }) => {
 								</Avatar>
 							</DialogTrigger>
 							<DialogContent className="max-w-[90vw] sm:max-w-md">
-								<img
-									src={receipt.imageUrl || ""}
-									alt={`Receipt from ${receipt.store_name}`}
-									className="w-full rounded-lg"
-								/>
+								{imageUrl ? (
+									<img
+										src={imageUrl}
+										alt={`Receipt from ${receipt.store_name}`}
+									/>
+								) : (
+									<div className="flex items-center justify-center">
+										<span>Loading image...</span>
+									</div>
+								)}
 							</DialogContent>
 						</Dialog>
 						<div>

@@ -65,36 +65,35 @@ export default function ReceiptsPage() {
 
 	return (
 		<div className="container mx-auto p-6 space-y-8">
-			{/* Header Section */}
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-				<div className="flex flex-row justify-between">
-					<h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-						Receipts
-					</h1>
+				<h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+					Receipts
+				</h1>
+				<div className="flex flex-row gap-x-4 items-center justify-center">
 					<MonthSwitcher
 						selectedDate={selectedDate}
 						onDateChange={setSelectedDate}
 					/>
-				</div>
-				<div className="flex flex-col items-center justify-center">
-					<input
-						type="file"
-						accept="image/*,.pdf"
-						className="hidden"
-						id="receipt-upload"
-						onChange={handleFileUpload}
-						disabled={isUploading}
-					/>
-					<Button
-						asChild
-						disabled={isUploading}
-						className="bg-blue-600 hover:bg-blue-700 text-white"
-					>
-						<label htmlFor="receipt-upload" className="flex items-center">
-							<UploadIcon className="mr-2 h-4 w-4" />
-							{isUploading ? "Uploading..." : "Upload Receipt"}
-						</label>
-					</Button>
+					<div>
+						<input
+							type="file"
+							accept="image/*,.pdf"
+							className="hidden"
+							id="receipt-upload"
+							onChange={handleFileUpload}
+							disabled={isUploading}
+						/>
+						<Button
+							asChild
+							disabled={isUploading}
+							className="bg-blue-600 hover:bg-blue-700 text-white"
+						>
+							<label htmlFor="receipt-upload" className="flex items-center">
+								<UploadIcon className="mr-2 h-4 w-4" />
+								{isUploading ? "Uploading..." : "Upload Receipt"}
+							</label>
+						</Button>
+					</div>
 				</div>
 			</div>
 

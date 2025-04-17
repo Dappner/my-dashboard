@@ -1,4 +1,4 @@
-import AuthWrapper from "@/components/auth/Authwrapper";
+import AuthWrapper from "@/components/auth/AuthWrapper";
 import Layout from "@/components/layout/Layout";
 import NotFoundComponent from "@/components/layout/NotFoundComponent";
 import AccountPage from "@/features/Account/AccountPage";
@@ -10,6 +10,7 @@ import {
 	createRootRoute,
 	createRoute,
 	createRouter,
+	useNavigate,
 } from "@tanstack/react-router";
 import { investingRoutes } from "./investing-routes";
 import { spendingRoutes } from "./spending-routes";
@@ -29,6 +30,7 @@ export const layoutRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	path: "/",
 	component: Layout,
+	notFoundComponent: NotFoundComponent,
 });
 
 export const homeRoute = createRoute({
@@ -54,6 +56,16 @@ export const accountRoute = createRoute({
 	component: AccountPage,
 });
 
+export const splatRoute = createRoute({
+	getParentRoute: () => rootRoute,
+	path: "$",
+	component: () => {
+		const navigate = useNavigate();
+		navigate({ to: "/home" });
+		return null;
+	},
+});
+
 const routeTree = rootRoute.addChildren([
 	loginRoute,
 	layoutRoute.addChildren([
@@ -63,6 +75,7 @@ const routeTree = rootRoute.addChildren([
 		habitsRoute,
 		timeRoute,
 		accountRoute,
+		splatRoute,
 	]),
 ]);
 

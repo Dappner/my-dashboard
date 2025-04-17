@@ -1,6 +1,6 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { Outlet } from "@tanstack/react-router";
+import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { SheetContainer } from "../SheetContainer";
 import { Toaster } from "../ui/sonner";
 import { SidebarProvider } from "./Sidebar/providers/SidebarProvider";
@@ -10,6 +10,13 @@ import { MobileHeader } from "./components/MobileHeader";
 
 export default function Layout() {
 	const isMobile = useIsMobile();
+	const navigate = useNavigate();
+	const location = useLocation();
+
+	if (location.pathname === "/") {
+		navigate({ to: "/home" });
+	}
+
 	return (
 		<SidebarProvider>
 			<div className="flex h-dvh w-full">

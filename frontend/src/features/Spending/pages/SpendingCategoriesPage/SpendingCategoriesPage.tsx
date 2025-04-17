@@ -2,6 +2,7 @@ import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MonthSwitcher } from "@/features/Spending/components/MonthSwitcher";
 import { useCurrencyConversion } from "@/hooks/useCurrencyConversion";
 import { useMonthParam } from "@/hooks/useMonthParam";
 import { RefreshCwIcon } from "lucide-react";
@@ -15,12 +16,9 @@ import {
 	Tooltip,
 	type TooltipProps,
 } from "recharts";
-import { MonthSwitcher } from "../../components/MonthSwitcher";
 import { CATEGORY_COLORS } from "../../constants";
-import {
-	useCurrentMonthSpending,
-	useSpendingCategories,
-} from "../../hooks/spendingMetricsHooks";
+import { useMonthSpending } from "../../hooks/useMonthSpending";
+import { useSpendingCategories } from "../../hooks/useSpendingMetrics";
 import { CategoryCard } from "./components/CategoryCard";
 
 export function SpendingCategoriesPage() {
@@ -41,7 +39,7 @@ export function SpendingCategoriesPage() {
 		error: currentMonthError,
 		refetch: refetchCurrentMonth,
 		isRefetching: isRefetchingCurrentMonth,
-	} = useCurrentMonthSpending(selectedDate);
+	} = useMonthSpending(selectedDate);
 
 	const isLoading = categoriesLoading || currentMonthLoading;
 	const isRefetching = isRefetchingCategories || isRefetchingCurrentMonth;

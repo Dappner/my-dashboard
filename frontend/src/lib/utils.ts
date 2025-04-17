@@ -32,3 +32,20 @@ export const getUTCDate = (
 export const getMonthYear = (selectedDate: Date) => {
 	return format(selectedDate, "yyyy-MM");
 };
+
+export function getMonthRange(date: Date): {
+	monthStart: string;
+	monthEnd: string;
+} {
+	const year = date.getUTCFullYear();
+	const month = date.getUTCMonth();
+
+	const monthStart = new Date(Date.UTC(year, month, 1))
+		.toISOString()
+		.split("T")[0];
+	const nextMonthStart = new Date(Date.UTC(year, month + 1, 1))
+		.toISOString()
+		.split("T")[0];
+
+	return { monthStart, monthEnd: nextMonthStart };
+}

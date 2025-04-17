@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { getUTCDate, parseDate } from "@/lib/utils";
+import { getMonthRange, parseDate } from "@/lib/utils";
 import type { Database } from "@/types/supabase";
 
 type ReceiptsWithItemsRow =
@@ -47,16 +47,13 @@ export const receiptsApiKeys = {
 
 export const receiptsApi = {
 	async getReceiptsWithItems(selectedDate: Date): Promise<ReceiptWithItems[]> {
-		const year = selectedDate.getUTCFullYear();
-		const month = selectedDate.getUTCMonth();
-		const monthStart = getUTCDate(year, month, 1);
-		const nextMonthStart = getUTCDate(year, month + 1, 1);
+		const { monthStart, monthEnd } = getMonthRange(selectedDate);
 		const { data, error } = await supabase
 			.schema("grocery")
 			.from("receipts_with_items")
 			.select("*", { count: "exact" })
 			.gte("purchase_date", monthStart)
-			.lt("purchase_date", nextMonthStart)
+			.lte("purchase_date", monthEnd)
 			.order("purchase_date", { ascending: false });
 
 		if (error) throw error;
@@ -68,23 +65,6 @@ export const receiptsApi = {
 			if (!receiptId) continue;
 
 			if (!receiptMap.has(receiptId)) {
-				let signedImageUrl: string | null = null;
-				if (row.receipt_image_path) {
-					const { data: signedUrlData, error: signedUrlError } =
-						await supabase.storage
-							.from("receipts")
-							.createSignedUrl(row.receipt_image_path, 3600); // URL valid for 1 hour
-
-					if (signedUrlError) {
-						console.error(
-							`Failed to create signed URL for ${row.receipt_image_path}:`,
-							signedUrlError,
-						);
-					} else {
-						signedImageUrl = signedUrlData.signedUrl;
-					}
-				}
-
 				receiptMap.set(receiptId, {
 					receipt_id: receiptId,
 					store_name: row.store_name ?? "",
@@ -93,7 +73,7 @@ export const receiptsApi = {
 					total_discount: row.total_discount ?? 0,
 					currency_code: row.currency_code ?? "USD",
 					receipt_image_path: row.receipt_image_path ?? null,
-					imageUrl: signedImageUrl,
+					imageUrl: null,
 					items: [],
 				});
 			}
@@ -250,5 +230,20 @@ export const receiptsApi = {
 
 		if (deleteError) throw deleteError;
 		return { success: true };
+	},
+
+	async getReceiptImageUrl(imagePath: string): Promise<string | null> {
+		if (!imagePath) return null;
+
+		const { data, error } = await supabase.storage
+			.from("receipts")
+			.createSignedUrl(imagePath, 3600);
+
+		if (error) {
+			console.error(`Failed to create signed URL: ${error.message}`);
+			return null;
+		}
+
+		return data.signedUrl;
 	},
 };

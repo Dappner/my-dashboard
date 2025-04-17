@@ -733,13 +733,6 @@ export type Database = {
             foreignKeyName: "holdings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "running_cash_balances"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "holdings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1012,13 +1005,6 @@ export type Database = {
             foreignKeyName: "suggested_trades_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "running_cash_balances"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "suggested_trades_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1285,13 +1271,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "portfolio_performance"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "trades_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "running_cash_balances"
             referencedColumns: ["user_id"]
           },
           {
@@ -1658,13 +1637,6 @@ export type Database = {
             foreignKeyName: "trades_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "running_cash_balances"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "trades_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1674,7 +1646,6 @@ export type Database = {
         Row: {
           cost_basis: number | null
           date_day: string | null
-          has_dividend: boolean | null
           user_id: string | null
         }
         Relationships: [
@@ -1690,13 +1661,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "portfolio_performance"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "trades_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "running_cash_balances"
             referencedColumns: ["user_id"]
           },
           {
@@ -1733,13 +1697,6 @@ export type Database = {
             foreignKeyName: "trades_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "running_cash_balances"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "trades_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1766,13 +1723,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "portfolio_performance"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "trades_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "running_cash_balances"
             referencedColumns: ["user_id"]
           },
           {
@@ -1839,12 +1789,9 @@ export type Database = {
           cash_balance: number | null
           cost_basis: number | null
           current_date: string | null
-          daily_dividend_cash: number | null
           daily_investment_twrr_percent: number | null
-          net_cash_invested_today: number | null
           portfolio_value: number | null
           previous_day_portfolio_value: number | null
-          total_daily_net_cash_flow: number | null
           total_portfolio_value: number | null
           user_id: string | null
         }
@@ -1914,13 +1861,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "portfolio_performance"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "holdings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "running_cash_balances"
             referencedColumns: ["user_id"]
           },
           {
@@ -1997,7 +1937,29 @@ export type Database = {
           date_day: string | null
           user_id: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "current_holdings"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_performance"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ticker_daily_view: {
         Row: {
@@ -2168,13 +2130,6 @@ export type Database = {
             foreignKeyName: "trades_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "running_cash_balances"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "trades_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -2255,7 +2210,7 @@ export type Database = {
         Returns: string
       }
       urlencode: {
-        Args: { string: string } | { string: string } | { data: Json }
+        Args: { data: Json } | { string: string } | { string: string }
         Returns: string
       }
     }

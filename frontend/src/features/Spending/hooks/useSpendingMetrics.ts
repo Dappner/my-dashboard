@@ -7,33 +7,24 @@ import type {
 import { spendingMetricsApi, spendingMetricsApiKeys } from "@/api/spendingApi";
 import { useCurrencyConversion } from "@/hooks/useCurrencyConversion";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, subMonths } from "date-fns";
 import { useCallback, useMemo } from "react";
+import { useMonthSpending } from "./useMonthSpending";
 
 /**
  * Hook to fetch current month spending data
  */
 export function useCurrentMonthSpending(selectedDate: Date) {
-	const cacheKey = format(selectedDate, "yyyy-MM");
-
-	return useQuery({
-		queryKey: spendingMetricsApiKeys.currentMonth(cacheKey),
-		queryFn: () => spendingMetricsApi.getCurrentMonth(selectedDate),
-		staleTime: 5 * 60 * 1000, // 5 minutes
-	});
+	return useMonthSpending(selectedDate);
 }
 
 /**
  * Hook to fetch last month spending data
  */
 export function useLastMonthSpending(selectedDate: Date) {
-	const cacheKey = format(selectedDate, "yyyy-MM");
+	const lastMonthDate = subMonths(selectedDate, 1);
 
-	return useQuery({
-		queryKey: spendingMetricsApiKeys.lastMonth(cacheKey),
-		queryFn: () => spendingMetricsApi.getLastMonth(selectedDate),
-		staleTime: 10 * 60 * 1000, // 10 minutes - historical data changes less frequently
-	});
+	return useMonthSpending(lastMonthDate);
 }
 
 /**

@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { getUTCDate } from "@/lib/utils";
+import { getMonthRange, getUTCDate } from "@/lib/utils";
 import type { Database } from "@/types/supabase";
 import type { CurrencyType } from "@my-dashboard/shared";
 import type { Receipt, ReceiptItem, SpendingCategory } from "./receiptsApi";
@@ -62,10 +62,8 @@ export type DailySpending =
 
 export const spendingMetricsApiKeys = {
 	all: ["spendingMetrics"] as const,
-	currentMonth: (date: string) =>
-		[...spendingMetricsApiKeys.all, "currentMonth", date] as const,
-	lastMonth: (date: string) =>
-		[...spendingMetricsApiKeys.all, "lastMonth", date] as const,
+	month: (date: string) =>
+		[...spendingMetricsApiKeys.all, "month", date] as const,
 	monthlyData: (date: string) =>
 		[...spendingMetricsApiKeys.all, "monthlyData", date] as const,
 	categories: (date: string) =>
@@ -80,21 +78,14 @@ export const spendingMetricsApiKeys = {
 
 export const spendingMetricsApi = {
 	async getRecentReceipts(selectedDate: Date): Promise<Receipt[]> {
-		const year = selectedDate.getUTCFullYear();
-		const month = selectedDate.getUTCMonth();
-		const monthStart = new Date(Date.UTC(year, month, 1))
-			.toISOString()
-			.split("T")[0];
-		const nextMonthStart = new Date(Date.UTC(year, month + 1, 1))
-			.toISOString()
-			.split("T")[0];
+		const { monthStart, monthEnd } = getMonthRange(selectedDate);
 
 		const { data, error } = await supabase
 			.schema("grocery")
 			.from("receipts")
 			.select("id, purchase_date, total_amount, store_name, currency_code")
 			.gte("purchase_date", monthStart)
-			.lt("purchase_date", nextMonthStart)
+			.lte("purchase_date", monthEnd)
 			.order("purchase_date", { ascending: false })
 			.limit(5);
 
@@ -102,18 +93,15 @@ export const spendingMetricsApi = {
 		return data as Receipt[];
 	},
 
-	async getCurrentMonth(selectedDate: Date): Promise<CurrentMonthResponse> {
-		const year = selectedDate.getUTCFullYear();
-		const month = selectedDate.getUTCMonth();
-		const monthStart = getUTCDate(year, month, 1);
-		const nextMonthStart = getUTCDate(year, month + 1, 1);
+	async getMonthData(selectedDate: Date): Promise<CurrentMonthResponse> {
+		const { monthStart, monthEnd } = getMonthRange(selectedDate);
 
 		const { data, error } = await supabase
 			.schema("grocery")
 			.from("receipts")
 			.select("total_amount, id, currency_code")
 			.gte("purchase_date", monthStart)
-			.lt("purchase_date", nextMonthStart);
+			.lte("purchase_date", monthEnd);
 
 		if (error) throw new Error(`Current month data error: ${error.message}`);
 
@@ -143,52 +131,6 @@ export const spendingMetricsApi = {
 			totalSpent,
 			currencyBreakdown,
 			receiptCount: data?.length || 0,
-		};
-	},
-
-	async getLastMonth(selectedDate: Date): Promise<{
-		totalSpent: number;
-		currencyBreakdown: { currency: CurrencyType; amount: number }[];
-	}> {
-		const year = selectedDate.getUTCFullYear();
-		const month = selectedDate.getUTCMonth();
-		const lastMonthStart = getUTCDate(year, month - 1, 1);
-		const monthStart = getUTCDate(year, month, 1);
-
-		const { data, error } = await supabase
-			.schema("grocery")
-			.from("receipts")
-			.select("total_amount, currency_code")
-			.gte("purchase_date", lastMonthStart)
-			.lt("purchase_date", monthStart);
-
-		if (error) throw new Error(`Last month data error: ${error.message}`);
-
-		// Group by currency
-		const currencyMap: Record<string, number> = {};
-		let totalSpent = 0;
-
-		if (data) {
-			for (const receipt of data) {
-				const currency = receipt.currency_code as CurrencyType;
-				const amount = receipt.total_amount || 0;
-
-				currencyMap[currency] = (currencyMap[currency] || 0) + amount;
-				totalSpent += amount;
-			}
-		}
-
-		// Convert to array format
-		const currencyBreakdown = Object.entries(currencyMap).map(
-			([currency, amount]) => ({
-				currency: currency as CurrencyType,
-				amount,
-			}),
-		);
-
-		return {
-			totalSpent,
-			currencyBreakdown,
 		};
 	},
 
@@ -245,10 +187,7 @@ export const spendingMetricsApi = {
 	},
 
 	async getCategories(selectedDate: Date): Promise<CategoryData[]> {
-		const year = selectedDate.getUTCFullYear();
-		const month = selectedDate.getUTCMonth();
-		const monthStart = getUTCDate(year, month, 1);
-		const monthEnd = getUTCDate(year, month + 1, 0);
+		const { monthStart, monthEnd } = getMonthRange(selectedDate);
 
 		const { data, error } = await supabase
 			.schema("grocery")
@@ -340,14 +279,8 @@ export const spendingMetricsApi = {
 
 		// Apply date filtering if provided
 		if (selectedDate) {
-			const year = selectedDate.getUTCFullYear();
-			const month = selectedDate.getUTCMonth();
-			const monthStart = getUTCDate(year, month, 1);
-			const nextMonthStart = getUTCDate(year, month + 1, 1);
-
-			query = query
-				.gte("created_at", monthStart)
-				.lt("created_at", nextMonthStart);
+			const { monthStart, monthEnd } = getMonthRange(selectedDate);
+			query = query.gte("created_at", monthStart).lte("created_at", monthEnd);
 		}
 
 		const { data: receiptItems, error: itemsError } = await query;
@@ -496,10 +429,7 @@ export const spendingMetricsApi = {
 	},
 
 	async getDailySpending(selectedDate: Date): Promise<DailySpending[]> {
-		const year = selectedDate.getUTCFullYear();
-		const month = selectedDate.getUTCMonth();
-		const monthStart = getUTCDate(year, month, 1);
-		const monthEnd = getUTCDate(year, month + 1, 0);
+		const { monthStart, monthEnd } = getMonthRange(selectedDate);
 
 		const { data, error } = await supabase
 			.schema("grocery")
