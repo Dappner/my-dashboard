@@ -8,33 +8,33 @@ import { router } from "./routes";
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
+	interface Register {
+		router: typeof router;
+	}
 }
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      refetchOnWindowFocus: false,
-    },
-  },
+	defaultOptions: {
+		queries: {
+			retry: 2,
+			refetchOnWindowFocus: false,
+		},
+	},
 });
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <SheetProvider>
-          <UserProvider>
-            <TooltipProvider>
-              <RouterProvider router={router} />
-            </TooltipProvider>
-          </UserProvider>
-        </SheetProvider>
-      </AuthProvider>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-    </QueryClientProvider>
-  );
+	return (
+		<QueryClientProvider client={queryClient}>
+			<AuthProvider>
+				<SheetProvider>
+					<UserProvider>
+						<TooltipProvider>
+							<RouterProvider router={router} />
+						</TooltipProvider>
+					</UserProvider>
+				</SheetProvider>
+			</AuthProvider>
+			{/* <ReactQueryDevtools initialIsOpen={false} /> */}
+		</QueryClientProvider>
+	);
 }
 export default App;
