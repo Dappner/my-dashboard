@@ -1,4 +1,4 @@
-import { spendingMetricsApiKeys, spendingMetricsApi } from "@/api/spendingApi";
+import { spendingMetricsApi, spendingMetricsApiKeys } from "@/api/spendingApi";
 import { getMonthYear } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
