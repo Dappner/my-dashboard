@@ -4,7 +4,7 @@ Pipeline for orchestrating the market data update process.
 
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Dict, List, Any, Set, Optional
+from typing import Dict, List, Any
 from pydantic import BaseModel
 
 from src.core.logging_config import setup_logging
@@ -17,6 +17,7 @@ logger = setup_logging(name="pipeline")
 
 class ProcessingResult(BaseModel):
     """Results of processing a set of tickers."""
+
     ticker_count: int = 0
     successful: List[str] = []
     failed: Dict[str, str] = {}
@@ -102,7 +103,9 @@ class Pipeline:
                 processing_time = time.time() - ticker_start
                 self.result.processing_time[symbol] = processing_time
 
-                logger.info(f"Processed {symbol} in {processing_time:.2f}s, updated: {updates}")
+                logger.info(
+                    f"Processed {symbol} in {processing_time:.2f}s, updated: {updates}"
+                )
 
             except Exception as e:
                 # Record failure
@@ -119,20 +122,28 @@ class Pipeline:
         batch_size = min(self.config.batch_size, len(tickers))
         max_workers = min(self.config.max_workers, batch_size)
 
-        logger.info(f"Processing {len(tickers)} tickers in parallel with {max_workers} workers")
+        logger.info(
+            f"Processing {len(tickers)} tickers in parallel with {max_workers} workers"
+        )
 
         # Create batches
-        batches = [tickers[i:i + batch_size] for i in range(0, len(tickers), batch_size)]
+        batches = [
+            tickers[i : i + batch_size] for i in range(0, len(tickers), batch_size)
+        ]
 
         # Process each batch
         for batch_num, batch in enumerate(batches, 1):
-            logger.info(f"Processing batch {batch_num}/{len(batches)} with {len(batch)} tickers")
+            logger.info(
+                f"Processing batch {batch_num}/{len(batches)} with {len(batch)} tickers"
+            )
             batch_start = time.time()
 
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 # Submit all tasks
                 future_to_symbol = {
-                    executor.submit(self._process_single_ticker, ticker): ticker["symbol"]
+                    executor.submit(self._process_single_ticker, ticker): ticker[
+                        "symbol"
+                    ]
                     for ticker in batch
                 }
 
@@ -177,12 +188,14 @@ class Pipeline:
             updates = self.ticker_processor.process_ticker(ticker, self.config)
             processing_time = time.time() - start_time
 
-            logger.info(f"Processed {symbol} in {processing_time:.2f}s, updated: {updates}")
+            logger.info(
+                f"Processed {symbol} in {processing_time:.2f}s, updated: {updates}"
+            )
 
             return {
                 "success": True,
                 "updates": list(updates),
-                "processing_time": processing_time
+                "processing_time": processing_time,
             }
 
         except Exception as e:
@@ -193,5 +206,5 @@ class Pipeline:
             return {
                 "success": False,
                 "error": str(e),
-                "processing_time": processing_time
+                "processing_time": processing_time,
             }

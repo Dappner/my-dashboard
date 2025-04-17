@@ -34,8 +34,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     region = os.environ.get("AWS_REGION", "us-east-1")
 
     logger.info(
-        "Starting Lambda execution",
-        extra={"region": region, "event": event or {}}
+        "Starting Lambda execution", extra={"region": region, "event": event or {}}
     )
 
     try:
@@ -47,7 +46,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         pipeline_config = event_processor.create_pipeline_config()
 
         # Execute the pipeline
-        pipeline = Pipeline(pipeline_config,supabase)
+        pipeline = Pipeline(pipeline_config, supabase)
         result = pipeline.execute()
 
         # Prepare response
@@ -59,36 +58,40 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 "tickerCount": result.ticker_count,
                 "successCount": len(result.successful),
                 "failureCount": len(result.failed),
-                "totalProcessingTime": result.processing_time.get("total", 0)
-            }
+                "totalProcessingTime": result.processing_time.get("total", 0),
+            },
         }
 
-        if event.get('event_record_id'):
+        if event.get("event_record_id"):
             try:
                 status = "completed" if not result.failed else "failed"
                 error_message = None
                 if result.failed:
-                    error_message = ", ".join([f"{k}: {v}" for k, v in result.failed.items()])
+                    error_message = ", ".join(
+                        [f"{k}: {v}" for k, v in result.failed.items()]
+                    )
 
-                supabase.table("ticker_events").update({
-                    "status": status,
-                    "completed_at": datetime.now().isoformat(),
-                    "error_message": error_message,
-                    "details": {"processing_results": result.model_dump()}
-                }).eq("id", event['event_record_id']).execute()
+                supabase.table("ticker_events").update(
+                    {
+                        "status": status,
+                        "completed_at": datetime.now().isoformat(),
+                        "error_message": error_message,
+                        "details": {"processing_results": result.model_dump()},
+                    }
+                ).eq("id", event["event_record_id"]).execute()
 
             except Exception as e:
                 logger.error(f"Failed to update event status: {e}")
 
-        logger.info("Lambda execution completed successfully", extra={"metrics": response["metrics"]})
+        logger.info(
+            "Lambda execution completed successfully",
+            extra={"metrics": response["metrics"]},
+        )
         return response
 
     except Exception as e:
         logger.error(f"Lambda execution failed: {e}", exc_info=True)
-        return {
-            "statusCode": 500,
-            "body": f"Execution failed: {str(e)}"
-        }
+        return {"statusCode": 500, "body": f"Execution failed: {str(e)}"}
 
 
 def _format_result_summary(result) -> str:
@@ -97,7 +100,7 @@ def _format_result_summary(result) -> str:
         f"Processed {result.ticker_count} tickers in {result.processing_time.get('total', 0):.2f}s",
         f"Successful: {len(result.successful)}",
         f"Failed: {len(result.failed)}",
-        ""
+        "",
     ]
 
     # Add details for each ticker
@@ -117,11 +120,9 @@ if __name__ == "__main__":
     # For local testing
     test_event = {
         "type": "update_indices",
-        "config": {
-            "batch_mode": True,
-            "max_workers": 3
-        }
+        "config": {"batch_mode": True, "max_workers": 3},
     }
 
     result = lambda_handler(test_event, None)
     print(json.dumps(result, indent=2))
+

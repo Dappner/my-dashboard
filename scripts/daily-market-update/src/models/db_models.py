@@ -82,7 +82,6 @@ class DBTickerInfo(BaseModel):
 
     # The fields below match your Supabase 'tickers' table
     id: str  # Primary key UUID
-    symbol: str
     name: Optional[str] = None
     quote_type: str = "EQUITY"
     region: Optional[str] = None

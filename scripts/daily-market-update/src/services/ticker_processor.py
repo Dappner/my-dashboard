@@ -2,7 +2,6 @@
 Ticker processor for handling the flow of data processing.
 """
 
-from datetime import date
 from typing import Dict, Set, Any
 
 from src.core.logging_config import setup_logging
@@ -31,9 +30,7 @@ class TickerProcessor:
         self.transformer = ModelTransformer()
 
     def process_ticker(
-            self,
-            ticker: Dict[str, Any],
-            config: PipelineConfig
+        self, ticker: Dict[str, Any], config: PipelineConfig
     ) -> Set[str]:
         """
         Process a single ticker.
@@ -55,7 +52,10 @@ class TickerProcessor:
         updates = set()
 
         # Determine start date
-        last_price_update = self.data_saver.get_last_update_date(ticker_id, "historical_prices")
+        last_price_update = self.data_saver.get_last_update_date(
+            ticker_id, "historical_prices"
+        )
+
         start_date = config.start_date or self.data_fetcher.determine_start_date(
             last_price_update, backfill
         )
@@ -63,6 +63,7 @@ class TickerProcessor:
         # 1. Fetch data from Yahoo Finance
         yf_data = self.data_fetcher.fetch_ticker_data(symbol, exchange, start_date)
 
+        print(yf_data)
         if not yf_data:
             logger.warning(f"Failed to fetch data for {symbol}")
             return updates
@@ -73,7 +74,7 @@ class TickerProcessor:
                 yf_data.price_history, ticker_id
             )
 
-            if db_prices and self.data_saver.save_historical_prices(ticker_id, symbol, db_prices):
+            if db_prices and self.data_saver.save_historical_prices(symbol, db_prices):
                 updates.add("historical_prices")
 
         # 3. Transform and save ticker info
@@ -100,14 +101,16 @@ class TickerProcessor:
                 yf_data.calendar, ticker_id
             )
 
-            if db_events and self.data_saver.save_calendar_events(ticker_id, symbol, db_events):
+            if db_events and self.data_saver.save_calendar_events(
+                ticker_id, symbol, db_events
+            ):
                 updates.add("calendar_events")
 
         # 5. Transform and save fund data
         if (
-                config.process_fund_data and
-                yf_data.fund_data and
-                yf_data.info.quote_type in ["ETF", "MUTUALFUND"]
+            config.process_fund_data
+            and yf_data.fund_data
+            and yf_data.info.quote_type in ["ETF", "MUTUALFUND"]
         ):
             fund_data = self.transformer.transform_fund_holdings(
                 yf_data.fund_data, ticker_id
@@ -118,7 +121,7 @@ class TickerProcessor:
                 symbol,
                 fund_data["holdings"],
                 fund_data["sectors"],
-                fund_data["assets"]
+                fund_data["assets"],
             )
 
             updates.update(fund_updates)

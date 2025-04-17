@@ -3,12 +3,17 @@ Data saver module for storing data in the database.
 """
 
 from datetime import date
-from typing import List, Dict, Set, Optional, Any, Tuple
+from typing import List, Set, Optional
 
 from src.core.logging_config import setup_logging
 from src.models.db_models import (
-    DBHistoricalPrice, DBTickerInfo, DBFinanceDaily,
-    DBCalendarEvent, DBFundHolding, DBSectorWeighting, DBAssetClass
+    DBHistoricalPrice,
+    DBTickerInfo,
+    DBFinanceDaily,
+    DBCalendarEvent,
+    DBFundHolding,
+    DBSectorWeighting,
+    DBAssetClass,
 )
 
 logger = setup_logging(name="data_saver")
@@ -53,15 +58,20 @@ class DataSaver:
                 date_str = response.data[0].get("date")
                 if date_str:
                     from datetime import datetime
+
                     return datetime.strptime(date_str, "%Y-%m-%d").date()
 
             return None
 
         except Exception as e:
-            logger.error(f"Failed to get last update date for {ticker_id} in {table_name}: {e}")
+            logger.error(
+                f"Failed to get last update date for {ticker_id} in {table_name}: {e}"
+            )
             return None
 
-    def should_update(self, last_update_date: Optional[date], threshold_days: int = 1) -> bool:
+    def should_update(
+        self, last_update_date: Optional[date], threshold_days: int = 1
+    ) -> bool:
         """
         Determine if an update should be performed based on last update date.
 
@@ -79,10 +89,7 @@ class DataSaver:
         return (today - last_update_date).days >= threshold_days
 
     def save_historical_prices(
-            self,
-            ticker_id: str,
-            symbol: str,
-            prices: List[DBHistoricalPrice]
+        self, symbol: str, prices: List[DBHistoricalPrice]
     ) -> int:
         """
         Save historical price data to the database.
@@ -109,6 +116,7 @@ class DataSaver:
                 .upsert(price_dicts, on_conflict="ticker_id,date")
                 .execute()
             )
+            print(response)
 
             saved_count = len(price_dicts)
             logger.info(f"Saved {saved_count} price records for {symbol}")
@@ -118,10 +126,7 @@ class DataSaver:
             logger.error(f"Failed to save price data for {symbol}: {e}", exc_info=True)
             return 0
 
-    def update_ticker_info(
-            self,
-            ticker_info: DBTickerInfo
-    ) -> bool:
+    def update_ticker_info(self, ticker_info: DBTickerInfo) -> bool:
         """
         Update ticker information in the database.
 
@@ -131,8 +136,6 @@ class DataSaver:
         Returns:
             True if successful, False otherwise
         """
-        if not ticker_info:
-            return False
 
         try:
             # Convert model to dictionary for Supabase
@@ -149,10 +152,7 @@ class DataSaver:
             logger.error(f"Failed to update ticker info for {ticker_info.symbol}: {e}")
             return False
 
-    def save_finance_daily(
-            self,
-            finance_data: DBFinanceDaily
-    ) -> bool:
+    def save_finance_daily(self, finance_data: DBFinanceDaily) -> bool:
         """
         Save daily finance data to the database.
 
@@ -178,14 +178,13 @@ class DataSaver:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to save finance data for {finance_data.ticker_id}: {e}")
+            logger.error(
+                f"Failed to save finance data for {finance_data.ticker_id}: {e}"
+            )
             return False
 
     def save_calendar_events(
-            self,
-            ticker_id: str,
-            symbol: str,
-            events: List[DBCalendarEvent]
+        self, ticker_id: str, symbol: str, events: List[DBCalendarEvent]
     ) -> bool:
         """
         Save calendar events to the database.
@@ -209,11 +208,17 @@ class DataSaver:
                 # If date is missing, use today's date or skip this event
                 if not event.date:
                     # For earnings events, use the first earnings date if available
-                    if event.event_type == "earnings" and event.earnings_dates and len(event.earnings_dates) > 0:
+                    if (
+                        event.event_type == "earnings"
+                        and event.earnings_dates
+                        and len(event.earnings_dates) > 0
+                    ):
                         event.date = event.earnings_dates[0]
                     else:
                         # Skip events with no date - they'll cause constraint violations
-                        logger.warning(f"Skipping {event.event_type} event for {symbol} with no date")
+                        logger.warning(
+                            f"Skipping {event.event_type} event for {symbol} with no date"
+                        )
                         continue
                 valid_events.append(event)
 
@@ -227,8 +232,7 @@ class DataSaver:
 
             # Use on_conflict="ticker_id,date,event_type" to properly handle the unique constraint
             self.supabase.table("calendar_events").upsert(
-                event_dicts,
-                on_conflict="ticker_id,date,event_type"
+                event_dicts, on_conflict="ticker_id,date,event_type"
             ).execute()
 
             logger.info(f"Saved {len(valid_events)} calendar events for {symbol}")
@@ -239,12 +243,12 @@ class DataSaver:
             return False
 
     def save_fund_data(
-            self,
-            ticker_id: str,
-            symbol: str,
-            holdings: List[DBFundHolding],
-            sectors: List[DBSectorWeighting],
-            assets: List[DBAssetClass]
+        self,
+        ticker_id: str,
+        symbol: str,
+        holdings: List[DBFundHolding],
+        sectors: List[DBSectorWeighting],
+        assets: List[DBAssetClass],
     ) -> Set[str]:
         """
         Save fund-specific data to the database.
@@ -266,8 +270,7 @@ class DataSaver:
             try:
                 holding_dicts = [h.model_dump(exclude_none=True) for h in holdings]
                 self.supabase.table("fund_top_holdings").upsert(
-                    holding_dicts,
-                    on_conflict="ticker_id,holding_symbol"
+                    holding_dicts, on_conflict="ticker_id,holding_symbol"
                 ).execute()
                 updates.add("fund_top_holdings")
                 logger.info(f"Saved {len(holdings)} fund holdings for {symbol}")
@@ -279,8 +282,7 @@ class DataSaver:
             try:
                 sector_dicts = [s.model_dump(exclude_none=True) for s in sectors]
                 self.supabase.table("fund_sector_weightings").upsert(
-                    sector_dicts,
-                    on_conflict="ticker_id,sector_name"
+                    sector_dicts, on_conflict="ticker_id,sector_name"
                 ).execute()
                 updates.add("fund_sector_weightings")
                 logger.info(f"Saved {len(sectors)} sector weightings for {symbol}")
@@ -292,8 +294,7 @@ class DataSaver:
             try:
                 asset_dicts = [a.model_dump(exclude_none=True) for a in assets]
                 self.supabase.table("fund_asset_classes").upsert(
-                    asset_dicts,
-                    on_conflict="ticker_id,asset_class"
+                    asset_dicts, on_conflict="ticker_id,asset_class"
                 ).execute()
                 updates.add("fund_asset_classes")
                 logger.info(f"Saved {len(assets)} asset classes for {symbol}")
@@ -301,3 +302,4 @@ class DataSaver:
                 logger.error(f"Failed to save asset classes for {symbol}: {e}")
 
         return updates
+
