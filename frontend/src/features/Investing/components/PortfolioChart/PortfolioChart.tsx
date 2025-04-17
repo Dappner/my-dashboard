@@ -25,12 +25,6 @@ type chartConfigType = {
   indexFund: { label: string; color: string };
 };
 
-export const chartConfig: chartConfigType = {
-  totalPortfolio: { label: "Total Value", color: "#3b82f6" },
-  portfolio: { label: "Portfolio %", color: "#10b981" },
-  indexFund: { label: "Benchmark %", color: "#f97316" },
-};
-
 interface PortfolioChartProps {
   timeframe: Timeframe;
   type: "absolute" | "percentual";
@@ -40,6 +34,11 @@ export default function PortfolioChart({
   timeframe,
   type,
 }: PortfolioChartProps) {
+  const chartConfig: chartConfigType = {
+    totalPortfolio: { label: "Total Value", color: "#3b82f6" },
+    portfolio: { label: "Portfolio %", color: "#10b981" },
+    indexFund: { label: "Benchmark %", color: "#f97316" },
+  };
   const { user } = useUser();
   const tickerId = user?.tracking_ticker_id;
 
