@@ -1,28 +1,30 @@
+import { getMonthYear } from "@/lib/utils";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { format, parse } from "date-fns";
 
 export function useMonthParam(defaultMonth = new Date()) {
-	// Get the month from search params instead of path params
-	const { month } = useSearch({ strict: false });
-	const navigate = useNavigate();
+  // Get the month from search params instead of path params
+  const { month } = useSearch({ strict: false });
+  const navigate = useNavigate();
 
-	// Parse month from URL if available, or use default
-	const selectedDate = month
-		? parse(month, "yyyy-MM", new Date())
-		: defaultMonth;
+  // Parse month from URL if available, or use default
+  const selectedDate = month
+    ? parse(month, "yyyy-MM", new Date())
+    : defaultMonth;
 
-	// Function to update URL when month changes
-	const setSelectedDate = (newDate: Date) => {
-		const formattedMonth = format(newDate, "yyyy-MM");
+  // Function to update URL when month changes
+  const setSelectedDate = (newDate: Date) => {
+    const formattedMonth = format(newDate, "yyyy-MM");
 
-		navigate({
-			search: (prev) => ({
-				...prev,
-				month: formattedMonth,
-			}),
-			replace: true,
-		});
-	};
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        month: formattedMonth,
+      }),
+      replace: true,
+    });
+  };
+  const cacheKey = getMonthYear(selectedDate);
 
-	return { selectedDate, setSelectedDate };
+  return { selectedDate, setSelectedDate, cacheKey };
 }

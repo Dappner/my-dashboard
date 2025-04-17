@@ -1,13 +1,12 @@
 import { receiptsApi, receiptsApiKeys } from "@/api/receiptsApi";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 
-export const useReceipts = () => {
-	return useInfiniteQuery({
-		queryKey: receiptsApiKeys.all,
-		queryFn: ({ pageParam = 1 }) => {
-			return receiptsApi.getReceiptsWithItems(pageParam);
-		},
-		initialPageParam: 1,
-		getNextPageParam: (lastPage) => lastPage.nextPage,
-	});
+export const useReceipts = (selectedDate: Date) => {
+  const cacheKey = format(selectedDate, "yyyy-MM");
+  return useQuery({
+    queryKey: receiptsApiKeys.monthlyData(cacheKey),
+    queryFn: () => receiptsApi.getReceiptsWithItems(selectedDate),
+    enabled: !!selectedDate,
+  });
 };
