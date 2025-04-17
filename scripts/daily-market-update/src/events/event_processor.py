@@ -7,7 +7,7 @@ and configure the pipeline based on the event type.
 
 from datetime import date, datetime
 from enum import Enum
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, field_validator
 from src.core.logging_config import setup_logging
 from src.models.db_models import DBQuoteType
@@ -19,21 +19,21 @@ class EventType(str, Enum):
     """Types of events that can be processed by the pipeline."""
 
     # Regular processing events
-    SCHEDULED = "scheduled"      # Regular scheduled update for all tickers
-    UPDATE = "update"            # Force update specific tickers
+    SCHEDULED = "scheduled"  # Regular scheduled update for normal tickers
+    UPDATE = "update"  # Force update specific tickers
 
     # Specialized processing events
-    INITIALIZE = "initialize"    # Process new tickers with full backfill
-    BACKFILL = "backfill"        # Historical data backfill for existing tickers
+    INITIALIZE = "initialize"  # Process new tickers with full backfill
+    BACKFILL = "backfill"  # Historical data backfill for existing tickers
 
     # Data type specific events
     UPDATE_INDICES = "update_indices"  # Update market indices
-    UPDATE_ETFS = "update_etfs"        # Update ETFs
+    UPDATE_ETFS = "update_etfs"  # Update ETFs
     UPDATE_EQUITIES = "update_equities"  # Update regular stocks
-    UPDATE_FOREX = "update_forex"      # Update forex rates
+    UPDATE_FOREX = "update_forex"  # Update forex rates
 
     # Batch processing
-    BATCH = "batch"              # Process a specific batch of tickers
+    BATCH = "batch"  # Process a specific batch of tickers
 
 
 class PipelineConfig(BaseModel):
@@ -46,15 +46,15 @@ class PipelineConfig(BaseModel):
     process_fund_data: bool = True
 
     # Processing behavior
-    force_update: bool = False   # Update regardless of last update timestamp
-    backfill: bool = False       # Perform historical backfill
+    force_update: bool = False  # Update regardless of last update timestamp
+    backfill: bool = False  # Perform historical backfill
 
     # Date range
     start_date: Optional[date] = None
 
     # Ticker selection
     specific_tickers: Optional[List[str]] = None
-    ticker_types: Optional[DBQuoteType] = None# e.g., ["EQUITY", "ETF", "INDEX"]
+    ticker_types: Optional[DBQuoteType] = None  # e.g., ["EQUITY", "ETF", "INDEX"]
 
     # Batch processing
     batch_mode: bool = False
@@ -175,6 +175,7 @@ class EventProcessor:
             pass
         if event_type == EventType.UPDATE_INDICES:
             config.ticker_types = ["INDEX"]
+            config.process_calendar = False
 
         elif event_type == EventType.UPDATE:
             # Force update specific tickers
@@ -185,14 +186,18 @@ class EventProcessor:
             # Initialize new tickers with backfill
             config.backfill = True
             config.force_update = True
-            config.start_date = self.event.start_date or date(date.today().year - 5, 1, 1)
+            config.start_date = self.event.start_date or date(
+                date.today().year - 5, 1, 1
+            )
             config.specific_tickers = self.event.tickers
 
         elif event_type == EventType.BACKFILL:
             # Historical data backfill
             config.backfill = True
             if not self.event.start_date:
-                logger.warning("No start_date provided for backfill event. Using default (5 years).")
+                logger.warning(
+                    "No start_date provided for backfill event. Using default (5 years)."
+                )
                 config.start_date = date(date.today().year - 5, 1, 1)
             else:
                 config.start_date = self.event.start_date
@@ -270,3 +275,4 @@ class EventProcessor:
 
         if self.event.config.max_workers is not None:
             config.max_workers = self.event.config.max_workers
+

@@ -9,7 +9,7 @@ from datetime import date, timedelta
 from typing import Optional
 
 from src.core.logging_config import setup_logging
-from src.models.source_models import YFTickerData
+from src.models.source_models import YFTickerData, YFPriceHistory
 
 logger = setup_logging(name="data_fetcher")
 
@@ -102,9 +102,17 @@ class DataFetcher:
                 # Create YFinance ticker object
                 ticker = yf.Ticker(yahoo_symbol)
 
-                data = ticker.history(
-                    start=start_date, end=date.today(), auto_adjust=True
+                # TODO: Refine Flow
+                # Fetch history data explicitly with proper parameters
+                history_data = ticker.history(
+                    start=start_date,
+                    end=date.today() + timedelta(days=1),  # Include today
+                    auto_adjust=True,
                 )
+
+                # Check if we received valid data
+                if history_data is None or history_data.empty:
+                    logger.warning(f"No historical data returned for {symbol}")
                 # Convert to our structured model (the method in the fetcher doesn't work....)
                 # We should try to get all the data here and then drop it into the model
                 result = YFTickerData.from_yfinance(
@@ -113,6 +121,21 @@ class DataFetcher:
                     exchange=exchange,
                 )
 
+                # If the source model didn't handle the price history correctly, set it manually
+                if (
+                    result
+                    and (
+                        result.price_history is None
+                        or not hasattr(result.price_history, "data")
+                    )
+                    and not history_data.empty
+                ):
+                    result.price_history = YFPriceHistory.from_dataframe(history_data)
+
+                if result:
+                    logger.info(
+                        f"Successfully fetched data for {symbol} with {len(history_data) if not history_data.empty else 0} price records"
+                    )
                 return result
 
             except Exception as e:

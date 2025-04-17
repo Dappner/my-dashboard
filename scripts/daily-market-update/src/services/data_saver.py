@@ -116,7 +116,6 @@ class DataSaver:
                 .upsert(price_dicts, on_conflict="ticker_id,date")
                 .execute()
             )
-            print(response)
 
             saved_count = len(price_dicts)
             logger.info(f"Saved {saved_count} price records for {symbol}")
@@ -149,7 +148,7 @@ class DataSaver:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to update ticker info for {ticker_info.symbol}: {e}")
+            logger.error(f"Failed to update ticker info for {ticker_info.name}: {e}")
             return False
 
     def save_finance_daily(self, finance_data: DBFinanceDaily) -> bool:
@@ -302,4 +301,3 @@ class DataSaver:
                 logger.error(f"Failed to save asset classes for {symbol}: {e}")
 
         return updates
-

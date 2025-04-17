@@ -63,7 +63,6 @@ class TickerProcessor:
         # 1. Fetch data from Yahoo Finance
         yf_data = self.data_fetcher.fetch_ticker_data(symbol, exchange, start_date)
 
-        print(yf_data)
         if not yf_data:
             logger.warning(f"Failed to fetch data for {symbol}")
             return updates
