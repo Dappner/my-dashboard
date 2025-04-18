@@ -22,6 +22,8 @@ node_modules
 # Environment variables
 /frontend/.env
 /frontend/.env.*
+/scripts/**/.env*
+.env/scripts/*/.env.*
 !.env.example
 
 # testing
