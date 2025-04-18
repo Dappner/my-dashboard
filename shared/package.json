@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsup src/index.ts --dts --format esm,cjs",
     "watch": "tsup src/index.ts --dts --format esm,cjs --watch",
-    "update-types": "npx supabase gen types typescript --project-id wwzyziohidsxmjfkoowh --schema public --schema grocery > src/supabase.ts"
+    "update-types": "npx supabase gen types typescript --project-id wwzyziohidsxmjfkoowh --schema public --schema grocery --schema chess > src/supabase.ts"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0"

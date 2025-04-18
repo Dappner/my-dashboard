@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "update-types": "npx supabase gen types typescript --project-id wwzyziohidsxmjfkoowh --schema public --schema grocery > src/types/supabase.ts",
+    "update-types": "npx supabase gen types typescript --project-id wwzyziohidsxmjfkoowh --schema public --schema grocery --schema chess > src/types/supabase.ts",
     "format": "pnpm biome format --write ./"
   },
   "dependencies": {

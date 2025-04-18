@@ -7,6 +7,146 @@ export type Json =
   | Json[]
 
 export type Database = {
+  chess: {
+    Tables: {
+      games: {
+        Row: {
+          created_at: string | null
+          duration: number | null
+          eco_url: string | null
+          end_time: string
+          game_url: string
+          game_uuid: string
+          id: string
+          is_rated: boolean
+          is_win: boolean
+          move_count: number | null
+          opponent_accuracy: number | null
+          opponent_rating: number
+          opponent_username: string
+          pgn: string
+          platform: string
+          result_by: Database["chess"]["Enums"]["result_type"] | null
+          start_time: string
+          time_class: Database["chess"]["Enums"]["time_class"]
+          time_control: string
+          user_accuracy: number | null
+          user_color: Database["chess"]["Enums"]["color_type"]
+          user_id: string
+          user_rating: number
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: number | null
+          eco_url?: string | null
+          end_time: string
+          game_url: string
+          game_uuid: string
+          id?: string
+          is_rated: boolean
+          is_win: boolean
+          move_count?: number | null
+          opponent_accuracy?: number | null
+          opponent_rating: number
+          opponent_username: string
+          pgn: string
+          platform?: string
+          result_by?: Database["chess"]["Enums"]["result_type"] | null
+          start_time: string
+          time_class: Database["chess"]["Enums"]["time_class"]
+          time_control: string
+          user_accuracy?: number | null
+          user_color: Database["chess"]["Enums"]["color_type"]
+          user_id: string
+          user_rating: number
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number | null
+          eco_url?: string | null
+          end_time?: string
+          game_url?: string
+          game_uuid?: string
+          id?: string
+          is_rated?: boolean
+          is_win?: boolean
+          move_count?: number | null
+          opponent_accuracy?: number | null
+          opponent_rating?: number
+          opponent_username?: string
+          pgn?: string
+          platform?: string
+          result_by?: Database["chess"]["Enums"]["result_type"] | null
+          start_time?: string
+          time_class?: Database["chess"]["Enums"]["time_class"]
+          time_control?: string
+          user_accuracy?: number | null
+          user_color?: Database["chess"]["Enums"]["color_type"]
+          user_id?: string
+          user_rating?: number
+        }
+        Relationships: []
+      }
+      sync_status: {
+        Row: {
+          created_at: string | null
+          id: number
+          last_games_sync_month: string | null
+          last_sync_at: string | null
+          platform: string
+          sync_status: string
+          updated_at: string | null
+          user_id: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          last_games_sync_month?: string | null
+          last_sync_at?: string | null
+          platform?: string
+          sync_status?: string
+          updated_at?: string | null
+          user_id?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          last_games_sync_month?: string | null
+          last_sync_at?: string | null
+          platform?: string
+          sync_status?: string
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      color_type: "black" | "white"
+      result_type:
+        | "abandoned"
+        | "checkmated"
+        | "insufficient"
+        | "repetition"
+        | "resigned"
+        | "stalemate"
+        | "timeout"
+        | "timevsinsufficient"
+      time_class: "blitz" | "bullet" | "daily" | "rapid"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   grocery: {
     Tables: {
       categories: {
@@ -2351,6 +2491,22 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  chess: {
+    Enums: {
+      color_type: ["black", "white"],
+      result_type: [
+        "abandoned",
+        "checkmated",
+        "insufficient",
+        "repetition",
+        "resigned",
+        "stalemate",
+        "timeout",
+        "timevsinsufficient",
+      ],
+      time_class: ["blitz", "bullet", "daily", "rapid"],
+    },
+  },
   grocery: {
     Enums: {
       currency_type: ["EUR", "USD", "CAD", "GBP", "JPY", "AUD", "CNY"],
