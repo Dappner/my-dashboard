@@ -68,6 +68,7 @@ const routeTree = rootRoute.addChildren([
     ...investingRoutes,
     ...spendingRoutes,
     ...readingRoutes,
+    accountRoute,
     habitsRoute,
     splatRoute,
   ]),
