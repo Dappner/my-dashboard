@@ -129,7 +129,9 @@ export type Database = {
         Row: {
           day: string | null
           games_played: number | null
+          losses: number | null
           user_id: string | null
+          wins: number | null
         }
         Relationships: []
       }

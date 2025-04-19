@@ -15,10 +15,10 @@ export default function ChessKpiCards() {
 
 	if (isLoading || !current) {
 		return (
-			<div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+			<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 				{[...Array(4)].map((_, i) => (
 					// biome-ignore lint/suspicious/noArrayIndexKey: Fine for skeleton
-					<Card key={i} className="p-4 animate-pulse">
+					<Card key={i} className="p-4 animate-pulse h-28">
 						<div className="flex items-center justify-between mb-4">
 							<Skeleton className="h-4 w-20 bg-gray-200" />
 							<Skeleton className="h-6 w-6 rounded-full bg-gray-200" />
@@ -66,7 +66,7 @@ export default function ChessKpiCards() {
 			count: wins,
 			previousCount: prevWins,
 			label: "Wins",
-			sublabel: `${winRate.toFixed(2)}% win rate`,
+			sublabel: `${winRate.toFixed(1)}% win rate`,
 			trend: winsTrend,
 			icon: <TrophyIcon className="h-5 w-5" />,
 		},
@@ -80,7 +80,7 @@ export default function ChessKpiCards() {
 		},
 		{
 			count: minutes,
-			previousCount: Math.floor(prevSeconds / 3600),
+			previousCount: Math.floor(prevSeconds / 60),
 			label: "Time Played",
 			sublabel: "minutes",
 			trend: timeTrend,
@@ -89,7 +89,7 @@ export default function ChessKpiCards() {
 	];
 
 	return (
-		<div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+		<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 			{metrics.map((metric) => (
 				<HabitMetrics
 					key={metric.label}
@@ -97,7 +97,7 @@ export default function ChessKpiCards() {
 					previousCount={metric.previousCount}
 					label={metric.label}
 					sublabel={metric.sublabel}
-					trend={Number(metric.trend.toFixed(2))}
+					trend={Number(metric.trend.toFixed(1))}
 					icon={metric.icon}
 				/>
 			))}
