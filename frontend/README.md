@@ -40,6 +40,11 @@
 - Lambda function that fetches data for ticker once it is added to the tickers table / the backfill is set to true.
   - Maybe a button to "run lambda for that ticker"
 - Currency Conversion for Transactions and Holdings etc...
+- On TickerView
+  - Performance on time frame vs
+    - Sector and Industry
+- For all Charts > 1 YR
+  - It should be weekly, not daily data... Or some other idea
 
 **Spending**
 
@@ -60,6 +65,11 @@
 - Hookup API to chess to scrape whether I played Chess that Day
 - Add persistQueryClient for some data (forex....?)
   - <https://tanstack.com/query/latest/docs/framework/react/plugins/persistQueryClient>
+  - Industries (24.7kB
+  - Sectors
+  - We also call these several times in different ways e.g. (Sectors?key="industries") etc...
+  - Entity mappings call them alot
+- Bring back crumbs?
 
 # FORMULAS USED
 
