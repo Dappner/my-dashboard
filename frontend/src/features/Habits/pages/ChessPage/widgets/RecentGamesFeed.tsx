@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMonthParam } from "@/hooks/useMonthParam";
 import { format } from "date-fns";
 import { CheckCircleIcon, XCircleIcon } from "lucide-react";
-import { useMonthParam } from "@/hooks/useMonthParam";
 import useRecentGames from "../hooks/useRecentGames";
 
 export default function RecentGamesFeed() {

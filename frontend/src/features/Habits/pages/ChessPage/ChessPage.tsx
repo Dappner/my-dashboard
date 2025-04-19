@@ -1,10 +1,10 @@
 import { PageContainer } from "@/components/layout/components/PageContainer";
-import RatingProgressionCharts from "./widgets/RatingProgressionCharts";
 import { MonthSwitcher } from "@/features/Spending/components/MonthSwitcher";
 import { useMonthParam } from "@/hooks/useMonthParam";
-import ChessKpiCards from "./widgets/ChessKpiCards";
-import RecentGamesFeed from "./widgets/RecentGamesFeed";
 import { ChessCalendar } from "./widgets/ChessCalendar";
+import ChessKpiCards from "./widgets/ChessKpiCards";
+import RatingProgressionCharts from "./widgets/RatingProgressionCharts";
+import RecentGamesFeed from "./widgets/RecentGamesFeed";
 
 export default function ChessPage() {
 	const { selectedDate, setSelectedDate } = useMonthParam();

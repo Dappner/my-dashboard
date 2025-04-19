@@ -1,7 +1,7 @@
 import HabitsPage from "@/features/Habits/HabitsPage";
+import ChessPage from "@/features/Habits/pages/ChessPage/ChessPage";
 import { createRoute } from "@tanstack/react-router";
 import { layoutRoute } from ".";
-import ChessPage from "@/features/Habits/pages/ChessPage/ChessPage";
 
 export const habitsRoute = createRoute({
 	getParentRoute: () => layoutRoute,

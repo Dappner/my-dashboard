@@ -1,4 +1,7 @@
+import type { RatingProgession } from "@/api/chessApi";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMonthParam } from "@/hooks/useMonthParam";
 import {
 	Area,
 	AreaChart,
@@ -9,9 +12,6 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-import { Card } from "@/components/ui/card";
-import { useMonthParam } from "@/hooks/useMonthParam";
-import type { RatingProgession } from "@/api/chessApi";
 import useRatingProgression from "../hooks/useRatingProgression";
 
 // Configuration per time class

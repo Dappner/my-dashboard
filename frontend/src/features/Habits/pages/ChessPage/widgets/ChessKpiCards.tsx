@@ -1,10 +1,10 @@
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { HabitMetrics } from "@/features/Habits/components/HabitMetrics";
 import { useMonthParam } from "@/hooks/useMonthParam";
 import { addMonths } from "date-fns";
-import { CalendarIcon, TrophyIcon, StarIcon, ClockIcon } from "lucide-react";
+import { CalendarIcon, ClockIcon, StarIcon, TrophyIcon } from "lucide-react";
 import useMonthlySummary from "../hooks/useMonthlySummary";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ChessKpiCards() {
 	const { selectedDate } = useMonthParam();

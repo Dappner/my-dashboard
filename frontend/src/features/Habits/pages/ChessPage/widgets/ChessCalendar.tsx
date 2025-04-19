@@ -1,9 +1,11 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useMonthParam } from "@/hooks/useMonthParam";
 import {
 	eachDayOfInterval,
 	endOfMonth,
@@ -12,8 +14,6 @@ import {
 	startOfMonth,
 } from "date-fns";
 import useMonthlyActivity from "../hooks/useMonthlyActivity";
-import { useMonthParam } from "@/hooks/useMonthParam";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export const ChessCalendar: React.FC = () => {
 	const { selectedDate } = useMonthParam();
