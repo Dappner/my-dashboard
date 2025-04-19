@@ -3,13 +3,13 @@ import {
 	rollingTimeframes,
 } from "@/components/controls/CustomTimeframeControl";
 import HabitsPage from "@/features/Habits/HabitsPage";
+import MockHabitsPage from "@/features/Habits/MockHabitsPage";
 import ChessPage from "@/features/Habits/pages/ChessPage/ChessPage";
 import type { Timeframe } from "@my-dashboard/shared";
 import { createRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { z } from "zod";
 import { layoutRoute } from ".";
-import MockHabitsPage from "@/features/Habits/MockHabitsPage";
 
 const allTimeframes: Timeframe[] = [
 	...calendarTimeframes,

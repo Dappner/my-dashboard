@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTimeframeParams } from "@/hooks/useTimeframeParams";
+import { capitalizeFirstLetter } from "@/lib/utils";
 import { format } from "date-fns";
 import {
 	ArrowDown,
@@ -13,7 +14,6 @@ import {
 	XCircle,
 } from "lucide-react";
 import { useRecentGames } from "../hooks/useChessHooks";
-import { capitalizeFirstLetter } from "@/lib/utils";
 
 const getRatingChange = (
 	userRating: number,

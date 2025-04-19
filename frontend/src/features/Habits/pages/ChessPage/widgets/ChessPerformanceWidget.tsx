@@ -6,7 +6,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Select,
 	SelectContent,
@@ -14,9 +13,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useTimeframeParams } from "@/hooks/useTimeframeParams";
+import { chessRoute } from "@/routes/habits-routing";
+import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ChevronDown, ChevronUp, TrophyIcon } from "lucide-react";
+import { useState } from "react";
 import {
 	Area,
 	AreaChart,
@@ -29,9 +32,6 @@ import {
 import useRatingProgression, {
 	useTimeframeSummary,
 } from "../hooks/useChessHooks";
-import { Link } from "@tanstack/react-router";
-import { chessRoute } from "@/routes/habits-routing";
-import { useState } from "react";
 
 // Define the rating class types
 type RatingClass = "all" | "bullet" | "blitz" | "rapid" | "daily";

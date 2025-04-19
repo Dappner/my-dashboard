@@ -1,3 +1,4 @@
+import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -6,27 +7,26 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, subDays } from "date-fns";
 import {
 	CalendarIcon,
-	Crown,
 	ChevronLeft,
 	ChevronRight,
 	CodeIcon,
+	Crown,
 	GitBranchIcon,
 	TrophyIcon,
 	ZapIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { ChessActivityCard } from "./components/ChessActivityCard";
+import { ContributionHeatmap } from "./components/ContributionHeatMap";
 import { HabitCalendar } from "./components/HabitCalendar";
 import { HabitHeader } from "./components/HabitHeader";
 import { HabitMetrics } from "./components/HabitMetrics";
 import { HabitStreakCard } from "./components/HabitStreakCard";
 import { TimeTrackingChart } from "./components/TimeTrackingChart";
-import { ChessActivityCard } from "./components/ChessActivityCard";
-import { ContributionHeatmap } from "./components/ContributionHeatMap";
 
 // Static data for UI mockup
 const mockHabits = [
