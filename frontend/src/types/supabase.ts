@@ -125,7 +125,37 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      monthly_activity: {
+        Row: {
+          day: string | null
+          games_played: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      monthly_summary: {
+        Row: {
+          avg_accuracy: number | null
+          month: string | null
+          total_games: number | null
+          total_time_spent_seconds: number | null
+          user_id: string | null
+          win_rate_pct: number | null
+          wins: number | null
+        }
+        Relationships: []
+      }
+      rating_progression: {
+        Row: {
+          blitz_rating: number | null
+          bullet_rating: number | null
+          daily_rating: number | null
+          day: string | null
+          rapid_rating: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

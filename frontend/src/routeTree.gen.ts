@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as SpendingRoutesImport } from './routes/spending-routes'
 import { Route as ReadingRoutesImport } from './routes/reading-routes'
 import { Route as InvestingRoutesImport } from './routes/investing-routes'
+import { Route as HabitsRoutingImport } from './routes/habits-routing'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -36,6 +37,12 @@ const InvestingRoutesRoute = InvestingRoutesImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const HabitsRoutingRoute = HabitsRoutingImport.update({
+  id: '/habits-routing',
+  path: '/habits-routing',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -51,6 +58,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/habits-routing': {
+      id: '/habits-routing'
+      path: '/habits-routing'
+      fullPath: '/habits-routing'
+      preLoaderRoute: typeof HabitsRoutingImport
       parentRoute: typeof rootRoute
     }
     '/investing-routes': {
@@ -81,6 +95,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/habits-routing': typeof HabitsRoutingRoute
   '/investing-routes': typeof InvestingRoutesRoute
   '/reading-routes': typeof ReadingRoutesRoute
   '/spending-routes': typeof SpendingRoutesRoute
@@ -88,6 +103,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/habits-routing': typeof HabitsRoutingRoute
   '/investing-routes': typeof InvestingRoutesRoute
   '/reading-routes': typeof ReadingRoutesRoute
   '/spending-routes': typeof SpendingRoutesRoute
@@ -96,6 +112,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/habits-routing': typeof HabitsRoutingRoute
   '/investing-routes': typeof InvestingRoutesRoute
   '/reading-routes': typeof ReadingRoutesRoute
   '/spending-routes': typeof SpendingRoutesRoute
@@ -103,12 +120,23 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/investing-routes' | '/reading-routes' | '/spending-routes'
+  fullPaths:
+    | '/'
+    | '/habits-routing'
+    | '/investing-routes'
+    | '/reading-routes'
+    | '/spending-routes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/investing-routes' | '/reading-routes' | '/spending-routes'
+  to:
+    | '/'
+    | '/habits-routing'
+    | '/investing-routes'
+    | '/reading-routes'
+    | '/spending-routes'
   id:
     | '__root__'
     | '/'
+    | '/habits-routing'
     | '/investing-routes'
     | '/reading-routes'
     | '/spending-routes'
@@ -117,6 +145,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HabitsRoutingRoute: typeof HabitsRoutingRoute
   InvestingRoutesRoute: typeof InvestingRoutesRoute
   ReadingRoutesRoute: typeof ReadingRoutesRoute
   SpendingRoutesRoute: typeof SpendingRoutesRoute
@@ -124,6 +153,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HabitsRoutingRoute: HabitsRoutingRoute,
   InvestingRoutesRoute: InvestingRoutesRoute,
   ReadingRoutesRoute: ReadingRoutesRoute,
   SpendingRoutesRoute: SpendingRoutesRoute,
@@ -140,6 +170,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/habits-routing",
         "/investing-routes",
         "/reading-routes",
         "/spending-routes"
@@ -147,6 +178,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/habits-routing": {
+      "filePath": "habits-routing.tsx"
     },
     "/investing-routes": {
       "filePath": "investing-routes.tsx"
