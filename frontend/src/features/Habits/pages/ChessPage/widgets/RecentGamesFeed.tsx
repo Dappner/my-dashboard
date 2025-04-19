@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMonthParam } from "@/hooks/useMonthParam";
+import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import { format } from "date-fns";
 import {
 	ArrowDown,
@@ -13,7 +13,7 @@ import {
 	User2,
 	XCircle,
 } from "lucide-react";
-import useRecentGames from "../hooks/useRecentGames";
+import { useRecentGames } from "../hooks/useChessHooks";
 
 // Function to determine rating change indicator and color
 const getRatingChange = (
@@ -56,8 +56,8 @@ const getTimeClassColor = (timeClass: string) => {
 };
 
 export default function RecentGamesFeed() {
-	const { selectedDate } = useMonthParam();
-	const { data, isLoading } = useRecentGames(selectedDate, 10);
+	const { timeframe, date } = useTimeframeParams();
+	const { data, isLoading } = useRecentGames(date, timeframe);
 
 	if (isLoading) {
 		return (

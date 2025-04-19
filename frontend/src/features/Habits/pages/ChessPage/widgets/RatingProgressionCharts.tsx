@@ -1,7 +1,7 @@
 import type { RatingProgession } from "@/api/chessApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMonthParam } from "@/hooks/useMonthParam";
+import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import {
 	Area,
 	AreaChart,
@@ -12,7 +12,7 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-import useRatingProgression from "../hooks/useRatingProgression";
+import useRatingProgression from "../hooks/useChessHooks";
 
 // Configuration per time class
 const seriesConfig: {
@@ -67,8 +67,8 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
 };
 
 export default function RatingProgressionCharts() {
-	const { selectedDate } = useMonthParam();
-	const { data, isLoading } = useRatingProgression(selectedDate);
+	const { timeframe, date } = useTimeframeParams();
+	const { data, isLoading } = useRatingProgression(date, timeframe);
 
 	if (isLoading) {
 		return (

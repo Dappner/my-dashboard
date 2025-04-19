@@ -1,4 +1,34 @@
-export type Timeframe = "1W" | "1M" | "3M" | "YTD" | "1Y" | "ALL";
+export type Timeframe =
+  // Calendar periods (using clear but short identifiers)
+  | "w" | "m" | "q" | "y" | "all" | "custom"
+  // Rolling periods (with 'r' prefix for "rolling")
+  | "r1w" | "r1m" | "r3m" | "r1y"
+  // Legacy timeframes (preserved for backward compatibility)
+  | "1W" | "1M" | "3M" | "YTD" | "1Y" | "ALL";
+
+export const timeframeLabels: Record<Timeframe, string> = {
+  // Calendar periods
+  "w": "Week",
+  "m": "Month",
+  "q": "Quarter",
+  "y": "Year",
+  "all": "All",
+  "custom": "Custom",
+
+  // Rolling periods
+  "r1w": "7d",
+  "r1m": "30d",
+  "r3m": "90d",
+  "r1y": "1y",
+
+  // Legacy timeframes
+  "1W": "Week",
+  "1M": "Month",
+  "3M": "Quarter",
+  "YTD": "YTD",
+  "1Y": "Year",
+  "ALL": "All",
+};
 
 export interface DateRange {
   startDate: string | null;

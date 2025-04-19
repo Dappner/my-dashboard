@@ -19,6 +19,7 @@ const monthSearchSchema = z.object({
 export const spendingRoute = createRoute({
 	getParentRoute: () => layoutRoute,
 	path: "spending",
+	validateSearch: monthSearchSchema,
 });
 
 // Dashboard route
@@ -26,7 +27,6 @@ export const spendingDashboardRoute = createRoute({
 	getParentRoute: () => spendingRoute,
 	path: "/",
 	component: SpendingPage,
-	validateSearch: monthSearchSchema,
 });
 
 // Receipts parent route

@@ -160,7 +160,16 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      summary_window: {
+        Args: { p_start: string; p_end: string }
+        Returns: {
+          total_games: number
+          wins: number
+          win_rate_pct: number
+          avg_accuracy: number
+          total_time_spent_seconds: number
+        }[]
+      }
     }
     Enums: {
       color_type: "black" | "white"

@@ -60,15 +60,15 @@ export const navBarSections: NavBarSection[] = [
 		items: [
 			{
 				title: "Chess",
-				url: "chess",
+				url: "/habits/chess",
 			},
 			{
 				title: "Github",
-				url: "github",
+				url: "/habits/github",
 			},
 			{
 				title: "Time Tracking",
-				url: "time",
+				url: "/habits/time",
 			},
 		],
 	},

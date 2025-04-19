@@ -1,178 +1,300 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import type React from "react";
+import { useMemo } from "react";
 import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useMonthParam } from "@/hooks/useMonthParam";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import {
-	eachDayOfInterval,
-	endOfMonth,
-	format,
-	getDay,
-	startOfMonth,
+  eachDayOfInterval,
+  eachWeekOfInterval,
+  eachMonthOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
 } from "date-fns";
-import useMonthlyActivity from "../hooks/useMonthlyActivity";
+import type { MonthlyActivity } from "@/api/chessApi";
+import { useMonthlyActivity } from "../hooks/useChessHooks";
+import { cn } from "@/lib/utils";
+
+// choose color by performance
+const getDayColor = (wins: number, losses: number, games: number) => {
+  if (games === 0) return "bg-transparent";
+  const style = games > 3 ? "font-bold text-white" : "text-white";
+  if (wins > losses) return `bg-green-600 ${style}`;
+  if (losses > wins) return `bg-red-600 ${style}`;
+  return `bg-blue-600 ${style}`;
+};
 
 export const ChessCalendar: React.FC = () => {
-	const { selectedDate } = useMonthParam();
-	const { data: activityData, isLoading } = useMonthlyActivity(selectedDate);
+  const { timeframe, date, dateRange } = useTimeframeParams();
+  const { data: activityData, isLoading } = useMonthlyActivity(date, timeframe);
 
-	// build activity map using reduce instead of forEach
-	const activityMap = (activityData ?? []).reduce<
-		Record<
-			string,
-			{
-				games_played: number;
-				wins: number;
-				losses: number;
-			}
-		>
-	>((map, row) => {
-		if (row.day) {
-			map[row.day] = {
-				games_played: row.games_played || 0,
-				wins: row.wins || 0,
-				losses: row.losses || 0,
-			};
-		}
-		return map;
-	}, {});
+  type Daily = MonthlyActivity;
 
-	const firstDay = startOfMonth(selectedDate);
-	const lastDay = endOfMonth(selectedDate);
-	const allDays = eachDayOfInterval({ start: firstDay, end: lastDay });
+  // build map from date string to row
+  const activityMap = useMemo(
+    () =>
+      (activityData ?? []).reduce<Record<string, Daily>>(
+        (map, row) => {
+          if (row.day) {
+            map[row.day] = row;
+          }
+          return map;
+        },
+        {} as Record<string, Daily>,
+      ),
+    [activityData],
+  );
 
-	// prefix nulls for days before first of month
-	const startOffset = getDay(firstDay);
-	const gridDays: Array<{
-		date: Date;
-		games: number;
-		wins: number;
-		losses: number;
-	} | null> = [];
+  // generic day-grid renderer
+  const renderDayGrid = (days: Date[]) => {
+    // pad to week boundary (Sunday)
+    const padCount = days[0]?.getDay() ?? 0;
+    const padded: Array<Date | null> = [...Array(padCount).fill(null), ...days];
+    const weeks: (Date | null)[][] = [];
+    for (let i = 0; i < padded.length; i += 7) {
+      const chunk = padded.slice(i, i + 7);
+      while (chunk.length < 7) chunk.push(null);
+      weeks.push(chunk);
+    }
+    console.log(weeks);
 
-	for (let i = 0; i < startOffset; i++) {
-		gridDays.push(null);
-	}
+    return (
+      <div className="space-y-1">
+        <div className="grid grid-cols-7 gap-1 text-center mb-2 text-xs text-muted-foreground">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            <div key={day}>{day}</div>
+          ))}
+        </div>
+        {weeks.map((week, wi) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: Fine
+          <div key={wi} className="grid grid-cols-7 gap-1">
+            {week.map((dt, di) => {
+              const key = dt ? format(dt, "yyyy-MM-dd") : `empty-${wi}-${di}`;
+              if (!dt) return <div key={key} className="aspect-square" />;
+              const {
+                games_played = 0,
+                wins = 0,
+                losses = 0,
+              } = activityMap[format(dt, "yyyy-MM-dd")] ?? {};
+              const color = getDayColor(
+                wins || 0,
+                losses || 0,
+                games_played || 0,
+              );
+              return (
+                <TooltipProvider key={key}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div
+                        className={`aspect-square rounded-md flex items-center justify-center border ${color}`}
+                      >
+                        <span className="text-sm">{format(dt, "d")}</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="text-xs">
+                        <p className="font-medium">
+                          {format(dt, "EEEE, MMM d, yyyy")}
+                        </p>
+                        {(games_played || -1) > 0 ? (
+                          <>
+                            <p>Games: {games_played}</p>
+                            <p className="text-green-600">W: {wins}</p>
+                            <p className="text-red-600">L: {losses}</p>
+                            <p>
+                              Other:
+                              {(games_played || 0) -
+                                (wins || 0) -
+                                (losses || 0)}
+                            </p>
+                          </>
+                        ) : (
+                          <p>No games</p>
+                        )}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
-	// biome-ignore lint/complexity/noForEach: Can't be fucked rn
-	allDays.forEach((day) => {
-		const key = format(day, "yyyy-MM-dd");
-		const dayData = activityMap[key] ?? { games_played: 0, wins: 0, losses: 0 };
-		gridDays.push({
-			date: day,
-			games: dayData.games_played,
-			wins: dayData.wins,
-			losses: dayData.losses,
-		});
-	});
+  // Render weekly grid with aggregated data
+  const renderWeeklyGrid = () => {
+    const weeks = eachWeekOfInterval(dateRange, { weekStartsOn: 0 });
+    const isQuarter = timeframe === "q";
 
-	// split into weeks
-	const weeks: Array<Array<(typeof gridDays)[0]>> = [];
-	for (let i = 0; i < gridDays.length; i += 7) {
-		const week = gridDays.slice(i, i + 7);
-		while (week.length < 7) {
-			week.push(null);
-		}
-		weeks.push(week);
-	}
+    return (
+      <div className="grid grid-cols-4 gap-2 md:grid-cols-6 lg:grid-cols-7">
+        {weeks.map((weekStart) => {
+          const weekEnd = endOfWeek(weekStart, { weekStartsOn: 0 });
+          const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-	const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+          let games = 0;
+          let wins = 0;
+          let losses = 0;
+          for (const d of days) {
+            const dateKey = format(d, "yyyy-MM-dd");
+            const row = activityMap[dateKey];
+            if (row) {
+              games += row.games_played || 0;
+              wins += row.wins || 0;
+              losses += row.losses || 0;
+            }
+          }
 
-	if (isLoading) {
-		return (
-			<Card className="flex flex-col h-full">
-				<CardHeader className="pb-2">
-					<CardTitle>Monthly Activity</CardTitle>
-				</CardHeader>
-				<CardContent className="flex-1 flex items-center justify-center">
-					<Skeleton className="h-48 w-full rounded" />
-				</CardContent>
-			</Card>
-		);
-	}
+          const color = getDayColor(wins, losses, games);
+          const key = format(weekStart, "yyyy-MM-dd");
 
-	// Function to determine day color based on win/loss ratio
-	const getDayColor = (wins: number, losses: number, games: number) => {
-		if (games === 0) return "bg-transparent";
+          return (
+            <TooltipProvider key={key}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={cn(
+                      "rounded-md flex items-center justify-center border",
+                      isQuarter ? "aspect-square" : "h-16",
+                      color,
+                    )}
+                  >
+                    <div className="text-xs">
+                      <div>{format(weekStart, "MMM d")}</div>
+                      {games > 0 && <div>{games} games</div>}
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-xs">
+                    <p className="font-medium">
+                      Week of {format(weekStart, "MMM d, yyyy")}
+                    </p>
+                    {games > 0 ? (
+                      <>
+                        <p>Games: {games}</p>
+                        <p className="text-green-600">W: {wins}</p>
+                        <p className="text-red-600">L: {losses}</p>
+                        <p>Other: {games - wins - losses}</p>
+                      </>
+                    ) : (
+                      <p>No games</p>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        })}
+      </div>
+    );
+  };
 
-		if (wins > losses) {
-			// const intensity = Math.min(1, wins / games);
-			return `bg-green-600 text-white ${games > 3 ? "font-bold" : ""}`;
-		}
-		if (losses > wins) {
-			// const intensity = Math.min(1, losses / games);
-			return `bg-red-600 text-white ${games > 3 ? "font-bold" : ""}`;
-		}
-		// Equal wins and losses - blue shade
-		return `bg-blue-600 text-white ${games > 3 ? "font-bold" : ""}`;
-	};
+  // Render monthly grid with aggregated data
+  const renderMonthlyGrid = () => {
+    const months = eachMonthOfInterval(dateRange);
 
-	return (
-		<Card className="flex flex-col h-full overflow-hidden">
-			<CardHeader className="pb-2 shrink-0">
-				<CardTitle>Monthly Activity</CardTitle>
-			</CardHeader>
-			<CardContent className="flex-1 overflow-auto">
-				<div className="grid grid-cols-7 gap-1 text-center mb-2 text-xs text-muted-foreground">
-					{weekdays.map((day) => (
-						<div key={day}>{day}</div>
-					))}
-				</div>
-				<div className="grid grid-cols-7 gap-1">
-					{weeks.map((week, wIdx) =>
-						week.map((cell, dIdx) => {
-							const key = cell
-								? format(cell.date, "yyyy-MM-dd")
-								: `empty-${wIdx}-${dIdx}`;
+    return (
+      <div className="grid grid-cols-4 gap-2 md:grid-cols-6">
+        {months.map((m) => {
+          const key = format(m, "yyyy-MM");
+          const days = eachDayOfInterval({ start: m, end: endOfMonth(m) });
 
-							if (!cell) {
-								return <div key={key} className="aspect-square" />;
-							}
+          let games = 0;
+          let wins = 0;
+          let losses = 0;
+          for (const d of days) {
+            const dateKey = format(d, "yyyy-MM-dd");
+            const row = activityMap[dateKey];
+            if (row) {
+              games += row.games_played || 0;
+              wins += row.wins || 0;
+              losses += row.losses || 0;
+            }
+          }
 
-							const { games, wins, losses } = cell;
-							const colorClass = getDayColor(wins, losses, games);
+          const color = getDayColor(wins, losses, games);
 
-							return (
-								<TooltipProvider key={key}>
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<div
-												className={`aspect-square rounded-md flex items-center justify-center border
-                          ${colorClass}`}
-											>
-												<span className="text-sm">
-													{format(cell.date, "d")}
-												</span>
-											</div>
-										</TooltipTrigger>
-										<TooltipContent>
-											<div className="text-xs">
-												<p className="font-medium">
-													{format(cell.date, "EEEE, MMM d, yyyy")}
-												</p>
-												{games > 0 ? (
-													<>
-														<p>Games played: {games}</p>
-														<p className="text-green-600">Wins: {wins}</p>
-														<p className="text-red-600">Losses: {losses}</p>
-														<p>Draw/Other: {games - wins - losses}</p>
-													</>
-												) : (
-													<p>No games</p>
-												)}
-											</div>
-										</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
-							);
-						}),
-					)}
-				</div>
-			</CardContent>
-		</Card>
-	);
+          return (
+            <TooltipProvider key={key}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={`h-14 rounded-md flex items-center justify-center border ${color}`}
+                  >
+                    <div className="text-xs">
+                      <div>{format(m, "MMM yyyy")}</div>
+                      {games > 0 && <div>{games} games</div>}
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-xs">
+                    <p className="font-medium">{format(m, "MMMM yyyy")}</p>
+                    {games > 0 ? (
+                      <>
+                        <p>Games: {games}</p>
+                        <p className="text-green-600">W: {wins}</p>
+                        <p className="text-red-600">L: {losses}</p>
+                        <p>Other: {games - wins - losses}</p>
+                      </>
+                    ) : (
+                      <p>No games</p>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // view renderers based on timeframe
+  const getContent = () => {
+    switch (timeframe) {
+      case "w":
+      case "m":
+        return renderDayGrid(eachDayOfInterval(dateRange));
+      case "q":
+      case "y":
+        return renderWeeklyGrid();
+      case "all":
+        return renderMonthlyGrid();
+      default:
+        return renderDayGrid(eachDayOfInterval(dateRange));
+    }
+  };
+
+  const titleMap: Record<string, string> = {
+    "1W": "Weekly Activity",
+    "1M": "Monthly Activity",
+    "3M": "Quarterly Activity",
+    YTD: "Year to Date Activity",
+    "1Y": "Yearly Activity",
+    ALL: "All-Time Activity",
+  };
+
+  return (
+    <Card className="flex flex-col h-full overflow-hidden">
+      <CardHeader className="pb-2 shrink-0">
+        <CardTitle>{titleMap[timeframe] || "Activity"}</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-auto flex-1">
+        {isLoading ? (
+          <div className="h-48 w-full bg-gray-200 animate-pulse rounded" />
+        ) : (
+          getContent()
+        )}
+      </CardContent>
+    </Card>
+  );
 };
