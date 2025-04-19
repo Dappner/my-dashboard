@@ -1,17 +1,17 @@
+import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMonthParam } from "@/hooks/useMonthParam";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import {
-	Award,
-	ArrowUp,
 	ArrowDown,
+	ArrowUp,
+	Award,
 	CheckCircle2,
-	XCircle,
 	Clock,
-	User2,
 	Gamepad2,
+	User2,
+	XCircle,
 } from "lucide-react";
 import useRecentGames from "../hooks/useRecentGames";
 

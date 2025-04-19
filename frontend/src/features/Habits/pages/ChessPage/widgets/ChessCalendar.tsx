@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Tooltip,
 	TooltipContent,
@@ -6,7 +7,6 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useMonthParam } from "@/hooks/useMonthParam";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	eachDayOfInterval,
 	endOfMonth,
