@@ -9,13 +9,12 @@ import {
 	Award,
 	CheckCircle2,
 	Clock,
-	Gamepad2,
 	User2,
 	XCircle,
 } from "lucide-react";
 import { useRecentGames } from "../hooks/useChessHooks";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
-// Function to determine rating change indicator and color
 const getRatingChange = (
 	userRating: number,
 	opponentRating: number,
@@ -41,18 +40,6 @@ const getRatingChange = (
 		return { icon: <ArrowDown className="h-3 w-3" />, color: "text-red-600" };
 
 	return { icon: null, color: "text-muted-foreground" };
-};
-
-// Function to get time class badge color
-const getTimeClassColor = (timeClass: string) => {
-	const colors: Record<string, string> = {
-		bullet: "bg-red-500 hover:bg-red-600",
-		blitz: "bg-blue-500 hover:bg-blue-600",
-		rapid: "bg-green-500 hover:bg-green-600",
-		daily: "bg-amber-500 hover:bg-amber-600",
-	};
-
-	return colors[timeClass.toLowerCase()] || "bg-gray-500 hover:bg-gray-600";
 };
 
 export default function RecentGamesFeed() {
@@ -90,7 +77,6 @@ export default function RecentGamesFeed() {
 							game.opponent_rating,
 							game.is_win,
 						);
-						const badgeColor = getTimeClassColor(game.time_class);
 
 						return (
 							<div
@@ -103,9 +89,14 @@ export default function RecentGamesFeed() {
 								<div className="flex items-center justify-between mb-2">
 									<div className="flex items-center gap-2">
 										<Clock className="h-4 w-4 text-muted-foreground" />
-										<span className="text-sm">
+										<a
+											href={game.game_url}
+											rel="noreferrer"
+											target="_blank"
+											className="text-sm"
+										>
 											{format(new Date(game.end_time), "MMM d, HH:mm")}
-										</span>
+										</a>
 									</div>
 									<div className="flex items-center gap-1">
 										{game.is_win ? (
@@ -129,9 +120,8 @@ export default function RecentGamesFeed() {
 								{/* Game details */}
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-2">
-										<Badge className={`text-xs ${badgeColor}`}>
-											<Gamepad2 className="h-3 w-3 mr-1" />
-											{game.time_class}
+										<Badge className="text-xs ">
+											{capitalizeFirstLetter(game.time_class)}
 										</Badge>
 										<div className="flex items-center gap-1">
 											<User2 className="h-3 w-3 text-muted-foreground" />

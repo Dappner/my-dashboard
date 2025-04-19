@@ -8,8 +8,8 @@ export type RatingProgession =
 	Database["chess"]["Views"]["rating_progression"]["Row"];
 export type MonthlyActivity =
 	Database["chess"]["Views"]["monthly_activity"]["Row"];
-export type MonthlySummary =
-	Database["chess"]["Views"]["monthly_summary"]["Row"];
+export type DailyTimeClassStats =
+	Database["chess"]["Views"]["daily_time_class_stats"]["Row"];
 
 export type ChessTimeClass = Database["chess"]["Enums"]["time_class"];
 export type ChessColorType = Database["chess"]["Enums"]["color_type"];
@@ -18,6 +18,7 @@ export type ChessResultType = Database["chess"]["Enums"]["result_type"];
 export type ChessTimeframeSummary = {
 	total_games: number;
 	wins: number;
+	losses: number;
 	win_rate_pct: number;
 	avg_accuracy: number;
 	total_time_spent_seconds: number;
@@ -30,16 +31,15 @@ export const ratingProgressionApiKeys = {
 		[...ratingProgressionApiKeys.all, timeframe, date] as const,
 };
 
-export const monthlyActivityApiKeys = {
-	all: ["monthly_activity"] as const,
-	byTimeframe: (timeframe: Timeframe, date: string) =>
-		[...monthlyActivityApiKeys.all, timeframe, date] as const,
+export const dailyTimeClassStatsApiKeys = {
+	all: ["daily_time_class_stats"] as const,
+	byTimeframe: (timeframe: Timeframe, date: string, timeClass = "all") =>
+		[...dailyTimeClassStatsApiKeys.all, timeframe, date, timeClass] as const,
 };
-
 export const monthlySummaryApiKeys = {
 	all: ["monthly_summary"] as const,
-	byTimeframe: (timeframe: Timeframe, date: string) =>
-		[...monthlySummaryApiKeys.all, timeframe, date] as const,
+	byTimeframe: (timeframe: Timeframe, date: string, timeClass = "all") =>
+		[...monthlySummaryApiKeys.all, timeframe, date, timeClass] as const,
 };
 
 // Chess API endpoints
@@ -68,44 +68,48 @@ export const chessApi = {
 	},
 
 	/** number of games per day in that timeframe */
-	async getMonthlyActivity(
+	async getDailyTimeClassStats(
 		selectedDate: Date,
 		timeframe: Timeframe = "m",
-	): Promise<MonthlyActivity[]> {
+		timeClass = "all",
+	): Promise<DailyTimeClassStats[]> {
+		const { start, end } = getTimeframeRange(selectedDate, timeframe);
+
+		// build the base query
+		let qb = supabase
+			.schema("chess")
+			.from("daily_time_class_stats")
+			.select()
+			.gte("day", start)
+			.lte("day", end);
+
+		// if not “all”, filter to that class
+		if (timeClass !== "all") {
+			qb = qb.eq("category", timeClass);
+		}
+
+		const { data, error } = await qb.order("day", { ascending: true });
+		if (error) throw error;
+		return data ?? [];
+	},
+	/** summary stats for that timeframe */
+	async getTimeframeSummary(
+		selectedDate: Date,
+		timeframe: Timeframe = "m",
+		timeClass = "all",
+	): Promise<ChessTimeframeSummary> {
 		const { start, end } = getTimeframeRange(selectedDate, timeframe);
 
 		const { data, error } = await supabase
 			.schema("chess")
-			.from("monthly_activity")
-			.select()
-			.gte("day", start)
-			.lte("day", end)
-			.order("day", { ascending: true });
-
-		if (error) throw error;
-		return data ?? [];
-	},
-
-	/** summary stats for that timeframe */
-	async getMonthlySummary(
-		selectedDate: Date,
-		timeframe: Timeframe = "m",
-		customRange?: { start: Date; end: Date },
-	): Promise<ChessTimeframeSummary> {
-		const { start, end } = getTimeframeRange(
-			selectedDate,
-			timeframe,
-			customRange,
-		);
-		const { data, error } = await supabase
-			.schema("chess")
-			.rpc("summary_window", {
+			.rpc("get_timeframe_summary", {
 				p_start: start,
 				p_end: end,
+				p_time_class: timeClass,
 			})
 			.single();
-		if (error) throw error;
 
+		if (error) throw error;
 		return data as ChessTimeframeSummary;
 	},
 

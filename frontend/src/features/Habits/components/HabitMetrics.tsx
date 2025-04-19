@@ -3,8 +3,7 @@ import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import type React from "react";
 
 interface HabitMetricsProps {
-	count: number;
-	previousCount: number;
+	count: number | string;
 	label: string;
 	sublabel: string;
 	trend: number;

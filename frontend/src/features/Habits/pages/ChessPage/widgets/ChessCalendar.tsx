@@ -18,7 +18,7 @@ import {
 } from "date-fns";
 import type React from "react";
 import { useMemo } from "react";
-import { useMonthlyActivity } from "../hooks/useChessHooks";
+import { useDailyStats } from "../hooks/useChessHooks";
 
 // choose color by performance
 const getDayColor = (wins: number, losses: number, games: number) => {
@@ -31,7 +31,11 @@ const getDayColor = (wins: number, losses: number, games: number) => {
 
 export const ChessCalendar: React.FC = () => {
 	const { timeframe, date, dateRange } = useTimeframeParams();
-	const { data: activityData, isLoading } = useMonthlyActivity(date, timeframe);
+	const { data: activityData, isLoading } = useDailyStats(
+		date,
+		timeframe,
+		"all",
+	);
 
 	type Daily = MonthlyActivity;
 
@@ -61,7 +65,6 @@ export const ChessCalendar: React.FC = () => {
 			while (chunk.length < 7) chunk.push(null);
 			weeks.push(chunk);
 		}
-		console.log(weeks);
 
 		return (
 			<div className="space-y-1">

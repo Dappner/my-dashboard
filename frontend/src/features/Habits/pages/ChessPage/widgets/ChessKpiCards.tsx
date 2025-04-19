@@ -4,23 +4,15 @@ import { HabitMetrics } from "@/features/Habits/components/HabitMetrics";
 import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import { stepPeriod } from "@/lib/utils";
 import { CalendarIcon, ClockIcon, StarIcon, TrophyIcon } from "lucide-react";
-import { useMonthlySummary } from "../hooks/useChessHooks";
+import { useTimeframeSummary } from "../hooks/useChessHooks";
 
 export default function ChessKpiCards() {
 	const { timeframe, date } = useTimeframeParams();
 
 	const prevDate = stepPeriod(timeframe, date, -1);
 
-	// const { start: prevStartStr, end: prevEndStr } = getTimeframeRange(
-	//   prevDate,
-	//   timeframe,
-	// );
-
-	//   start: new Date(prevStartStr),
-	//   end: new Date(prevEndStr),
-	// };
-	const { data: current, isLoading } = useMonthlySummary(date, timeframe);
-	const { data: previous } = useMonthlySummary(prevDate, timeframe);
+	const { data: current, isLoading } = useTimeframeSummary(date, timeframe);
+	const { data: previous } = useTimeframeSummary(prevDate, timeframe);
 
 	if (isLoading || !current) {
 		return (
@@ -60,12 +52,23 @@ export default function ChessKpiCards() {
 	const prevSeconds = previous?.total_time_spent_seconds ?? 0;
 	const timeTrend =
 		prevSeconds > 0 ? ((totalSeconds - prevSeconds) / prevSeconds) * 100 : 0;
-	const minutes = Math.floor(totalSeconds / 60);
 
+	// Format time - show hours if > 10 hours (600 minutes)
+	const totalMinutes = Math.floor(totalSeconds / 60);
+	const hours = Math.floor(totalMinutes / 60);
+	const remainingMinutes = totalMinutes % 60;
+
+	// Time metric with conditional formatting
+	const timeMetric = {
+		count: totalMinutes > 600 ? `${hours}h` : totalMinutes,
+		label: "Time Played",
+		sublabel: totalMinutes > 600 ? `${remainingMinutes} minutes` : "minutes",
+		trend: timeTrend,
+		icon: <ClockIcon className="h-5 w-5" />,
+	};
 	const metrics = [
 		{
 			count: totalGames,
-			previousCount: prevGames,
 			label: "Games",
 			sublabel: "",
 			trend: gamesTrend,
@@ -73,7 +76,6 @@ export default function ChessKpiCards() {
 		},
 		{
 			count: wins,
-			previousCount: prevWins,
 			label: "Wins",
 			sublabel: `${winRate.toFixed(1)}% win rate`,
 			trend: winsTrend,
@@ -81,20 +83,12 @@ export default function ChessKpiCards() {
 		},
 		{
 			count: accuracy,
-			previousCount: prevAccuracy,
 			label: "Avg Accuracy",
 			sublabel: "%",
 			trend: accuracyTrend,
 			icon: <StarIcon className="h-5 w-5" />,
 		},
-		{
-			count: minutes,
-			previousCount: Math.floor(prevSeconds / 60),
-			label: "Time Played",
-			sublabel: "minutes",
-			trend: timeTrend,
-			icon: <ClockIcon className="h-5 w-5" />,
-		},
+		timeMetric,
 	];
 
 	return (
@@ -103,7 +97,6 @@ export default function ChessKpiCards() {
 				<HabitMetrics
 					key={metric.label}
 					count={metric.count}
-					previousCount={metric.previousCount}
 					label={metric.label}
 					sublabel={metric.sublabel}
 					trend={Number(metric.trend.toFixed(1))}

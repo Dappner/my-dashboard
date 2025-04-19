@@ -201,3 +201,6 @@ export function stepPeriod(tf: Timeframe, base: Date, dir: -1 | 1): Date {
 			return base;
 	}
 }
+export function capitalizeFirstLetter(val: string) {
+	return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+}

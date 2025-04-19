@@ -9,6 +9,7 @@ import { createRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { z } from "zod";
 import { layoutRoute } from ".";
+import MockHabitsPage from "@/features/Habits/MockHabitsPage";
 
 const allTimeframes: Timeframe[] = [
 	...calendarTimeframes,
@@ -43,6 +44,16 @@ export const chessRoute = createRoute({
 	component: ChessPage,
 });
 
+export const mockHabitsDashboard = createRoute({
+	getParentRoute: () => habitsRoute,
+	path: "/mock",
+	component: MockHabitsPage,
+});
+
 export const habitsRoutes = [
-	habitsRoute.addChildren([habitsDashboardRoute, chessRoute]),
+	habitsRoute.addChildren([
+		habitsDashboardRoute,
+		chessRoute,
+		mockHabitsDashboard,
+	]),
 ];

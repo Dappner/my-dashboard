@@ -1,6 +1,6 @@
 import {
 	chessApi,
-	monthlyActivityApiKeys,
+	dailyTimeClassStatsApiKeys,
 	monthlySummaryApiKeys,
 	ratingProgressionApiKeys,
 } from "@/api/chessApi";
@@ -12,36 +12,24 @@ export default function useRatingProgression(
 	date: Date,
 	timeframe: Timeframe = "m",
 ) {
-	// Create a cache key that includes both timeframe and date
-	const cacheKey = `${timeframe}-${format(date, "yyyy-MM-dd")}`;
+	const cacheKey = format(date, "yyyy-MM-dd");
 
 	return useQuery({
 		queryKey: ratingProgressionApiKeys.byTimeframe(timeframe, cacheKey),
 		queryFn: () => chessApi.getRatingProgression(date, timeframe),
 	});
 }
-export function useMonthlyActivity(date: Date, timeframe: Timeframe = "m") {
-	const cacheKey = `${timeframe}-${format(date, "yyyy-MM-dd")}`;
 
-	return useQuery({
-		queryKey: monthlyActivityApiKeys.byTimeframe(timeframe, cacheKey),
-		queryFn: () => chessApi.getMonthlyActivity(date, timeframe),
-	});
-}
-
-export function useMonthlySummary(
+export function useTimeframeSummary(
 	date: Date,
 	timeframe: Timeframe = "m",
-	customRange?: { start: Date; end: Date },
+	timeClass = "all",
 ) {
-	const rangeKey = customRange
-		? `${format(customRange.start, "yyyy-MM-dd")}-${format(customRange.end, "yyyy-MM-dd")}`
-		: "";
-	const cacheKey = `${timeframe}-${format(date, "yyyy-MM-dd")}-${rangeKey}`;
+	const cacheKey = format(date, "yyyy-MM-dd");
 
 	return useQuery({
-		queryKey: monthlySummaryApiKeys.byTimeframe(timeframe, cacheKey),
-		queryFn: () => chessApi.getMonthlySummary(date, timeframe),
+		queryKey: monthlySummaryApiKeys.byTimeframe(timeframe, cacheKey, timeClass),
+		queryFn: () => chessApi.getTimeframeSummary(date, timeframe, timeClass),
 	});
 }
 
@@ -55,5 +43,21 @@ export function useRecentGames(
 	return useQuery({
 		queryKey: ["recent_games", cacheKey, limit],
 		queryFn: () => chessApi.getRecentGames(date, timeframe, undefined, limit),
+	});
+}
+export function useDailyStats(
+	date: Date,
+	timeframe: Timeframe,
+	timeClass = "all",
+) {
+	const cacheKey = format(date, "yyyy-MM-dd");
+
+	return useQuery({
+		queryKey: dailyTimeClassStatsApiKeys.byTimeframe(
+			timeframe,
+			cacheKey,
+			timeClass,
+		),
+		queryFn: () => chessApi.getDailyTimeClassStats(date, timeframe, timeClass),
 	});
 }

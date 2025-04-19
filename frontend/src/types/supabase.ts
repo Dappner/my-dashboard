@@ -125,24 +125,24 @@ export type Database = {
       }
     }
     Views: {
+      daily_time_class_stats: {
+        Row: {
+          category: string | null
+          day: string | null
+          games_played: number | null
+          losses: number | null
+          user_id: string | null
+          win_rate_pct: number | null
+          wins: number | null
+        }
+        Relationships: []
+      }
       monthly_activity: {
         Row: {
           day: string | null
           games_played: number | null
           losses: number | null
           user_id: string | null
-          wins: number | null
-        }
-        Relationships: []
-      }
-      monthly_summary: {
-        Row: {
-          avg_accuracy: number | null
-          month: string | null
-          total_games: number | null
-          total_time_spent_seconds: number | null
-          user_id: string | null
-          win_rate_pct: number | null
           wins: number | null
         }
         Relationships: []
@@ -160,11 +160,12 @@ export type Database = {
       }
     }
     Functions: {
-      summary_window: {
-        Args: { p_start: string; p_end: string }
+      get_timeframe_summary: {
+        Args: { p_start: string; p_end: string; p_time_class?: string }
         Returns: {
           total_games: number
           wins: number
+          losses: number
           win_rate_pct: number
           avg_accuracy: number
           total_time_spent_seconds: number
