@@ -1,20 +1,20 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useTimeframeParams } from "@/hooks/useTimeframeParams";
-import { format } from "date-fns";
-import {
-	CheckCircle2,
-	XCircle,
-	Clock,
-	TimerIcon,
-	CalendarIcon,
-} from "lucide-react";
-import { useRecentGames } from "../hooks/useChessHooks";
 import type { ChessGame } from "@/api/chessApi";
-import { cn } from "@/lib/utils";
-import { useUser } from "@/contexts/UserContext";
 import { BulletBillIcon } from "@/components/icons/BulletBillIcon";
 import { LightningIcon } from "@/components/icons/LightningIcon";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useUser } from "@/contexts/UserContext";
+import { useTimeframeParams } from "@/hooks/useTimeframeParams";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import {
+	CalendarIcon,
+	CheckCircle2,
+	Clock,
+	TimerIcon,
+	XCircle,
+} from "lucide-react";
+import { useRecentGames } from "../hooks/useChessHooks";
 
 const ICON_SIZE = "size-6";
 
