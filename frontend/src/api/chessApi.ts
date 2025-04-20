@@ -137,4 +137,16 @@ export const chessApi = {
 		if (error) throw error;
 		return data ?? [];
 	},
+	async getGame(id: string): Promise<ChessGame> {
+		const { data, error } = await supabase
+			.schema("chess")
+			.from("games")
+			.select()
+			.eq("id", id)
+			.single();
+
+		if (error) throw error;
+
+		return data;
+	},
 };

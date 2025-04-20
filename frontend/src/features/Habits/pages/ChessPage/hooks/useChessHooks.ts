@@ -61,3 +61,11 @@ export function useDailyStats(
 		queryFn: () => chessApi.getDailyTimeClassStats(date, timeframe, timeClass),
 	});
 }
+
+export function useGame(id: string) {
+	return useQuery({
+		queryKey: ["games", id],
+		queryFn: () => chessApi.getGame(id),
+		enabled: !!id,
+	});
+}

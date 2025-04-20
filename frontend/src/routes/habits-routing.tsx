@@ -10,6 +10,7 @@ import { createRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { z } from "zod";
 import { layoutRoute } from ".";
+import ChessGamePage from "@/features/Habits/pages/ChessGamePage/ChessGamePage";
 
 const allTimeframes: Timeframe[] = [
 	...calendarTimeframes,
@@ -29,7 +30,6 @@ export const timeframeSearchSchema = z.object({
 export const habitsRoute = createRoute({
 	getParentRoute: () => layoutRoute,
 	path: "habits",
-	validateSearch: timeframeSearchSchema,
 });
 
 export const habitsDashboardRoute = createRoute({
@@ -41,7 +41,19 @@ export const habitsDashboardRoute = createRoute({
 export const chessRoute = createRoute({
 	getParentRoute: () => habitsRoute,
 	path: "chess",
+});
+
+export const chessDashboardRoute = createRoute({
+	getParentRoute: () => chessRoute,
+	path: "/",
 	component: ChessPage,
+	validateSearch: timeframeSearchSchema,
+});
+
+export const chessGameRoute = createRoute({
+	getParentRoute: () => chessRoute,
+	path: "game/$gameId",
+	component: ChessGamePage,
 });
 
 export const mockHabitsDashboard = createRoute({
@@ -53,7 +65,6 @@ export const mockHabitsDashboard = createRoute({
 export const habitsRoutes = [
 	habitsRoute.addChildren([
 		habitsDashboardRoute,
-		chessRoute,
-		mockHabitsDashboard,
+		chessRoute.addChildren([chessDashboardRoute, chessGameRoute]),
 	]),
 ];
