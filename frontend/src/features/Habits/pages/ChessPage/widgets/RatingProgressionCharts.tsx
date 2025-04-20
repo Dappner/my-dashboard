@@ -22,27 +22,29 @@ const seriesConfig: {
 	gradientId: string;
 }[] = [
 	{
-		key: "bullet_rating",
-		label: "Bullet",
-		color: "#8884d8",
-		gradientId: "gradBullet",
+		key: "rapid_rating",
+		label: "Rapid",
+
+		color: "#82ca9d",
+		gradientId: "gradRapid",
 	},
 	{
 		key: "blitz_rating",
 		label: "Blitz",
-		color: "#82ca9d",
+		color: "#ffc658",
 		gradientId: "gradBlitz",
 	},
 	{
-		key: "rapid_rating",
-		label: "Rapid",
-		color: "#ffc658",
-		gradientId: "gradRapid",
+		key: "bullet_rating",
+		label: "Bullet",
+
+		color: "#ff7300",
+		gradientId: "gradBullet",
 	},
 	{
 		key: "daily_rating",
 		label: "Daily",
-		color: "#ff7300",
+		color: "#8884d8",
 		gradientId: "gradDaily",
 	},
 ];

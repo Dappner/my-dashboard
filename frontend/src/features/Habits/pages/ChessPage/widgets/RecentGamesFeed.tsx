@@ -1,157 +1,162 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTimeframeParams } from "@/hooks/useTimeframeParams";
-import { capitalizeFirstLetter } from "@/lib/utils";
 import { format } from "date-fns";
 import {
-	ArrowDown,
-	ArrowUp,
-	Award,
 	CheckCircle2,
-	Clock,
-	User2,
 	XCircle,
+	Clock,
+	TimerIcon,
+	CalendarIcon,
 } from "lucide-react";
 import { useRecentGames } from "../hooks/useChessHooks";
+import type { ChessGame } from "@/api/chessApi";
+import { cn } from "@/lib/utils";
+import { useUser } from "@/contexts/UserContext";
+import { BulletBillIcon } from "@/components/icons/BulletBillIcon";
+import { LightningIcon } from "@/components/icons/LightningIcon";
 
-const getRatingChange = (
-	userRating: number,
-	opponentRating: number,
-	isWin: boolean,
-) => {
-	const diff = userRating - opponentRating;
-	const expectedWin = diff > 15;
-	const expectedLoss = diff < -15;
+const ICON_SIZE = "size-6";
 
-	if (isWin && expectedLoss)
-		return {
-			icon: <ArrowUp className="h-3 w-3" />,
-			color: "text-green-600 font-bold",
-		};
-	if (isWin && !expectedWin)
-		return { icon: <ArrowUp className="h-3 w-3" />, color: "text-green-600" };
-	if (!isWin && expectedWin)
-		return {
-			icon: <ArrowDown className="h-3 w-3" />,
-			color: "text-red-600 font-bold",
-		};
-	if (!isWin && !expectedLoss)
-		return { icon: <ArrowDown className="h-3 w-3" />, color: "text-red-600" };
+const GRID_CLASSES =
+	"grid grid-cols-[100px_1fr_90px_90px] gap-x-4 items-center";
 
-	return { icon: null, color: "text-muted-foreground" };
+const timeClassIcons: Record<string, React.ReactElement> = {
+	bullet: <BulletBillIcon className={`${ICON_SIZE}`} color="#ff7300" />,
+	blitz: <LightningIcon className={`${ICON_SIZE}`} color="#ffc658" />,
+	rapid: <TimerIcon className={`${ICON_SIZE}`} style={{ color: "#82ca9d" }} />,
+	daily: (
+		<CalendarIcon className={`${ICON_SIZE}`} style={{ color: "#8884d8" }} />
+	),
 };
 
-export default function RecentGamesFeed() {
+const RecentGamesFeed: React.FC = () => {
+	const { currentUser } = useUser();
 	const { timeframe, date } = useTimeframeParams();
 	const { data, isLoading } = useRecentGames(date, timeframe);
 
-	if (isLoading) {
-		return (
-			<Card className="flex flex-col h-full">
-				<CardHeader className="pb-2 shrink-0">
-					<CardTitle>Recent Games</CardTitle>
-				</CardHeader>
-				<div className="overflow-auto flex-1 px-3 pb-3 pt-0">
-					<div className="space-y-3">
-						{[...Array(5)].map((_, i) => (
-							// biome-ignore lint/suspicious/noArrayIndexKey: skeleton
-							<Skeleton key={i} className="h-20 w-full rounded" />
-						))}
-					</div>
-				</div>
-			</Card>
-		);
-	}
-
 	return (
-		<Card className="flex flex-col h-full overflow-hidden">
-			<CardHeader className="pb-2 shrink-0">
+		<Card className="flex flex-col h-full">
+			<CardHeader className="pb-2">
 				<CardTitle>Recent Games</CardTitle>
 			</CardHeader>
-			<div className="overflow-auto flex-1 px-3 pb-3 pt-0">
-				<div className="space-y-3">
-					{data?.map((game) => {
-						const ratingChange = getRatingChange(
-							game.user_rating,
-							game.opponent_rating,
-							game.is_win,
-						);
 
-						return (
-							<div
-								key={game.id}
-								className={
-									"rounded-lg border p-3 transition-all hover:shadow-md"
-								}
-							>
-								{/* Header with game time and result */}
-								<div className="flex items-center justify-between mb-2">
-									<div className="flex items-center gap-2">
-										<Clock className="h-4 w-4 text-muted-foreground" />
+			<CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+				{isLoading ? (
+					<div className="flex-1 p-4 space-y-3">
+						{Array.from({ length: 5 }).map((_, idx) => (
+							// biome-ignore lint/suspicious/noArrayIndexKey: Skeleton
+							<Skeleton key={idx} className="h-16 rounded-lg" />
+						))}
+					</div>
+				) : (
+					<div className="flex-1 flex flex-col overflow-hidden">
+						<div
+							className={cn(
+								GRID_CLASSES,
+								"px-6 py-3 text-sm font-semibold text-muted-foreground border-b sticky top-0 z-10",
+							)}
+						>
+							<div>Time</div>
+							<div>Players</div>
+							<div className="text-center">Result</div>
+							<div className="text-center">Moves</div>
+						</div>
+
+						{/* Scrollable content */}
+						<div className="flex-1 overflow-y-auto">
+							<div className="divide-y divide-border">
+								{data?.map((game: ChessGame) => {
+									const isUserWin = game.is_win;
+									const isUserWhite = game.user_color === "white";
+									const userScore = isUserWin ? 1 : 0;
+									const oppScore = isUserWin ? 0 : 1;
+									const timeIcon = timeClassIcons[game.time_class] || (
+										<Clock className={`${ICON_SIZE} text-gray-500`} />
+									);
+
+									return (
 										<a
+											key={game.id}
 											href={game.game_url}
-											rel="noreferrer"
 											target="_blank"
-											className="text-sm"
+											rel="noopener noreferrer"
+											className={cn(
+												GRID_CLASSES,
+												"px-6 py-3 hover:bg-accent/30 transition-colors",
+											)}
 										>
-											{format(new Date(game.end_time), "MMM d, HH:mm")}
-										</a>
-									</div>
-									<div className="flex items-center gap-1">
-										{game.is_win ? (
-											<>
-												<span className="text-green-600 text-sm font-medium">
-													Win
+											{/* Time column */}
+											<div className="flex items-center gap-2">
+												{timeIcon}
+												<span className="text-sm whitespace-nowrap">
+													{format(new Date(game.end_time), "MMM d")}
 												</span>
-												<CheckCircle2 className="h-4 w-4 text-green-600" />
-											</>
-										) : (
-											<>
-												<span className="text-red-600 text-sm font-medium">
-													Loss
-												</span>
-												<XCircle className="h-4 w-4 text-red-600" />
-											</>
-										)}
-									</div>
-								</div>
-
-								{/* Game details */}
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-2">
-										<Badge className="text-xs ">
-											{capitalizeFirstLetter(game.time_class)}
-										</Badge>
-										<div className="flex items-center gap-1">
-											<User2 className="h-3 w-3 text-muted-foreground" />
-											<span className="text-xs text-muted-foreground">
-												{game.opponent_username}
-											</span>
-										</div>
-									</div>
-
-									{/* Rating display */}
-									<div className="flex items-center gap-1">
-										<div className="flex flex-col items-end">
-											<div className="flex items-center gap-1">
-												<Award className="h-3 w-3 text-amber-500" />
-												<span className={`text-xs ${ratingChange.color}`}>
-													{game.user_rating}
-												</span>
-												{ratingChange.icon}
 											</div>
-											<span className="text-xs text-muted-foreground">
-												vs {game.opponent_rating}
-											</span>
-										</div>
-									</div>
-								</div>
+
+											{/* Players column */}
+											<div className="flex flex-col space-y-1 min-w-0">
+												<div className="flex items-center gap-2 text-sm">
+													<span className="inline-block w-4 text-right">
+														{isUserWhite ? userScore : oppScore}
+													</span>
+													<span className="font-medium truncate">
+														{isUserWhite
+															? currentUser?.chess_username
+															: game.opponent_username}
+													</span>
+													<span className="text-muted-foreground whitespace-nowrap">
+														(
+														{isUserWhite
+															? game.user_rating
+															: game.opponent_rating}
+														)
+													</span>
+												</div>
+												<div className="flex items-center gap-2 text-sm">
+													<span className="inline-block w-4 text-right">
+														{isUserWhite ? oppScore : userScore}
+													</span>
+													<span className="font-medium truncate">
+														{isUserWhite
+															? game.opponent_username
+															: currentUser?.chess_username}
+													</span>
+													<span className="text-muted-foreground whitespace-nowrap">
+														(
+														{isUserWhite
+															? game.opponent_rating
+															: game.user_rating}
+														)
+													</span>
+												</div>
+											</div>
+
+											{/* Result column */}
+											<div className="flex justify-center">
+												{isUserWin ? (
+													<CheckCircle2
+														className={`${ICON_SIZE} text-green-500`}
+													/>
+												) : (
+													<XCircle className={`${ICON_SIZE} text-red-500`} />
+												)}
+											</div>
+
+											{/* Moves column */}
+											<div className="text-center text-sm">
+												{game.move_count ?? "?"}
+											</div>
+										</a>
+									);
+								})}
 							</div>
-						);
-					})}
-				</div>
-			</div>
+						</div>
+					</div>
+				)}
+			</CardContent>
 		</Card>
 	);
-}
+};
+
+export default RecentGamesFeed;

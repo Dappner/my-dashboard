@@ -1466,6 +1466,7 @@ export type Database = {
       }
       users: {
         Row: {
+          chess_username: string | null
           created_at: string | null
           email: string
           first_name: string | null
@@ -1476,6 +1477,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          chess_username?: string | null
           created_at?: string | null
           email: string
           first_name?: string | null
@@ -1486,6 +1488,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          chess_username?: string | null
           created_at?: string | null
           email?: string
           first_name?: string | null
