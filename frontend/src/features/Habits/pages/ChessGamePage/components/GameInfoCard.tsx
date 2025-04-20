@@ -1,3 +1,6 @@
+import type { ChessGame } from "@/api/chessApi";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -5,12 +8,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Trophy, Clock, Calendar, RotateCcw } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
 import { formatDuration } from "@/lib/utils";
-import type { ChessGame } from "@/api/chessApi";
+import { format } from "date-fns";
+import { Calendar, Clock, RotateCcw, Trophy } from "lucide-react";
 
 interface GameInfoCardProps {
 	chessGame: ChessGame;

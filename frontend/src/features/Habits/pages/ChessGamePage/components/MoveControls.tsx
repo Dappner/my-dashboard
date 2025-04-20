@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { SkipBack, ChevronLeft, ChevronRight, SkipForward } from "lucide-react";
+import { ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 
 interface MoveControlsProps {
 	currentMove: number;

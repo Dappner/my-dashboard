@@ -1,14 +1,14 @@
-import { chessGameRoute } from "@/routes/habits-routing";
 import { PageContainer } from "@/components/layout/components/PageContainer";
-import { useGame } from "../ChessPage/hooks/useChessHooks";
-import type { BoardOrientation } from "react-chessboard/dist/chessboard/types";
-import { useEffect, useRef, useState } from "react";
+import { chessGameRoute } from "@/routes/habits-routing";
 import { Chess } from "chess.js";
+import { useEffect, useRef, useState } from "react";
+import type { RefObject } from "react";
+import type { BoardOrientation } from "react-chessboard/dist/chessboard/types";
+import { useGame } from "../ChessPage/hooks/useChessHooks";
 import ChessBoardView from "./components/ChessBoardView";
+import GameInfoCard from "./components/GameInfoCard";
 import MoveControls from "./components/MoveControls";
 import MoveHistory from "./components/MoveHistory";
-import type { RefObject } from "react";
-import GameInfoCard from "./components/GameInfoCard";
 
 export default function ChessGamePage() {
 	const { gameId } = chessGameRoute.useParams();

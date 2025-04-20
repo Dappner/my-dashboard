@@ -1,7 +1,7 @@
-import { Chessboard } from "react-chessboard";
-import { useLayoutEffect, useRef, useState } from "react";
-import type { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 import type { Chess } from "chess.js";
+import { useLayoutEffect, useRef, useState } from "react";
+import { Chessboard } from "react-chessboard";
+import type { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 
 interface ChessBoardProps {
 	game: Chess;
