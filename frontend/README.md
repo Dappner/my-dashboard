@@ -48,14 +48,12 @@
 
 **Spending**
 
-- Convert all currencies in Spending to use users preferred currency.
 - Enable better spending tracking (so I quickly log spend e.g. 2 beers at night out)
 - Voice Memo feature - QUickly talk about transaction that gets dumped into s3 and then processed.
 - Subscription Management? (easier to add spending ) (prob not)
 - Edit Transaction....
-
   - Slight more improvements needded
-
+- Better Spending Time Management (Similar to chess)
 - BIG: Change Schema name to spending, create a spending table, and make receipts link to it
   - Essentially, spending should also be receiptless (in case I am using e.g. a voice memo)
 
@@ -70,6 +68,8 @@
   - We also call these several times in different ways e.g. (Sectors?key="industries") etc...
   - Entity mappings call them alot
 - Bring back crumbs?
+- Create the Summary Page!
+
 
 # FORMULAS USED
 

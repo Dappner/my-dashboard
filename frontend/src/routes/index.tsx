@@ -16,6 +16,7 @@ import { readingRoutes } from "./reading-routes";
 import { spendingRoutes } from "./spending-routes";
 import TravelPage from "@/features/Travel/TravelPage";
 import { z } from "zod";
+import SummaryPage from "@/features/Summary/SummaryPage";
 
 export const rootRoute = createRootRoute({
   component: AuthWrapper,
@@ -64,19 +65,13 @@ export const travelRoute = createRoute({
 });
 
 const summarySearchSchema = z.object({
-  year: z
-    .string()
-    .regex(/^\d{4}$/, "Year must be a 4-digit number")
-    .optional()
-    .transform((val) =>
-      val ? Number.parseInt(val, 10) : new Date().getFullYear().toString(),
-    ),
+  year: z.number().optional(),
 });
 
-export const summaryPage = createRoute({
+export const summaryRoute = createRoute({
   getParentRoute: () => layoutRoute,
   path: "summary",
-  component: TravelPage,
+  component: SummaryPage,
   validateSearch: summarySearchSchema,
 });
 
@@ -90,6 +85,7 @@ const routeTree = rootRoute.addChildren([
     ...habitsRoutes,
     accountRoute,
     travelRoute,
+    summaryRoute,
     splatRoute,
   ]),
 ]);
