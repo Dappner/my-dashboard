@@ -1,4 +1,3 @@
-import { ThemeSwitcher } from "@/components/controls/theme-switcher";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import {
@@ -84,7 +83,6 @@ export default function AccountPage() {
 						Manage your account preferences
 					</p>
 				</div>
-				<ThemeSwitcher />
 			</div>
 
 			<div className="grid sm:grid-cols-2 gap-6">

@@ -89,9 +89,9 @@ export function NavUser() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" className="w-full justify-between px-3 py-8">
+				<Button variant="ghost" className="w-full px-2 py-8">
 					<div className="flex items-center">
-						<Avatar className="h-8 w-8 rounded-lg">
+						<Avatar className="size-10 rounded-lg">
 							<AvatarImage alt={fullName} />
 							<AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
 						</Avatar>
@@ -104,9 +104,9 @@ export function NavUser() {
 						)}
 					</div>
 
-					{(state === "expanded" || isMobile) && (
-						<ChevronsUpDown className="ml-auto size-4" />
-					)}
+					{/* {(state === "expanded" || isMobile) && ( */}
+					{/* 	<ChevronsUpDown className="ml-auto size-4" /> */}
+					{/* )} */}
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent

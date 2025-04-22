@@ -5,6 +5,9 @@ export type ThemeMode = "light" | "dark" | "system";
 export function useTheme() {
 	// 1) Init from localStorage or default to "system"
 	const [theme, setTheme] = useState<ThemeMode>(() => {
+		// If we're not in browser context (e.g., during SSR), return default
+		if (typeof window === "undefined") return "system";
+
 		const saved = localStorage.getItem("theme") as ThemeMode | null;
 		return saved ?? "system";
 	});

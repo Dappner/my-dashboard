@@ -3,9 +3,53 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Astorian</title>
+  <style>
+    :root {
+      color-scheme: light;
+    }
+
+    .dark {
+      color-scheme: dark;
+    }
+
+    :root {
+      --background: oklch(0.98 0.0017 247.84);
+      --foreground: oklch(0.145 0 0);
+    }
+
+    .dark {
+      --background: oklch(0.145 0 0);
+      --foreground: oklch(0.985 0 0);
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+  </style>
+
+  <!-- Theme initialization script to prevent flash of wrong theme -->
+  <script>
+    // Try to get the user's preferred theme from localStorage
+    const savedTheme = localStorage.getItem('theme');
+
+    if (savedTheme === 'dark') {
+      // User explicitly prefers dark mode
+      document.documentElement.classList.add('dark');
+    } else if (savedTheme === 'light') {
+      // User explicitly prefers light mode
+      document.documentElement.classList.remove('dark');
+    } else {
+      // Check system preference if no explicit preference is saved
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        document.documentElement.classList.add('dark');
+      }
+    }
+  </script>
 </head>
 
 <body className="h-dvh w-full">
