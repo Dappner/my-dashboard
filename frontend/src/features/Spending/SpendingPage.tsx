@@ -2,27 +2,21 @@ import ErrorState from "@/components/layout/components/ErrorState";
 import LoadingState from "@/components/layout/components/LoadingState";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Button } from "@/components/ui/button";
-import { useMonthParam } from "@/hooks/useMonthParam";
-import { format } from "date-fns";
 import { PieChartIcon } from "lucide-react";
-import { MonthSwitcher } from "./components/MonthSwitcher";
 import { SpendingKpiCards } from "./components/SpendingKpiCards";
 import { useSpendingMetrics } from "./hooks/useSpendingMetrics";
-import { ActivityFeed } from "./widgets/ActivityFeed";
 import CurrentMonthCategoryChart from "./widgets/CurrentMonthCategoryChart";
 import { SpendingChartTabs } from "./widgets/SpendingChartTabs";
+import TimeframeControls from "@/components/controls/CustomTimeframeControl";
+import { useTimeframeParams } from "@/hooks/useTimeframeParams";
+import { ActivityFeed } from "./widgets/ActivityFeed";
 
 export default function SpendingOverview() {
-	const { selectedDate, setSelectedDate } = useMonthParam();
-
-	const {
-		spendingMetrics,
-		isLoading: metricsLoading,
-		error,
-	} = useSpendingMetrics(selectedDate);
-
-	const formattedMonth = format(selectedDate, "MMMM yyyy");
-	const isLoading = metricsLoading;
+	const { timeframe, date, setTimeframe, setDate } = useTimeframeParams();
+	const { spendingMetrics, isLoading, error } = useSpendingMetrics(
+		date,
+		timeframe,
+	);
 
 	if (isLoading) {
 		return <LoadingState />;
@@ -32,32 +26,28 @@ export default function SpendingOverview() {
 		return <ErrorState message="Error loading spending data" />;
 	}
 
-	const hasSpendingData = spendingMetrics && spendingMetrics.totalSpent > 0;
-
 	return (
 		<PageContainer className="min-h-screen">
 			<header className="mb-6 flex flex-row justify-center sm:justify-between items-start sm:items-center gap-4">
-				<div className="hidden sm:block">
-					<h1 className="text-xl md:text-3xl font-semibold tracking-tight">
-						Spending Overview
-					</h1>
-				</div>
-				<MonthSwitcher
-					selectedDate={selectedDate}
-					onDateChange={setSelectedDate}
+				<h1 className="hidden sm:block text-xl md:text-3xl font-semibold tracking-tight">
+					Spending Overview
+				</h1>
+				<TimeframeControls
+					timeframe={timeframe}
+					date={date}
+					onTimeframeChange={setTimeframe}
+					onDateChange={setDate}
 				/>
 			</header>
 
-			{!hasSpendingData ? (
+			{!spendingMetrics ? (
 				<div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
 					<div className="text-center text-muted-foreground">
 						<PieChartIcon className="h-12 w-12 mx-auto mb-4 opacity-30" />
 						<h3 className="text-xl font-medium mb-2">
-							No spending data available for {formattedMonth}
+							No spending data available
 						</h3>
-						<Button onClick={() => setSelectedDate(new Date())}>
-							Set to Current
-						</Button>
+						<Button>Reset to this month!</Button>
 					</div>
 				</div>
 			) : (
@@ -71,7 +61,7 @@ export default function SpendingOverview() {
 					</div>
 
 					<div className="md:col-span-4 gap-4 flex flex-col">
-						<CurrentMonthCategoryChart formattedMonth={formattedMonth} />
+						<CurrentMonthCategoryChart />
 						<ActivityFeed />
 					</div>
 				</div>

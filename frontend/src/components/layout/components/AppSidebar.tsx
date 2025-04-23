@@ -1,11 +1,11 @@
 import { ThemeSwitcher } from "@/components/controls/ThemeSwitcher";
+import { Separator } from "@/components/ui/separator";
 import { Sidebar } from "../Sidebar/Sidebar";
 import { SidebarContent } from "../Sidebar/components/SidebarContent";
 import { SidebarHeader } from "../Sidebar/components/SidebarHeader";
 import { SidebarRoutes } from "../Sidebar/components/SidebarRoutes";
 import { useSidebar } from "../Sidebar/providers/SidebarProvider";
 import { NavUser } from "./nav-user";
-import { Separator } from "@/components/ui/separator";
 
 export function AppSidebar() {
 	const { state, isMobile } = useSidebar();

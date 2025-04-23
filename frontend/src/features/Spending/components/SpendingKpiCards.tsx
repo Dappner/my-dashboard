@@ -2,7 +2,7 @@ import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrencyConversion } from "@/hooks/useCurrencyConversion";
-import { useMonthParam } from "@/hooks/useMonthParam";
+import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import { spendingCategoryDetailRoute } from "@/routes/spending-routes";
 import { Link } from "@tanstack/react-router";
 import { Receipt as ReceiptIcon, TrendingUp } from "lucide-react";
@@ -12,17 +12,19 @@ import { useSpendingMetrics } from "../hooks/useSpendingMetrics";
 import { SpendingTrendIndicator } from "./SpendingTrendIndicator";
 
 export const SpendingKpiCards: React.FC = () => {
-	const { selectedDate } = useMonthParam();
+	const { timeframe, date } = useTimeframeParams();
 	const { displayCurrency } = useCurrencyConversion();
+
 	const { spendingMetrics, isLoading: spendingMetricsLoading } =
-		useSpendingMetrics(selectedDate);
+		useSpendingMetrics(date, timeframe);
+
 	const { data: dailySpending, isLoading: isDailySpendingLoading } =
-		useDailySpending({ selectedDate });
+		useDailySpending({ selectedDate: date, timeframe });
 
 	//ALREADY FOREX ADJUSTED!!
 	const averageDailySpend = useAverageDailySpend({
 		dailySpending,
-		selectedDate,
+		selectedDate: date,
 	});
 
 	const isLoading = spendingMetricsLoading || isDailySpendingLoading;
@@ -92,7 +94,11 @@ export const SpendingKpiCards: React.FC = () => {
 								className="text-xl font-bold hover:underline"
 								to={spendingCategoryDetailRoute.to}
 								params={{ categoryId: topCategory.id }}
-								search={(prev) => ({ ...prev })}
+								search={(prev) => ({
+									...prev,
+									timeframe,
+									date: date.toISOString().split("T")[0],
+								})}
 							>
 								{topCategory.name}
 							</Link>

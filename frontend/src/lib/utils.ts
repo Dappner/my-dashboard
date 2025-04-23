@@ -75,10 +75,16 @@ export function getMonthRange(date: Date): {
  * @param customRange Optional custom date range (used when timeframe is "custom")
  * @returns Object with start and end dates in ISO format (YYYY-MM-DD)
  */
+
+export interface CustomRange {
+	start: Date;
+	end: Date;
+}
+
 export function getTimeframeRange(
 	referenceDate: Date = new Date(),
 	timeframe: Timeframe = "m",
-	customRange?: { start: Date; end: Date },
+	customRange?: CustomRange,
 ): {
 	start: string;
 	end: string;
@@ -211,4 +217,23 @@ export const formatDuration = (seconds: number | null) => {
 	const mins = Math.floor(seconds / 60);
 	const secs = seconds % 60;
 	return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+};
+
+export const formatPeriodName = (date: Date, timeframe: Timeframe) => {
+	switch (timeframe) {
+		case "w":
+			return `Week of ${format(date, "MMM d, yyyy")}`;
+		case "m":
+			return format(date, "MMMM yyyy");
+		case "q": {
+			const quarter = Math.floor(date.getMonth() / 3) + 1;
+			return `Q${quarter} ${date.getFullYear()}`;
+		}
+		case "y":
+			return format(date, "yyyy");
+		case "all":
+			return "All Time";
+		default:
+			return format(date, "MMMM yyyy");
+	}
 };

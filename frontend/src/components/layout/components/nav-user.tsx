@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUser } from "@/contexts/UserContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
+import { BadgeCheck, Bell, LogOut } from "lucide-react";
 import { useSidebar } from "../Sidebar/providers/SidebarProvider";
 
 export function NavUser() {

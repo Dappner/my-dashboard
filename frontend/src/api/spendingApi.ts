@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
-import { getMonthRange, getUTCDate } from "@/lib/utils";
+import { type CustomRange, formatDate, getTimeframeRange } from "@/lib/utils";
 import type { Database } from "@/types/supabase";
-import type { CurrencyType } from "@my-dashboard/shared";
+import type { CurrencyType, Timeframe } from "@my-dashboard/shared";
 import type { Receipt, ReceiptItem, SpendingCategory } from "./receiptsApi";
 
 export interface MonthlyData {
@@ -62,30 +62,56 @@ export type DailySpending =
 
 export const spendingMetricsApiKeys = {
 	all: ["spendingMetrics"] as const,
-	month: (date: string) =>
-		[...spendingMetricsApiKeys.all, "month", date] as const,
-	monthlyData: (date: string) =>
-		[...spendingMetricsApiKeys.all, "monthlyData", date] as const,
-	categories: (date: string) =>
-		[...spendingMetricsApiKeys.all, "categories", date] as const,
-	categoryReceipts: (categoryId: string) =>
-		[...spendingMetricsApiKeys.all, "categoryReceipts", categoryId] as const,
-	categoryDetails: (categoryId: string) =>
-		[...spendingMetricsApiKeys.all, "categoryDetails", categoryId] as const,
-	dailySpending: (date: string) =>
-		[...spendingMetricsApiKeys.all, "dailySpending", date] as const,
+	timeframe: (cacheKey: string) =>
+		[...spendingMetricsApiKeys.all, "timeframe", cacheKey] as const,
+	overTimeData: (cacheKey: string) =>
+		[...spendingMetricsApiKeys.all, "overTimeData", cacheKey] as const,
+	categories: (cacheKey: string) =>
+		[...spendingMetricsApiKeys.all, "categories", cacheKey] as const,
+	categoryReceipts: (categoryId: string, cacheKey?: string) =>
+		cacheKey
+			? ([
+					...spendingMetricsApiKeys.all,
+					"categoryReceipts",
+					categoryId,
+					cacheKey,
+				] as const)
+			: ([
+					...spendingMetricsApiKeys.all,
+					"categoryReceipts",
+					categoryId,
+				] as const),
+	categoryDetails: (categoryId: string, cacheKey?: string) =>
+		cacheKey
+			? ([
+					...spendingMetricsApiKeys.all,
+					"categoryDetails",
+					categoryId,
+					cacheKey,
+				] as const)
+			: ([
+					...spendingMetricsApiKeys.all,
+					"categoryDetails",
+					categoryId,
+				] as const),
+	dailySpending: (cacheKey: string) =>
+		[...spendingMetricsApiKeys.all, "dailySpending", cacheKey] as const,
 };
 
 export const spendingMetricsApi = {
-	async getRecentReceipts(selectedDate: Date): Promise<Receipt[]> {
-		const { monthStart, monthEnd } = getMonthRange(selectedDate);
+	async getRecentReceipts(
+		date: Date,
+		timeframe: Timeframe = "m",
+		customRange?: CustomRange,
+	): Promise<Receipt[]> {
+		const { start, end } = getTimeframeRange(date, timeframe, customRange);
 
 		const { data, error } = await supabase
 			.schema("grocery")
 			.from("receipts")
 			.select("id, purchase_date, total_amount, store_name, currency_code")
-			.gte("purchase_date", monthStart)
-			.lte("purchase_date", monthEnd)
+			.gte("purchase_date", start)
+			.lte("purchase_date", end)
 			.order("purchase_date", { ascending: false })
 			.limit(5);
 
@@ -93,15 +119,19 @@ export const spendingMetricsApi = {
 		return data as Receipt[];
 	},
 
-	async getMonthData(selectedDate: Date): Promise<CurrentMonthResponse> {
-		const { monthStart, monthEnd } = getMonthRange(selectedDate);
+	async getTimeframeData(
+		date: Date,
+		timeframe: Timeframe = "m",
+		customRange?: CustomRange,
+	): Promise<CurrentMonthResponse> {
+		const { start, end } = getTimeframeRange(date, timeframe, customRange);
 
 		const { data, error } = await supabase
 			.schema("grocery")
 			.from("receipts")
 			.select("total_amount, id, currency_code")
-			.gte("purchase_date", monthStart)
-			.lte("purchase_date", monthEnd);
+			.gte("purchase_date", start)
+			.lte("purchase_date", end);
 
 		if (error) throw new Error(`Current month data error: ${error.message}`);
 
@@ -134,49 +164,67 @@ export const spendingMetricsApi = {
 		};
 	},
 
-	async getMonthlyData(selectedDate: Date): Promise<MonthlyData[]> {
-		const year = selectedDate.getUTCFullYear();
-		const month = selectedDate.getUTCMonth();
-		const sixMonthsAgo = getUTCDate(year, month - 6, 1);
+	async getOverTimeData(
+		date: Date,
+		timeframe: Timeframe = "m",
+		dateRange?: CustomRange,
+	): Promise<MonthlyData[]> {
+		const { start, end } = getTimeframeRange(date, timeframe, dateRange);
+		const startDate = formatDate(start);
+		const endDate = formatDate(end);
 
+		// For longer time periods, we might want to group by month rather than day
+		const groupByMonth = ["q", "y", "all"].includes(timeframe);
+
+		// Use daily_spending view which has date based data
 		const { data, error } = await supabase
 			.schema("grocery")
-			.from("receipts")
-			.select("purchase_date, total_amount, currency_code")
-			.gte("purchase_date", sixMonthsAgo)
-			.order("purchase_date", { ascending: true });
+			.from("daily_spending")
+			.select("date, total_amount, currency_code")
+			.gte("date", startDate)
+			.lte("date", endDate)
+			.order("date", { ascending: true });
 
-		if (error) throw new Error(`Monthly data error: ${error.message}`);
+		if (error) throw new Error(`Time series data error: ${error.message}`);
 
-		// Need to group by month AND currency
-		const monthCurrencyTotals: Record<string, Record<string, number>> = {};
+		// For shorter timeframes, return daily data
+		if (!groupByMonth) {
+			return (data || []).map((row) => ({
+				period: row.date,
+				amount: row.total_amount || 0,
+				currency: (row.currency_code as CurrencyType) || "USD",
+			}));
+		}
+
+		// For longer timeframes, group by month
+		const monthlyData: Record<string, Record<string, number>> = {};
 
 		if (data) {
-			for (const receipt of data) {
-				const date = new Date(receipt.purchase_date);
-				const monthKey = date.toLocaleString("default", {
-					month: "short",
-					year: "numeric",
-					timeZone: "UTC",
-				});
-				const currency = receipt.currency_code as CurrencyType;
-				const amount = receipt.total_amount || 0;
+			for (const row of data) {
+				if (!row.date) continue;
 
-				if (!monthCurrencyTotals[monthKey]) {
-					monthCurrencyTotals[monthKey] = {};
+				// Extract month from date (YYYY-MM)
+				const month = row.date.substring(0, 7);
+				const currency = (row.currency_code as CurrencyType) || "USD";
+				const amount = row.total_amount || 0;
+
+				if (!monthlyData[month]) {
+					monthlyData[month] = {};
 				}
 
-				monthCurrencyTotals[monthKey][currency] =
-					(monthCurrencyTotals[monthKey][currency] || 0) + amount;
+				monthlyData[month][currency] =
+					(monthlyData[month][currency] || 0) + amount;
 			}
 		}
 
-		// Transform into the required format
+		// Convert to array format
 		const result: MonthlyData[] = [];
-		for (const [month, currencies] of Object.entries(monthCurrencyTotals)) {
+
+		for (const [month, currencies] of Object.entries(monthlyData)) {
 			for (const [currency, amount] of Object.entries(currencies)) {
 				result.push({
-					month,
+					period: month,
+					month: month, // For backward compatibility
 					amount,
 					currency: currency as CurrencyType,
 				});
@@ -186,17 +234,23 @@ export const spendingMetricsApi = {
 		return result;
 	},
 
-	async getCategories(selectedDate: Date): Promise<CategoryData[]> {
-		const { monthStart, monthEnd } = getMonthRange(selectedDate);
+	async getCategories(
+		date: Date,
+		timeframe: Timeframe = "m",
+		dateRange?: CustomRange,
+	): Promise<CategoryData[]> {
+		const { start, end } = dateRange || getTimeframeRange(date, timeframe);
+		const startDate = formatDate(start);
+		const endDate = formatDate(end);
 
 		const { data, error } = await supabase
 			.schema("grocery")
 			.from("receipt_items")
 			.select(
-				"categories(id, name), total_price, category_id, receipts(currency_code)",
+				"categories(id, name), total_price, category_id, receipts(currency_code, purchase_date)",
 			)
-			.gte("created_at", monthStart)
-			.lte("created_at", monthEnd)
+			.gte("receipts.purchase_date", startDate)
+			.lte("receipts.purchase_date", endDate)
 			.not("category_id", "is", null);
 
 		if (error) throw new Error(`Category data error: ${error.message}`);
@@ -254,7 +308,9 @@ export const spendingMetricsApi = {
 
 	async getCategoryReceipts(
 		categoryId: string,
-		selectedDate?: Date,
+		date?: Date,
+		timeframe?: Timeframe,
+		dateRange?: CustomRange,
 	): Promise<CategoryReceiptsResponse> {
 		// Define the type for the query result
 		type CategoryItemsResult = {
@@ -278,9 +334,18 @@ export const spendingMetricsApi = {
 			.eq("category_id", categoryId);
 
 		// Apply date filtering if provided
-		if (selectedDate) {
-			const { monthStart, monthEnd } = getMonthRange(selectedDate);
-			query = query.gte("created_at", monthStart).lte("created_at", monthEnd);
+		if (date && (timeframe || dateRange)) {
+			const { start, end } = getTimeframeRange(
+				date,
+				timeframe || "m",
+				dateRange,
+			);
+			const startDate = formatDate(start);
+			const endDate = formatDate(end);
+
+			query = query
+				.gte("receipts.purchase_date", startDate)
+				.lte("receipts.purchase_date", endDate);
 		}
 
 		const { data: receiptItems, error: itemsError } = await query;
@@ -354,7 +419,9 @@ export const spendingMetricsApi = {
 
 	async getCategoryDetails(
 		categoryId: string,
-		selectedDate?: Date,
+		date?: Date,
+		timeframe?: Timeframe,
+		dateRange?: CustomRange,
 	): Promise<
 		CategoryDetailsResponse & {
 			totalSpent?: number;
@@ -374,11 +441,14 @@ export const spendingMetricsApi = {
 		}
 
 		// If date is provided, also fetch spending total for this category in the selected month
-		if (selectedDate) {
-			const year = selectedDate.getUTCFullYear();
-			const month = selectedDate.getUTCMonth();
-			const monthStart = getUTCDate(year, month, 1);
-			const nextMonthStart = getUTCDate(year, month + 1, 1);
+		if (date && (timeframe || dateRange)) {
+			const { start, end } = getTimeframeRange(
+				date,
+				timeframe || "m",
+				dateRange,
+			);
+			const startDate = formatDate(start);
+			const endDate = formatDate(end);
 
 			// Define the type for the query result
 			type CategoryItemsResult = {
@@ -391,8 +461,8 @@ export const spendingMetricsApi = {
 				.from("receipt_items")
 				.select("total_price, receipts(currency_code)")
 				.eq("category_id", categoryId)
-				.gte("created_at", monthStart)
-				.lt("created_at", nextMonthStart);
+				.gte("receipts.purchase_date", startDate)
+				.lte("receipts.purchase_date", endDate);
 
 			if (!itemsError && items && items.length > 0) {
 				// Calculate total spending by currency
@@ -428,16 +498,23 @@ export const spendingMetricsApi = {
 		return data;
 	},
 
-	async getDailySpending(selectedDate: Date): Promise<DailySpending[]> {
-		const { monthStart, monthEnd } = getMonthRange(selectedDate);
+	async getDailySpending(
+		selectedDate: Date,
+		timeframe: Timeframe = "m",
+		dateRange?: CustomRange,
+	): Promise<DailySpending[]> {
+		const { start, end } =
+			dateRange || getTimeframeRange(selectedDate, timeframe);
+		const startDate = formatDate(start);
+		const endDate = formatDate(end);
 
 		const { data, error } = await supabase
 			.schema("grocery")
 			.from("daily_spending")
 			.select("*")
-			.gte("date", monthStart)
-			.lte("date", monthEnd)
-			.order("date", { ascending: false });
+			.gte("date", startDate)
+			.lte("date", endDate)
+			.order("date", { ascending: true });
 
 		if (error) throw new Error(`Daily spending data error: ${error.message}`);
 

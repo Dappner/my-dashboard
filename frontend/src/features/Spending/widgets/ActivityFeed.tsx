@@ -7,16 +7,16 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMonthParam } from "@/hooks/useMonthParam";
 import { spendingReceiptDetailRoute } from "@/routes/spending-routes";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ReceiptIcon } from "lucide-react";
 import { useRecentReceipts } from "../hooks/useSpendingMetrics";
+import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 
 export const ActivityFeed: React.FC = () => {
-	const { selectedDate } = useMonthParam();
-	const { data: receipts, isLoading } = useRecentReceipts(selectedDate);
+	const { date, timeframe } = useTimeframeParams();
+	const { data: receipts, isLoading } = useRecentReceipts(date, timeframe);
 
 	return (
 		<Card className="hover:shadow-md transition-shadow h-full">
