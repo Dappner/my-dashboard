@@ -1,33 +1,56 @@
 import { spendingMetricsApi, spendingMetricsApiKeys } from "@/api/spendingApi";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
+import { format } from "date-fns";
+import type { Timeframe } from "@my-dashboard/shared";
 
-export function useCategoryData(categoryId: string, selectedDate?: Date) {
-	const dateKey = selectedDate
-		? selectedDate.toISOString().split("T")[0]
-		: "all";
+interface UseCategoryDataOptions {
+  staleTime?: number;
+  enabled?: boolean;
+}
 
-	// Category details query
-	const detailsQuery = useQuery({
-		queryKey: [...spendingMetricsApiKeys.categoryDetails(categoryId), dateKey],
-		queryFn: () =>
-			spendingMetricsApi.getCategoryDetails(categoryId, selectedDate),
-		enabled: !!categoryId,
-	});
+export function useCategoryData(
+  categoryId: string,
+  date: Date = new Date(),
+  timeframe: Timeframe = "m",
+  { staleTime, enabled = true }: UseCategoryDataOptions = {},
+) {
+  const formattedDate = format(date, "yyyy-MM-dd");
+  const cacheKey = [timeframe, formattedDate];
 
-	// Category receipts query
-	const receiptsQuery = useQuery({
-		queryKey: [...spendingMetricsApiKeys.categoryReceipts(categoryId), dateKey],
-		queryFn: () =>
-			spendingMetricsApi.getCategoryReceipts(categoryId, selectedDate),
-		enabled: !!categoryId,
-	});
+  const [detailsQuery, receiptsQuery] = useQueries({
+    queries: [
+      {
+        queryKey: [
+          ...spendingMetricsApiKeys.categoryDetails(categoryId),
+          cacheKey,
+        ],
+        queryFn: () =>
+          spendingMetricsApi.getCategoryDetails(categoryId, date, timeframe),
+        enabled: enabled && !!categoryId,
+        staleTime,
+      },
+      {
+        queryKey: [
+          ...spendingMetricsApiKeys.categoryReceipts(categoryId),
+          cacheKey,
+        ],
+        queryFn: () =>
+          spendingMetricsApi.getCategoryReceipts(categoryId, date, timeframe),
+        enabled: enabled && !!categoryId,
+        staleTime,
+      },
+    ],
+  });
 
-	return {
-		details: detailsQuery.data,
-		receipts: receiptsQuery.data?.receipts || [],
-		items: receiptsQuery.data?.items || [],
-		totalSpent: receiptsQuery.data?.totalSpent || 0,
-		isLoading: detailsQuery.isLoading || receiptsQuery.isLoading,
-		error: detailsQuery.error || receiptsQuery.error,
-	};
+  return {
+    details: detailsQuery.data,
+    receipts: receiptsQuery.data,
+    isLoading: detailsQuery.isLoading || receiptsQuery.isLoading,
+    isFetching: detailsQuery.isFetching || receiptsQuery.isFetching,
+    error: detailsQuery.error || receiptsQuery.error,
+    refetch: () => {
+      detailsQuery.refetch();
+      receiptsQuery.refetch();
+    },
+  };
 }
