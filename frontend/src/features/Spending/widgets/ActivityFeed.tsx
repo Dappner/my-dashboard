@@ -7,12 +7,12 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import { spendingReceiptDetailRoute } from "@/routes/spending-routes";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ReceiptIcon } from "lucide-react";
 import { useRecentReceipts } from "../hooks/useSpendingMetrics";
-import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 
 export const ActivityFeed: React.FC = () => {
 	const { date, timeframe } = useTimeframeParams();

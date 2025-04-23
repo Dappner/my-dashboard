@@ -1,15 +1,15 @@
+import TimeframeControls from "@/components/controls/CustomTimeframeControl";
 import ErrorState from "@/components/layout/components/ErrorState";
 import LoadingState from "@/components/layout/components/LoadingState";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Button } from "@/components/ui/button";
+import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import { PieChartIcon } from "lucide-react";
 import { SpendingKpiCards } from "./components/SpendingKpiCards";
 import { useSpendingMetrics } from "./hooks/useSpendingMetrics";
+import { ActivityFeed } from "./widgets/ActivityFeed";
 import CurrentMonthCategoryChart from "./widgets/CurrentMonthCategoryChart";
 import { SpendingChartTabs } from "./widgets/SpendingChartTabs";
-import TimeframeControls from "@/components/controls/CustomTimeframeControl";
-import { useTimeframeParams } from "@/hooks/useTimeframeParams";
-import { ActivityFeed } from "./widgets/ActivityFeed";
 
 export default function SpendingOverview() {
 	const { timeframe, date, setTimeframe, setDate } = useTimeframeParams();

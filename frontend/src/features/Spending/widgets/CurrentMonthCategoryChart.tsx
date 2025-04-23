@@ -1,11 +1,11 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTimeframeParams } from "@/hooks/useTimeframeParams";
+import { formatPeriodName } from "@/lib/utils";
 import { spendingCategoriesRoute } from "@/routes/spending-routes";
 import { Link } from "@tanstack/react-router";
 import { PieChartIcon } from "lucide-react";
 import { CategoryPieChart } from "../components/CategoryPieChart";
 import { useSpendingMetrics } from "../hooks/useSpendingMetrics";
-import { formatPeriodName } from "@/lib/utils";
 
 export default function CurrentMonthCategoryChart() {
 	const { timeframe, date } = useTimeframeParams();
