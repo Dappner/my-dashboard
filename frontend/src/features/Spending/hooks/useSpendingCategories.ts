@@ -1,7 +1,4 @@
-import {
-	spendingCategoriesApi,
-	spendingCategoriesApiKeys,
-} from "@/api/spendingCategoriesApi";
+import { spendingApi, spendingApiKeys } from "@/api/spending/spendingApi";
 import { useQuery } from "@tanstack/react-query";
 
 export interface UseSpendingCategoriesOptions {
@@ -12,7 +9,7 @@ export function useSpendingCategories(
 ) {
 	return useQuery({
 		initialData: [],
-		queryKey: spendingCategoriesApiKeys.all,
-		queryFn: spendingCategoriesApi.getCategories,
+		queryKey: spendingApiKeys.categoryList(),
+		queryFn: spendingApi.fetchCategoriesList,
 	});
 }

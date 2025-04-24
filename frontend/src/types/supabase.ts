@@ -189,246 +189,6 @@ export type Database = {
       [_ in never]: never
     }
   }
-  grocery: {
-    Tables: {
-      categories: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name: string
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      item_translations: {
-        Row: {
-          category_id: string | null
-          created_at: string | null
-          id: string
-          original_name: string
-          readable_name: string
-        }
-        Insert: {
-          category_id?: string | null
-          created_at?: string | null
-          id?: string
-          original_name: string
-          readable_name: string
-        }
-        Update: {
-          category_id?: string | null
-          created_at?: string | null
-          id?: string
-          original_name?: string
-          readable_name?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "item_translations_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      receipt_items: {
-        Row: {
-          category_id: string | null
-          created_at: string | null
-          discount_amount: number | null
-          id: string
-          is_discounted: boolean | null
-          item_name: string
-          original_unit_price: number | null
-          quantity: number | null
-          readable_name: string | null
-          receipt_id: string | null
-          total_price: number | null
-          unit_price: number
-        }
-        Insert: {
-          category_id?: string | null
-          created_at?: string | null
-          discount_amount?: number | null
-          id?: string
-          is_discounted?: boolean | null
-          item_name: string
-          original_unit_price?: number | null
-          quantity?: number | null
-          readable_name?: string | null
-          receipt_id?: string | null
-          total_price?: number | null
-          unit_price: number
-        }
-        Update: {
-          category_id?: string | null
-          created_at?: string | null
-          discount_amount?: number | null
-          id?: string
-          is_discounted?: boolean | null
-          item_name?: string
-          original_unit_price?: number | null
-          quantity?: number | null
-          readable_name?: string | null
-          receipt_id?: string | null
-          total_price?: number | null
-          unit_price?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "receipt_items_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "receipt_items_receipt_id_fkey"
-            columns: ["receipt_id"]
-            isOneToOne: false
-            referencedRelation: "receipts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "receipt_items_receipt_id_fkey"
-            columns: ["receipt_id"]
-            isOneToOne: false
-            referencedRelation: "receipts_with_items"
-            referencedColumns: ["receipt_id"]
-          },
-        ]
-      }
-      receipts: {
-        Row: {
-          created_at: string | null
-          currency_code: Database["grocery"]["Enums"]["currency_type"]
-          currency_evidence: string | null
-          error_message: string | null
-          id: string
-          last_processed_at: string | null
-          processing_attempts: number
-          purchase_date: string
-          receipt_image_path: string | null
-          store_name: string | null
-          tax_amount: number | null
-          total_amount: number
-          total_discount: number
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          currency_code?: Database["grocery"]["Enums"]["currency_type"]
-          currency_evidence?: string | null
-          error_message?: string | null
-          id?: string
-          last_processed_at?: string | null
-          processing_attempts?: number
-          purchase_date: string
-          receipt_image_path?: string | null
-          store_name?: string | null
-          tax_amount?: number | null
-          total_amount: number
-          total_discount?: number
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          currency_code?: Database["grocery"]["Enums"]["currency_type"]
-          currency_evidence?: string | null
-          error_message?: string | null
-          id?: string
-          last_processed_at?: string | null
-          processing_attempts?: number
-          purchase_date?: string
-          receipt_image_path?: string | null
-          store_name?: string | null
-          tax_amount?: number | null
-          total_amount?: number
-          total_discount?: number
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-    }
-    Views: {
-      daily_spending: {
-        Row: {
-          currency_code: Database["grocery"]["Enums"]["currency_type"] | null
-          currency_receipt_count: number | null
-          currency_total_amount: number | null
-          currency_total_discount: number | null
-          date: string | null
-          receipt_count: number | null
-          stores: string[] | null
-          total_amount: number | null
-          total_discount: number | null
-        }
-        Relationships: []
-      }
-      receipts_with_items: {
-        Row: {
-          category_id: string | null
-          category_name: string | null
-          currency_code: Database["grocery"]["Enums"]["currency_type"] | null
-          currency_evidence: string | null
-          discount_amount: number | null
-          is_discounted: boolean | null
-          item_created_at: string | null
-          item_id: string | null
-          item_name: string | null
-          original_unit_price: number | null
-          purchase_date: string | null
-          quantity: number | null
-          readable_name: string | null
-          receipt_created_at: string | null
-          receipt_id: string | null
-          receipt_image_path: string | null
-          receipt_updated_at: string | null
-          store_name: string | null
-          tax_amount: number | null
-          total_amount: number | null
-          total_discount: number | null
-          total_price: number | null
-          unit_price: number | null
-          user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "receipt_items_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-    }
-    Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      currency_type: "EUR" | "USD" | "CAD" | "GBP" | "JPY" | "AUD" | "CNY"
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       calendar_events: {
@@ -517,31 +277,31 @@ export type Database = {
       }
       forex_rates: {
         Row: {
-          base_currency: Database["grocery"]["Enums"]["currency_type"]
+          base_currency: Database["spending"]["Enums"]["currency_type"]
           created_at: string | null
           date: string
           id: string
           rate: number
           source: string | null
-          target_currency: Database["grocery"]["Enums"]["currency_type"]
+          target_currency: Database["spending"]["Enums"]["currency_type"]
         }
         Insert: {
-          base_currency: Database["grocery"]["Enums"]["currency_type"]
+          base_currency: Database["spending"]["Enums"]["currency_type"]
           created_at?: string | null
           date: string
           id?: string
           rate: number
           source?: string | null
-          target_currency: Database["grocery"]["Enums"]["currency_type"]
+          target_currency: Database["spending"]["Enums"]["currency_type"]
         }
         Update: {
-          base_currency?: Database["grocery"]["Enums"]["currency_type"]
+          base_currency?: Database["spending"]["Enums"]["currency_type"]
           created_at?: string | null
           date?: string
           id?: string
           rate?: number
           source?: string | null
-          target_currency?: Database["grocery"]["Enums"]["currency_type"]
+          target_currency?: Database["spending"]["Enums"]["currency_type"]
         }
         Relationships: []
       }
@@ -1359,7 +1119,7 @@ export type Database = {
       transactions: {
         Row: {
           created_at: string | null
-          currency: Database["grocery"]["Enums"]["currency_type"]
+          currency: Database["spending"]["Enums"]["currency_type"]
           id: string
           is_dividend_reinvestment: boolean | null
           note_text: string | null
@@ -1375,7 +1135,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          currency?: Database["grocery"]["Enums"]["currency_type"]
+          currency?: Database["spending"]["Enums"]["currency_type"]
           id?: string
           is_dividend_reinvestment?: boolean | null
           note_text?: string | null
@@ -1391,7 +1151,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
-          currency?: Database["grocery"]["Enums"]["currency_type"]
+          currency?: Database["spending"]["Enums"]["currency_type"]
           id?: string
           is_dividend_reinvestment?: boolean | null
           note_text?: string | null
@@ -1472,7 +1232,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
-          preferred_currency: Database["grocery"]["Enums"]["currency_type"]
+          preferred_currency: Database["spending"]["Enums"]["currency_type"]
           tracking_ticker_id: string | null
           updated_at: string | null
         }
@@ -1483,7 +1243,7 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
-          preferred_currency?: Database["grocery"]["Enums"]["currency_type"]
+          preferred_currency?: Database["spending"]["Enums"]["currency_type"]
           tracking_ticker_id?: string | null
           updated_at?: string | null
         }
@@ -1494,7 +1254,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
-          preferred_currency?: Database["grocery"]["Enums"]["currency_type"]
+          preferred_currency?: Database["spending"]["Enums"]["currency_type"]
           tracking_ticker_id?: string | null
           updated_at?: string | null
         }
@@ -2428,6 +2188,199 @@ export type Database = {
       }
     }
   }
+  spending: {
+    Tables: {
+      categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      item_translations: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          id: string
+          original_name: string
+          readable_name: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          id?: string
+          original_name: string
+          readable_name: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          id?: string
+          original_name?: string
+          readable_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_translations_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receipt_items: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          discount_amount: number | null
+          id: string
+          is_discounted: boolean | null
+          item_name: string
+          original_unit_price: number | null
+          quantity: number | null
+          readable_name: string | null
+          receipt_id: string | null
+          total_price: number | null
+          unit_price: number
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          discount_amount?: number | null
+          id?: string
+          is_discounted?: boolean | null
+          item_name: string
+          original_unit_price?: number | null
+          quantity?: number | null
+          readable_name?: string | null
+          receipt_id?: string | null
+          total_price?: number | null
+          unit_price: number
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          discount_amount?: number | null
+          id?: string
+          is_discounted?: boolean | null
+          item_name?: string
+          original_unit_price?: number | null
+          quantity?: number | null
+          readable_name?: string | null
+          receipt_id?: string | null
+          total_price?: number | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipt_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipt_items_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "receipts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receipts: {
+        Row: {
+          created_at: string | null
+          currency_code: Database["spending"]["Enums"]["currency_type"]
+          currency_evidence: string | null
+          error_message: string | null
+          id: string
+          last_processed_at: string | null
+          processing_attempts: number
+          purchase_date: string
+          receipt_image_path: string | null
+          store_name: string | null
+          tax_amount: number | null
+          total_amount: number
+          total_discount: number
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency_code?: Database["spending"]["Enums"]["currency_type"]
+          currency_evidence?: string | null
+          error_message?: string | null
+          id?: string
+          last_processed_at?: string | null
+          processing_attempts?: number
+          purchase_date: string
+          receipt_image_path?: string | null
+          store_name?: string | null
+          tax_amount?: number | null
+          total_amount: number
+          total_discount?: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency_code?: Database["spending"]["Enums"]["currency_type"]
+          currency_evidence?: string | null
+          error_message?: string | null
+          id?: string
+          last_processed_at?: string | null
+          processing_attempts?: number
+          purchase_date?: string
+          receipt_image_path?: string | null
+          store_name?: string | null
+          tax_amount?: number | null
+          total_amount?: number
+          total_discount?: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      daily_spending: {
+        Row: {
+          currency_code: Database["spending"]["Enums"]["currency_type"] | null
+          date: string | null
+          receipt_count: number | null
+          stores: string[] | null
+          total_amount: number | null
+          total_discount: number | null
+        }
+        Relationships: []
+      }
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      currency_type: "EUR" | "USD" | "CAD" | "GBP" | "JPY" | "AUD" | "CNY"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
 
 type DefaultSchema = Database[Extract<keyof Database, "public">]
@@ -2552,15 +2505,15 @@ export const Constants = {
       time_class: ["blitz", "bullet", "daily", "rapid"],
     },
   },
-  grocery: {
-    Enums: {
-      currency_type: ["EUR", "USD", "CAD", "GBP", "JPY", "AUD", "CNY"],
-    },
-  },
   public: {
     Enums: {
       currency_type: ["USD", "EUR", "GBP", "JPY", "CAD", "AUD", "CNY"],
       transaction_type_enum: ["buy", "sell", "dividend", "deposit", "withdraw"],
+    },
+  },
+  spending: {
+    Enums: {
+      currency_type: ["EUR", "USD", "CAD", "GBP", "JPY", "AUD", "CNY"],
     },
   },
 } as const

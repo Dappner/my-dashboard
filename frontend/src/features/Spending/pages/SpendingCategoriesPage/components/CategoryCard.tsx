@@ -1,4 +1,3 @@
-import type { CategoryData } from "@/api/spendingApi";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { spendingCategoryDetailRoute } from "@/routes/spending-routes";
@@ -6,7 +5,11 @@ import { Link } from "@tanstack/react-router";
 import { memo } from "react";
 
 type CategoryCardProps = {
-	category: CategoryData;
+	category: {
+		id: string;
+		name: string;
+		total: number;
+	};
 	percentage?: number;
 	color?: string;
 };
@@ -27,7 +30,7 @@ export const CategoryCard = memo(
 							</h3>
 							<div className="flex pt-1 justify-between items-baseline">
 								<p className="text-xl sm:text-2xl font-semibold">
-									<CurrencyDisplay amount={category.amount} />
+									<CurrencyDisplay amount={category.total} />
 								</p>
 								{percentage !== undefined && (
 									<p className="text-xs sm:text-sm text-muted-foreground">

@@ -56,6 +56,8 @@
 - Better Spending Time Management (Similar to chess)
 - BIG: Change Schema name to spending, create a spending table, and make receipts link to it
   - Essentially, spending should also be receiptless (in case I am using e.g. a voice memo)
+- Keep on working on making APIs nicer etc
+  - Why are spending numbers different for spending/categories vs actually going on the Category
 
 **General**
 
@@ -69,7 +71,6 @@
   - Entity mappings call them alot
 - Bring back crumbs?
 - Create the Summary Page!
-
 
 # FORMULAS USED
 

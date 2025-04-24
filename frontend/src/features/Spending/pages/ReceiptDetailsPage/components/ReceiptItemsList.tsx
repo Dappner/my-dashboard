@@ -1,9 +1,9 @@
-import type { ReceiptWithItems } from "@/api/receiptsApi";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ShoppingBagIcon } from "lucide-react";
 import { CategoryDropdown } from "./CategoryDropdown";
+import type { ReceiptWithItems } from "@/api/spending/types";
 
 interface ReceiptItemsListProps {
 	receipt: ReceiptWithItems;
@@ -18,15 +18,15 @@ export default function ReceiptItemsList({
 		<Card className="h-full md:col-span-2">
 			<CardHeader className="pb-3 px-4 border-b">
 				<CardTitle className="text-sm">
-					Items ({receipt.items.length})
+					Items ({receipt.receipt_items.length})
 				</CardTitle>
 			</CardHeader>
 			<ScrollArea className="flex-1 overflow-y-scroll">
-				{receipt.items.length > 0 ? (
+				{receipt.receipt_items.length > 0 ? (
 					<div className="divide-y">
-						{receipt.items.map((item) => (
+						{receipt.receipt_items.map((item) => (
 							<div
-								key={item.item_id}
+								key={item.id}
 								className="py-2 px-4 hover:bg-muted/30 transition-colors"
 							>
 								<div className="flex items-start justify-between gap-3">
@@ -46,7 +46,7 @@ export default function ReceiptItemsList({
 											)}
 											<CategoryDropdown
 												currentCategoryId={item.category_id}
-												itemId={item.item_id}
+												itemId={item.id}
 												onCategoryChange={onCategoryChange}
 											/>
 										</div>

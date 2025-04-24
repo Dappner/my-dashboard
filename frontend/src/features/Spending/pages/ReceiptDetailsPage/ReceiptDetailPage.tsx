@@ -20,7 +20,6 @@ import { format } from "date-fns";
 import { PencilIcon, PieChartIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CategoryPieChart } from "../../components/CategoryPieChart";
 import ReceiptHeader from "./components/ReceiptHeader";
 import ReceiptImage from "./components/ReceiptImage";
 import ReceiptItemsList from "./components/ReceiptItemsList";
@@ -75,7 +74,7 @@ export default function ReceiptDetailPage() {
 		const formattedPurchaseDate = format(date, "yyyy-MM-dd");
 		try {
 			await updateReceipt({
-				id: receipt.receipt_id,
+				id: receipt.id,
 				purchase_date: formattedPurchaseDate,
 			});
 			toast.success("Receipt date updated");
@@ -117,7 +116,7 @@ export default function ReceiptDetailPage() {
 
 	const itemCategories = [
 		...new Set(
-			receipt.items
+			receipt.receipt_items
 				.map((item) => item.category_name || "Uncategorized")
 				.filter(Boolean),
 		),
@@ -125,7 +124,7 @@ export default function ReceiptDetailPage() {
 
 	const pieChartData = itemCategories.map((category) => ({
 		name: category,
-		amount: receipt.items
+		amount: receipt.receipt_items
 			.filter((item) => (item.category_name || "Uncategorized") === category)
 			.reduce(
 				(sum, item) =>
@@ -140,7 +139,6 @@ export default function ReceiptDetailPage() {
 
 	return (
 		<PageContainer className="h-[calc(100dvh-56px)]">
-			{/* Header Section */}
 			<ReceiptHeader
 				className="px-2 sm:px-0"
 				receipt={receipt}
@@ -223,7 +221,7 @@ export default function ReceiptDetailPage() {
 								</CardTitle>
 							</CardHeader>
 							<CardContent>
-								<CategoryPieChart categories={pieChartData} />
+								{/* <CategoryPieChart categories={pieChartData} /> */}
 							</CardContent>
 						</Card>
 					)}
@@ -243,7 +241,7 @@ export default function ReceiptDetailPage() {
 						<AlertDialogTitle>Delete Receipt?</AlertDialogTitle>
 						<AlertDialogDescription>
 							This will permanently delete the receipt and its
-							{receipt.items.length} items.
+							{receipt.receipt_items.length} items.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

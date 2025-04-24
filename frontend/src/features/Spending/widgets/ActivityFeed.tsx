@@ -10,9 +10,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import { spendingReceiptDetailRoute } from "@/routes/spending-routes";
 import { Link } from "@tanstack/react-router";
-import { format } from "date-fns";
 import { ReceiptIcon } from "lucide-react";
-import { useRecentReceipts } from "../hooks/useSpendingMetrics";
+import { useRecentReceipts } from "../hooks/useReceipts";
+import { formatDate } from "@/lib/utils";
 
 export const ActivityFeed: React.FC = () => {
 	const { date, timeframe } = useTimeframeParams();
@@ -24,7 +24,7 @@ export const ActivityFeed: React.FC = () => {
 				<CardTitle className="text-lg flex flex-row justify-between">
 					<span>Recent Activity</span>
 					<Link className="text-sm" to={"/spending/receipts"}>
-						See Details
+						See More
 					</Link>
 				</CardTitle>
 				<CardDescription>Last 5 Receipts</CardDescription>
@@ -48,8 +48,6 @@ export const ActivityFeed: React.FC = () => {
 					// Receipts list
 					<ul className="space-y-2">
 						{receipts?.map((receipt) => {
-							const purchaseDate = new Date(receipt.purchase_date);
-
 							return (
 								<li key={receipt.id}>
 									<Link
@@ -64,7 +62,7 @@ export const ActivityFeed: React.FC = () => {
 													{receipt.store_name || "Unknown Store"}
 												</p>
 												<p className="text-xs text-muted-foreground">
-													{format(purchaseDate, "PP")}
+													{formatDate(receipt.purchase_date, "PP")}
 												</p>
 											</div>
 										</div>

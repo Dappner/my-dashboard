@@ -1,4 +1,4 @@
-import type { ReceiptWithItems } from "@/api/receiptsApi";
+import type { ReceiptWithItems } from "@/api/spending/receiptsApi";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {

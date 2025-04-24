@@ -1,5 +1,5 @@
-import { receiptsApi, receiptsApiKeys } from "@/api/receiptsApi";
-import type { UpdateReceipt } from "@/api/receiptsApi";
+import { receiptsApi, receiptsApiKeys } from "@/api/spending/receiptsApi";
+import type { UpdateReceipt } from "@/api/spending/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useReceipt(receiptId: string | undefined) {
@@ -12,7 +12,7 @@ export function useReceipt(receiptId: string | undefined) {
 		error,
 	} = useQuery({
 		queryKey: receiptsApiKeys.detail(receiptId || ""),
-		queryFn: () => receiptsApi.getReceiptById(receiptId || ""),
+		queryFn: () => receiptsApi.fetchReceiptDetail(receiptId || ""),
 		enabled: !!receiptId,
 	});
 

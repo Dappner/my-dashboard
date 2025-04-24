@@ -8,10 +8,7 @@ import { Link } from "@tanstack/react-router";
 import { PieChartIcon, TrendingUp } from "lucide-react";
 import PortfolioChart from "../Investing/components/PortfolioChart/PortfolioChart";
 import { usePortfolioMetrics } from "../Investing/hooks/usePortfolioMetrics";
-import { CategoryPieChart } from "../Spending/components/CategoryPieChart";
 import { SpendingKpiCards } from "../Spending/components/SpendingKpiCards";
-import { useSpendingMetrics } from "../Spending/hooks/useSpendingMetrics";
-import { SpendingChartTabs } from "../Spending/widgets/SpendingChartTabs";
 import {
 	CompactHabitsTracker,
 	useHabitsData,
@@ -19,13 +16,9 @@ import {
 
 export default function HomePage() {
 	const { metrics, isLoading: metricsLoading } = usePortfolioMetrics("ALL");
-
-	const queryDate = new Date();
-	const { spendingMetrics, isLoading: spendingLoading } =
-		useSpendingMetrics(queryDate);
 	const { data: habitsData, isLoading: habitsLoading } = useHabitsData();
 
-	const isLoading = metricsLoading || spendingLoading || habitsLoading;
+	const isLoading = metricsLoading || habitsLoading;
 
 	if (isLoading) return <LoadingState />;
 
@@ -84,7 +77,6 @@ export default function HomePage() {
 				</div>
 				<SpendingKpiCards />
 				<div className="grid gap-4 sm:grid-cols-2">
-					<SpendingChartTabs />
 					<Card>
 						<CardHeader className="flex flex-col">
 							<CardTitle className="text-lg font-semibold flex items-center">
@@ -98,9 +90,10 @@ export default function HomePage() {
 							</CardTitle>
 						</CardHeader>
 						<div className="p-6 pt-0">
-							<CategoryPieChart
-								categories={spendingMetrics?.categories || []}
-							/>
+							{/* TODO: REimplement */}
+							{/* <CategoryPieChart */}
+							{/* 	categories={spendingMetrics?.categories || []} */}
+							{/* /> */}
 						</div>
 					</Card>
 				</div>

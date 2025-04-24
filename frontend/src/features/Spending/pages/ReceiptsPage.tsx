@@ -1,4 +1,4 @@
-import { receiptsApiKeys } from "@/api/receiptsApi";
+import { receiptsApiKeys } from "@/api/spending/receiptsApi";
 import TimeframeControls from "@/components/controls/CustomTimeframeControl";
 import { Button } from "@/components/ui/button";
 import { useTimeframeParams } from "@/hooks/useTimeframeParams";
@@ -115,7 +115,7 @@ export default function ReceiptsPage() {
 
 			<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 				{receipts?.map((receipt) => (
-					<ReceiptCard key={receipt.receipt_id} receipt={receipt} />
+					<ReceiptCard key={receipt.id} receipt={receipt} />
 				))}
 			</div>
 

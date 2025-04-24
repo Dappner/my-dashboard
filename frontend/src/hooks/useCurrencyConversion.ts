@@ -1,6 +1,7 @@
 import { useUser } from "@/contexts/UserContext";
 import { useMemo } from "react";
 import { useLatestForexRates } from "./useLatestForexRates";
+import type { CurrencyType } from "@my-dashboard/shared";
 
 type RateMap = Record<string, Record<string, number>>;
 
@@ -56,7 +57,7 @@ export function useCurrencyConversion() {
 	}, [rates]);
 
 	// Convert amount from one currency to another
-	const convertAmount = (amount: number, fromCurrency: string) => {
+	const convertAmount = (amount: number, fromCurrency: CurrencyType) => {
 		if (!amount) return 0;
 		if (fromCurrency === displayCurrency) return amount;
 
@@ -86,7 +87,7 @@ export function useCurrencyConversion() {
 		return amount;
 	};
 
-	const formatCurrency = (amount: number, fromCurrency: string) => {
+	const formatCurrency = (amount: number, fromCurrency: CurrencyType) => {
 		const convertedAmount = convertAmount(amount, fromCurrency);
 		return new Intl.NumberFormat("en-US", {
 			style: "currency",

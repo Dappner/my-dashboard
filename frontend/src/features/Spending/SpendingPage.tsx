@@ -1,30 +1,21 @@
 import TimeframeControls from "@/components/controls/CustomTimeframeControl";
-import ErrorState from "@/components/layout/components/ErrorState";
-import LoadingState from "@/components/layout/components/LoadingState";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import { PieChartIcon } from "lucide-react";
 import { SpendingKpiCards } from "./components/SpendingKpiCards";
-import { useSpendingMetrics } from "./hooks/useSpendingMetrics";
 import { ActivityFeed } from "./widgets/ActivityFeed";
-import CurrentMonthCategoryChart from "./widgets/CurrentMonthCategoryChart";
-import { SpendingChartTabs } from "./widgets/SpendingChartTabs";
+import { useTimeframeSpendingSummary } from "./hooks/useSpendingMetrics";
+import { CategoryPieChartWidget } from "./widgets/CategoryPieChartWidget";
+import { Card } from "@/components/ui/card";
+import { TimeframeSpendingChart } from "./widgets/TimeframeSpendingChart";
 
 export default function SpendingOverview() {
 	const { timeframe, date, setTimeframe, setDate } = useTimeframeParams();
-	const { spendingMetrics, isLoading, error } = useSpendingMetrics(
+	const { data: spendingSummary, isLoading } = useTimeframeSpendingSummary(
 		date,
 		timeframe,
 	);
-
-	if (isLoading) {
-		return <LoadingState />;
-	}
-
-	if (error) {
-		return <ErrorState message="Error loading spending data" />;
-	}
 
 	return (
 		<PageContainer className="min-h-screen">
@@ -40,7 +31,7 @@ export default function SpendingOverview() {
 				/>
 			</header>
 
-			{!spendingMetrics ? (
+			{!spendingSummary && !isLoading ? (
 				<div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
 					<div className="text-center text-muted-foreground">
 						<PieChartIcon className="h-12 w-12 mx-auto mb-4 opacity-30" />
@@ -57,11 +48,13 @@ export default function SpendingOverview() {
 							<SpendingKpiCards />
 						</div>
 
-						<SpendingChartTabs />
+						<TimeframeSpendingChart />
 					</div>
 
 					<div className="md:col-span-4 gap-4 flex flex-col">
-						<CurrentMonthCategoryChart />
+						<Card>
+							<CategoryPieChartWidget variant="sm" />
+						</Card>
 						<ActivityFeed />
 					</div>
 				</div>

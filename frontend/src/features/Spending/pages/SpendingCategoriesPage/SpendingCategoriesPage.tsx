@@ -1,4 +1,3 @@
-import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import TimeframeControls from "@/components/controls/CustomTimeframeControl";
 import { PageContainer } from "@/components/layout/components/PageContainer";
 import { Button } from "@/components/ui/button";
@@ -7,129 +6,49 @@ import { useCurrencyConversion } from "@/hooks/useCurrencyConversion";
 import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import { RefreshCwIcon } from "lucide-react";
 import { useCallback, useMemo } from "react";
-import {
-	Cell,
-	Legend,
-	Pie,
-	PieChart,
-	ResponsiveContainer,
-	Tooltip,
-	type TooltipProps,
-} from "recharts";
 import { CATEGORY_COLORS } from "../../constants";
-import {
-	useSpendingCategories,
-	useTimeframeSpending,
-} from "../../hooks/useSpendingMetrics";
 import { CategoryCard } from "./components/CategoryCard";
+import { useSpendingCategoriesDetail } from "../../hooks/useSpendingMetrics";
+import { CategoryPieChartWidget } from "../../widgets/CategoryPieChartWidget";
 
 export function SpendingCategoriesPage() {
 	const { date, timeframe, setTimeframe, setDate } = useTimeframeParams();
-	const { convertAmount, displayCurrency } = useCurrencyConversion();
+	const { convertAmount } = useCurrencyConversion();
 
 	const {
 		data: categories,
-		isLoading: categoriesLoading,
-		error: categoriesError,
+		isLoading,
+		error: hasError,
 		refetch: refetchCategories,
-		isRefetching: isRefetchingCategories,
-	} = useSpendingCategories(date, timeframe);
+		isRefetching,
+	} = useSpendingCategoriesDetail(date, timeframe);
 
-	const {
-		data: currentMonthData,
-		isLoading: currentMonthLoading,
-		error: currentMonthError,
-		refetch: refetchCurrentMonth,
-		isRefetching: isRefetchingCurrentMonth,
-	} = useTimeframeSpending(date, timeframe);
+	const convertedCategories = useMemo(() => {
+		if (!categories) return [];
 
-	const isLoading = categoriesLoading || currentMonthLoading;
-	const isRefetching = isRefetchingCategories || isRefetchingCurrentMonth;
-	const hasError = categoriesError || currentMonthError;
+		return categories
+			.map(({ id, name, amounts }) => {
+				const total = amounts.reduce((sum, { amount, currency }) => {
+					return sum + convertAmount(amount, currency);
+				}, 0);
 
-	// Calculate total spent across all categories (converted to user's currency)
-	const totalSpent = currentMonthData?.totalSpent || 0;
+				return { id, name, total };
+			})
+			.sort((a, b) => b.total - a.total);
+	}, [categories, convertAmount]);
 
-	// Process and consolidate categories with the same name
-	const consolidatedCategories = useMemo(() => {
-		if (!categories || categories.length === 0) return [];
+	const totalSpent = convertedCategories.reduce(
+		(acc, val) => acc + val.total,
+		0,
+	);
 
-		// Create a map to consolidate categories with the same name
-		const categoryMap = new Map();
-
-		// biome-ignore lint/complexity/noForEach: Fine
-		categories.forEach((category) => {
-			const convertedAmount = convertAmount(category.amount, category.currency);
-
-			if (categoryMap.has(category.name)) {
-				// Add amount to existing category
-				const existing = categoryMap.get(category.name);
-				existing.amount += convertedAmount;
-			} else {
-				// Create new category entry with converted amount
-				categoryMap.set(category.name, {
-					id: category.id,
-					name: category.name,
-					amount: convertedAmount,
-					currency: displayCurrency,
-					originalData: [category],
-				});
-			}
-		});
-
-		// Convert map to array and sort by amount
-		return Array.from(categoryMap.values()).sort((a, b) => b.amount - a.amount);
-	}, [categories, convertAmount, displayCurrency]);
-
-	// Process categories for pie chart: group small categories into "Other" if > 8
-	const processedCategories = useMemo(() => {
-		if (consolidatedCategories.length === 0) return [];
-
-		if (consolidatedCategories.length > 8) {
-			const topCategories = consolidatedCategories.slice(0, 7);
-			const otherCategories = consolidatedCategories.slice(7);
-
-			const otherTotal = otherCategories.reduce(
-				(sum, cat) => sum + cat.amount,
-				0,
-			);
-
-			return [
-				...topCategories,
-				{
-					id: "other",
-					name: "Other",
-					amount: otherTotal,
-					currency: displayCurrency,
-				},
-			];
-		}
-
-		return consolidatedCategories;
-	}, [consolidatedCategories, displayCurrency]);
-
-	const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
-		if (active && payload && payload.length) {
-			const data = payload[0].payload;
-			return (
-				<div className="bg-background border rounded p-2 shadow-md z-50 flex flex-col overflow-hidden">
-					<span className="text-base font-semibold">{data.name}</span>
-					<CurrencyDisplay amount={data.amount} />
-				</div>
-			);
-		}
-		return null;
-	};
-
-	// Handle manual refresh
 	const handleRefresh = useCallback(() => {
 		refetchCategories();
-		refetchCurrentMonth();
-	}, [refetchCategories, refetchCurrentMonth]);
+	}, [refetchCategories]);
 
 	return (
 		<PageContainer>
-			<header className="mb-6 flex flex-col sm:flex-row sm:justify-between items-center gap-4">
+			<header className="flex flex-col sm:flex-row sm:justify-between items-center gap-4">
 				<div className="flex items-center gap-3">
 					{(isRefetching || hasError) && (
 						<Button
@@ -166,56 +85,25 @@ export function SpendingCategoriesPage() {
 							{isRefetching ? "Refreshing..." : "Retry"}
 						</Button>
 					</div>
-				) : consolidatedCategories.length > 0 ? (
+				) : convertedCategories.length > 0 ? (
 					<>
-						<TimeframeControls
-							date={date}
-							onDateChange={setDate}
-							timeframe={timeframe}
-							onTimeframeChange={setTimeframe}
-						/>
-						<div className="mb-6 h-64 sm:h-72">
-							<ResponsiveContainer width="100%" height="100%">
-								<PieChart>
-									<Pie
-										data={processedCategories}
-										cx="50%"
-										cy="50%"
-										innerRadius={70}
-										outerRadius={90}
-										fill="#8884d8"
-										paddingAngle={3}
-										dataKey="amount"
-										nameKey="name"
-										label={({ name, percent }) =>
-											window.innerWidth > 640
-												? `${name} (${(percent * 100).toFixed(0)}%)`
-												: ""
-										}
-									>
-										{processedCategories.map((entry, index) => (
-											<Cell
-												key={`cell-${entry.id || index}`}
-												fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]}
-											/>
-										))}
-									</Pie>
-									<Tooltip content={<CustomTooltip />} />
-									<Legend
-										wrapperStyle={{
-											maxHeight: "100px",
-											overflowY: "auto",
-											fontSize: "0.875rem",
-										}}
-									/>
-								</PieChart>
-							</ResponsiveContainer>
+						<div className="flex justify-between">
+							<h1 className="">Category Breakdown</h1>
+							<TimeframeControls
+								date={date}
+								onDateChange={setDate}
+								timeframe={timeframe}
+								onTimeframeChange={setTimeframe}
+							/>
+						</div>
+						<div>
+							<CategoryPieChartWidget variant="lg" />
 						</div>
 
 						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-							{consolidatedCategories.map((category, index) => {
+							{convertedCategories.map((category, index) => {
 								const percentage =
-									totalSpent > 0 ? (category.amount / totalSpent) * 100 : 0;
+									totalSpent > 0 ? (category.total / totalSpent) * 100 : 0;
 
 								return (
 									<CategoryCard

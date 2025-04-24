@@ -1,49 +1,22 @@
 import { supabase } from "@/lib/supabase";
-import { getTimeframeRange, parseDate } from "@/lib/utils";
-import type { Database } from "@/types/supabase";
+import { type CustomRange, getTimeframeRange, parseDate } from "@/lib/utils";
 import type { Timeframe } from "@my-dashboard/shared";
-
-type ReceiptsWithItemsRow =
-	Database["grocery"]["Views"]["receipts_with_items"]["Row"];
-export type Receipt = Database["grocery"]["Tables"]["receipts"]["Row"];
-export type UpdateReceipt = Database["grocery"]["Tables"]["receipts"]["Update"];
-export type ReceiptItem = Database["grocery"]["Tables"]["receipt_items"]["Row"];
-export type UpdateReceiptItem =
-	Database["grocery"]["Tables"]["receipt_items"]["Update"];
-
-export type SpendingCategory =
-	Database["grocery"]["Tables"]["categories"]["Row"];
-
-export type ReceiptWithItems = {
-	receipt_id: string;
-	store_name: string | null;
-	purchase_date: Date;
-	total_amount: number;
-	total_discount: number;
-	currency_code: Database["grocery"]["Enums"]["currency_type"];
-	receipt_image_path: string | null;
-	imageUrl: string | null; // Signed URL
-	items: {
-		item_id: string;
-		item_name: string;
-		readable_name: string;
-		quantity: number;
-		discount_amount: number;
-		is_discounted: boolean;
-		original_unit_price: number;
-		unit_price: number;
-		total_price: number | null;
-		category_name: string | null;
-		category_id: string | null;
-	}[];
-	tax_amount?: number;
-};
+import type {
+	CategoryReceiptRow,
+	Receipt,
+	ReceiptWithItems,
+	UpdateReceipt,
+	UpdateReceiptItem,
+} from "./types";
 
 export const receiptsApiKeys = {
 	all: ["receipts"] as const,
-	monthlyData: (date: string) =>
-		[...receiptsApiKeys.all, "monthlyData", date] as const,
+	timeframe: (cacheKey: string) =>
+		[...receiptsApiKeys.all, "timeframe", cacheKey] as const,
 	detail: (receiptId: string) => [...receiptsApiKeys.all, receiptId] as const,
+	byCategory: (category: string, cacheKey: string) =>
+		[...receiptsApiKeys.all, "category", category, cacheKey] as const,
+	recent: (cacheKey: string) => [...receiptsApiKeys.all, "recent", cacheKey],
 };
 
 interface PaginationOptions {
@@ -61,7 +34,7 @@ export const receiptsApi = {
 		const { start, end } = getTimeframeRange(selectedDate, timeframe);
 
 		const { data, error } = await supabase
-			.schema("grocery")
+			.schema("spending")
 			.from("receipts")
 			.select(`
       id,
@@ -93,7 +66,7 @@ export const receiptsApi = {
 		if (error) throw error;
 
 		return (data ?? []).map((r) => ({
-			receipt_id: r.id,
+			id: r.id,
 			store_name: r.store_name,
 			purchase_date: parseDate(r.purchase_date),
 			total_amount: r.total_amount,
@@ -101,8 +74,8 @@ export const receiptsApi = {
 			currency_code: r.currency_code,
 			receipt_image_path: r.receipt_image_path,
 			imageUrl: null,
-			items: r.receipt_items.map((item) => ({
-				item_id: item.id,
+			receipt_items: r.receipt_items.map((item) => ({
+				id: item.id,
 				item_name: item.item_name,
 				readable_name: item.readable_name || "NA",
 				quantity: item.quantity || 0,
@@ -117,12 +90,33 @@ export const receiptsApi = {
 		}));
 	},
 
-	async getReceiptById(receiptId: string): Promise<ReceiptWithItems> {
+	async fetchReceiptDetail(receiptId: string): Promise<ReceiptWithItems> {
 		const { data, error } = await supabase
-			.schema("grocery")
-			.from("receipts_with_items")
-			.select("*")
-			.eq("receipt_id", receiptId);
+			.schema("spending")
+			.from("receipts")
+			.select(`
+      id,
+      store_name,
+      purchase_date,
+      total_amount,
+      total_discount,
+      currency_code,
+      receipt_image_path,
+      receipt_items (
+        id,
+        item_name,
+        readable_name,
+        quantity,
+        discount_amount,
+        is_discounted,
+        original_unit_price,
+        unit_price,
+        total_price,
+        category_id,
+        categories!inner ( name ) 
+    )
+    `)
+			.eq("id", receiptId);
 
 		if (error) throw error;
 		if (!data || data.length === 0) {
@@ -133,7 +127,6 @@ export const receiptsApi = {
 		const receiptData = data[0];
 		let signedImageUrl: string | null = null;
 
-		//TODO: I think creating a signed URL is causing the issue here (EGRESS)
 		if (receiptData.receipt_image_path) {
 			const { data: signedUrlData, error: signedUrlError } =
 				await supabase.storage
@@ -145,40 +138,75 @@ export const receiptsApi = {
 			}
 		}
 
-		// Create the receipt object
-		const receipt: ReceiptWithItems = {
-			receipt_id: receiptData.receipt_id || "",
-			store_name: receiptData.store_name ?? "",
-			purchase_date: parseDate(receiptData.purchase_date || ""),
-			total_amount: receiptData.total_amount ?? 0,
-			tax_amount: receiptData.tax_amount ?? 0,
-			total_discount: receiptData.total_discount ?? 0,
-			currency_code: receiptData.currency_code ?? "USD",
-			receipt_image_path: receiptData.receipt_image_path ?? null,
+		return {
+			...receiptData,
 			imageUrl: signedImageUrl,
-			items: [],
+			purchase_date: parseDate(receiptData.purchase_date),
+			receipt_items: receiptData.receipt_items.map((item) => ({
+				id: item.id,
+				item_name: item.item_name,
+				readable_name: item.readable_name || "NA",
+				quantity: item.quantity || 0,
+				discount_amount: item.discount_amount || 0,
+				is_discounted: item.is_discounted || false,
+				original_unit_price: item.original_unit_price || 0,
+				unit_price: item.unit_price,
+				total_price: item.total_price,
+				category_id: item.category_id,
+				category_name: item.categories?.name ?? null,
+			})),
 		};
+	},
 
-		// Add all items from the data
-		for (const row of data as ReceiptsWithItemsRow[]) {
-			if (row.item_id) {
-				receipt.items.push({
-					item_id: row.item_id,
-					item_name: row.item_name ?? "Unknown Item",
-					readable_name: row.readable_name ?? "Unknown Item",
-					quantity: row.quantity ?? 1,
-					unit_price: row.unit_price ?? 0,
-					original_unit_price: row.original_unit_price ?? 0,
-					discount_amount: row.discount_amount ?? 0,
-					is_discounted: row.is_discounted ?? false,
-					total_price: row.total_price ?? null,
-					category_name: row.category_name ?? "",
-					category_id: row.category_id ?? null,
-				});
-			}
+	async fetchCategoryReceipts(
+		categoryId: string,
+		date?: Date,
+		timeframe?: Timeframe,
+		dateRange?: CustomRange,
+	): Promise<CategoryReceiptRow[]> {
+		const { start, end } = getTimeframeRange(date, timeframe || "m", dateRange);
+
+		const { data, error } = await supabase
+			.schema("spending")
+			.from("receipts")
+			.select(`
+        id,
+        store_name,
+        purchase_date,
+        currency_code,
+        total_amount,
+        receipt_items!inner(
+          id,
+          receipt_id,
+          readable_name,
+          total_price,
+          quantity,
+          unit_price
+        )
+      `)
+			.eq("receipt_items.category_id", categoryId)
+			.gte("purchase_date", start)
+			.lte("purchase_date", end)
+			.order("purchase_date", { ascending: false });
+
+		if (error) {
+			throw new Error(`Could not load category receipts: ${error.message}`);
 		}
 
-		return receipt;
+		return (data ?? []).map((r) => ({
+			id: r.id,
+			store_name: r.store_name,
+			purchase_date: parseDate(r.purchase_date),
+			total_amount: r.total_amount,
+			currency_code: r.currency_code,
+			receipt_items: r.receipt_items.map((item) => ({
+				id: item.id,
+				readable_name: item.readable_name || "NA",
+				quantity: item.quantity || 0,
+				unit_price: item.unit_price,
+				total_price: item.total_price,
+			})),
+		}));
 	},
 
 	async updateReceipt(
@@ -189,7 +217,7 @@ export const receiptsApi = {
 
 		// Update receipt base data
 		const { error: updateError } = await supabase
-			.schema("grocery")
+			.schema("spending")
 			.from("receipts")
 			.update({
 				store_name: data.store_name,
@@ -209,7 +237,7 @@ export const receiptsApi = {
 		const { id, ...receiptItemData } = updateReceipt;
 		if (!id) return;
 		const { data, error } = await supabase
-			.schema("grocery")
+			.schema("spending")
 			.from("receipt_items")
 			.update({ ...receiptItemData, updated_at: new Date().toISOString() })
 			.eq("id", id)
@@ -224,7 +252,7 @@ export const receiptsApi = {
 		categoryId: string | null,
 	): Promise<{ success: boolean; error?: string }> {
 		const { error } = await supabase
-			.schema("grocery")
+			.schema("spending")
 			.from("receipt_items")
 			.update({
 				category_id: categoryId,
@@ -239,7 +267,7 @@ export const receiptsApi = {
 		receiptId: string,
 	): Promise<{ success: boolean; error?: string }> {
 		const { error: deleteError } = await supabase
-			.schema("grocery")
+			.schema("spending")
 			.from("receipts")
 			.delete()
 			.eq("id", receiptId);
@@ -261,5 +289,25 @@ export const receiptsApi = {
 		}
 
 		return data.signedUrl;
+	},
+
+	async fetchRecentReceipts(
+		date: Date,
+		timeframe: Timeframe = "m",
+		customRange?: CustomRange,
+	): Promise<Receipt[]> {
+		const { start, end } = getTimeframeRange(date, timeframe, customRange);
+
+		const { data, error } = await supabase
+			.schema("spending")
+			.from("receipts")
+			.select("id, purchase_date, total_amount, store_name, currency_code")
+			.gte("purchase_date", start)
+			.lte("purchase_date", end)
+			.order("purchase_date", { ascending: false })
+			.limit(5);
+
+		if (error) throw new Error(`Error fetching receipts: ${error.message}`);
+		return data as Receipt[];
 	},
 };

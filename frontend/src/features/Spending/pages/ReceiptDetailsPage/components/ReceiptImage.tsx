@@ -1,4 +1,4 @@
-import type { ReceiptWithItems } from "@/api/receiptsApi";
+import type { ReceiptWithItems } from "@/api/spending/receiptsApi";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { EyeIcon, ShoppingBagIcon } from "lucide-react";
 

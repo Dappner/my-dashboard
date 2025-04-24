@@ -5,7 +5,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { getCategoryIcon } from "@/features/Spending/components/ReceiptCard";
 import { useSpendingCategories } from "@/features/Spending/hooks/useSpendingCategories";
 
 interface CategoryDropdownProps {
@@ -42,14 +41,10 @@ export function CategoryDropdown({
 				<SelectValue>{getCurrentCategoryName()}</SelectValue>
 			</SelectTrigger>
 			<SelectContent>
-				<SelectItem value="uncategorized">
-					{getCategoryIcon("Uncategorized")}
-					Uncategorized
-				</SelectItem>
+				<SelectItem value="uncategorized">Uncategorized</SelectItem>
 
 				{categories.map((category) => (
 					<SelectItem key={category.id} value={category.id}>
-						{getCategoryIcon(category.name)}
 						{category.name}
 					</SelectItem>
 				))}

@@ -28,13 +28,17 @@ export function parseDate(date: string) {
 	return parse(date, "yyyy-MM-dd", new Date());
 }
 
-export function formatDate(date: Date | string | null): string {
+export function formatDate(
+	date: Date | string | null,
+	customFormat?: string,
+): string {
+	const dateFormat = customFormat ? customFormat : "yyyy-MM-dd";
 	if (date instanceof Date) {
-		return format(date, "yyyy-MM-dd");
+		return format(date, dateFormat);
 	}
 	// Slightly Cheeky
 	if (date) {
-		return formatDate(parseDate(date as string));
+		return formatDate(parseDate(date as string), dateFormat);
 	}
 	return "NA";
 }
@@ -51,21 +55,9 @@ export const getMonthYear = (selectedDate: Date) => {
 	return format(selectedDate, "yyyy-MM");
 };
 
-export function getMonthRange(date: Date): {
-	monthStart: string;
-	monthEnd: string;
-} {
-	const year = date.getUTCFullYear();
-	const month = date.getUTCMonth();
-
-	const monthStart = new Date(Date.UTC(year, month, 1))
-		.toISOString()
-		.split("T")[0];
-	const nextMonthStart = new Date(Date.UTC(year, month + 1, 1))
-		.toISOString()
-		.split("T")[0];
-
-	return { monthStart, monthEnd: nextMonthStart };
+export interface CustomRange {
+	start: Date;
+	end: Date;
 }
 
 /**
@@ -75,12 +67,6 @@ export function getMonthRange(date: Date): {
  * @param customRange Optional custom date range (used when timeframe is "custom")
  * @returns Object with start and end dates in ISO format (YYYY-MM-DD)
  */
-
-export interface CustomRange {
-	start: Date;
-	end: Date;
-}
-
 export function getTimeframeRange(
 	referenceDate: Date = new Date(),
 	timeframe: Timeframe = "m",

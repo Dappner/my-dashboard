@@ -5,21 +5,27 @@ import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import { formatDate } from "@/lib/utils";
 import { spendingCategoryDetailRoute } from "@/routes/spending-routes";
 import { useMemo } from "react";
-import { useCategoryData } from "../../hooks/useCategoryData";
 import { CategoryHeader } from "./components/CategoryHeader";
 import { DistributionChart } from "./components/DistributionChart";
 import { ReceiptList } from "./components/ReceiptList";
+import { useSpendingCategoryReceipts } from "../../hooks/useSpendingMetrics";
+import { useSpendingCategories } from "../../hooks/useSpendingCategories";
 
 export default function SpendingCategoryDetailPage() {
 	const { categoryId } = spendingCategoryDetailRoute.useParams();
 	const { date, timeframe } = useTimeframeParams();
+	const { data: spendingCategories } = useSpendingCategories();
 	const { convertAmount, displayCurrency } = useCurrencyConversion();
 
-	const {
-		details: categoryDetails,
-		receipts,
-		isLoading,
-	} = useCategoryData(categoryId || "", date, timeframe);
+	const { data: receipts, isLoading } = useSpendingCategoryReceipts(
+		date,
+		timeframe,
+		categoryId,
+	);
+
+	const spendingCategory = spendingCategories.find(
+		(val) => val.id === categoryId,
+	);
 
 	const pieChartData = useMemo(
 		() =>
@@ -49,8 +55,8 @@ export default function SpendingCategoryDetailPage() {
 	return (
 		<PageContainer>
 			<CategoryHeader
-				name={categoryDetails?.name || ""}
-				description={categoryDetails?.description || undefined}
+				name={spendingCategory?.name || ""}
+				description={spendingCategory?.description || undefined}
 				totalSpent={convertedTotalSpent || 0}
 				receiptCount={receipts?.length || 0}
 			/>
@@ -62,10 +68,8 @@ export default function SpendingCategoryDetailPage() {
 				/>
 
 				<ReceiptList
-					isLoading={isLoading}
-					receipts={receipts || []}
-					categoryName={categoryDetails?.name || ""}
-					convertAmount={convertAmount}
+					categoryId={categoryId}
+					categoryName={spendingCategory?.name || ""}
 				/>
 			</div>
 		</PageContainer>

@@ -6,28 +6,39 @@ import { useTimeframeParams } from "@/hooks/useTimeframeParams";
 import { spendingCategoryDetailRoute } from "@/routes/spending-routes";
 import { Link } from "@tanstack/react-router";
 import { Receipt as ReceiptIcon, TrendingUp } from "lucide-react";
-import { useAverageDailySpend } from "../hooks/useAverageDailySpend";
-import { useDailySpending } from "../hooks/useDailySpending";
-import { useSpendingMetrics } from "../hooks/useSpendingMetrics";
-import { SpendingTrendIndicator } from "./SpendingTrendIndicator";
+import {
+	useCurrentTimeframeSpendingSummary,
+	useSpendingCategoriesDetail,
+} from "../hooks/useSpendingMetrics";
+import { useMemo } from "react";
 
 export const SpendingKpiCards: React.FC = () => {
-	const { timeframe, date } = useTimeframeParams();
-	const { displayCurrency } = useCurrencyConversion();
+	const { timeframe, date, dateRange } = useTimeframeParams();
+	const { convertAmount } = useCurrencyConversion();
 
-	const { spendingMetrics, isLoading: spendingMetricsLoading } =
-		useSpendingMetrics(date, timeframe);
+	const { data: categories, isLoading: categoriesLoading } =
+		useSpendingCategoriesDetail(date, timeframe);
 
-	const { data: dailySpending, isLoading: isDailySpendingLoading } =
-		useDailySpending({ selectedDate: date, timeframe });
+	const { data: spendingSummary } = useCurrentTimeframeSpendingSummary(
+		date,
+		timeframe,
+	);
 
-	//ALREADY FOREX ADJUSTED!!
-	const averageDailySpend = useAverageDailySpend({
-		dailySpending,
-		selectedDate: date,
-	});
+	const convertedCategories = useMemo(() => {
+		if (!categories) return [];
 
-	const isLoading = spendingMetricsLoading || isDailySpendingLoading;
+		return categories
+			.map(({ id, name, amounts }) => {
+				const total = amounts.reduce((sum, { amount, currency }) => {
+					return sum + convertAmount(amount, currency);
+				}, 0);
+
+				return { id, name, total };
+			})
+			.sort((a, b) => b.total - a.total);
+	}, [categories, convertAmount]);
+
+	const isLoading = categoriesLoading;
 
 	if (isLoading) {
 		return (
@@ -38,16 +49,25 @@ export const SpendingKpiCards: React.FC = () => {
 			</div>
 		);
 	}
-
-	const topCategory = spendingMetrics?.categories.reduce(
-		(max, category) => (category.amount > max.amount ? category : max),
-		spendingMetrics.categories[0] || {
-			id: "",
-			name: "None",
-			amount: 0,
-			currency: displayCurrency,
-		},
+	const totalSpend = convertedCategories.reduce(
+		(acc, val) => acc + val.total,
+		0,
 	);
+	const endDate = dateRange.end > new Date() ? new Date() : dateRange.end;
+	// +1 ensures at least one day
+	const daysElapsed = Math.max(
+		1,
+		Math.ceil(
+			(endDate.getTime() - dateRange.start.getTime()) / (1000 * 60 * 60 * 24),
+		),
+	);
+
+	const averageDailySpend = totalSpend / daysElapsed;
+
+	const topCategory = convertedCategories[0] || {
+		id: "noCats",
+		name: "No Categories",
+	};
 
 	return (
 		<div className="grid gap-2 md:gap-4 grid-cols-2 lg:grid-cols-4">
@@ -60,11 +80,7 @@ export const SpendingKpiCards: React.FC = () => {
 				</CardHeader>
 				<CardContent>
 					<div className="text-2xl font-bold">
-						{spendingMetrics ? (
-							<CurrencyDisplay amount={spendingMetrics.totalSpent} />
-						) : (
-							"$0.00"
-						)}
+						<CurrencyDisplay amount={totalSpend} />
 					</div>
 				</CardContent>
 			</Card>
@@ -78,7 +94,7 @@ export const SpendingKpiCards: React.FC = () => {
 				</CardHeader>
 				<CardContent>
 					<div className="text-2xl font-bold">
-						{spendingMetrics?.receiptCount || 0}
+						{spendingSummary?.receiptCount || 0}
 					</div>
 				</CardContent>
 			</Card>
@@ -103,7 +119,7 @@ export const SpendingKpiCards: React.FC = () => {
 								{topCategory.name}
 							</Link>
 							<p className="text-sm text-muted-foreground">
-								<CurrencyDisplay amount={topCategory.amount} />
+								<CurrencyDisplay amount={topCategory.total} />
 							</p>
 						</>
 					) : (
@@ -122,7 +138,8 @@ export const SpendingKpiCards: React.FC = () => {
 					<div className="text-2xl font-bold">
 						<CurrencyDisplay amount={averageDailySpend} />
 					</div>
-					<SpendingTrendIndicator trend={spendingMetrics?.monthlyTrend || 0} />
+					{/* TODO:  REIMPLEMENT */}
+					{/* <SpendingTrendIndicator trend={spendingMetrics?.monthlyTrend || 0} /> */}
 				</CardContent>
 			</Card>
 		</div>
