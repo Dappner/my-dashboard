@@ -2,6 +2,10 @@
 
 A comprehensive full-stack dashboard application designed to quantitatively track and analyze multiple aspects of personal life including financial habits, reading progress, chess performance, and more.
 
+<img width="840" height="466.5" alt="image" src="https://github.com/user-attachments/assets/0d1823f5-ec85-494f-89da-c8cc72706b85" />
+<img width="807" height="452" alt="image" src="https://github.com/user-attachments/assets/65826e3e-6a70-4d2c-9bf2-4b9c7db81756" />
+
+
 ## Project Purpose
 
 This project serves as a centralized platform for data-driven self-improvement and life tracking. The dashboard provides detailed insights and analytics across various life domains:
