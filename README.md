@@ -150,10 +150,6 @@ The application follows a modern full-stack architecture:
 - **Mobile**: Shared business logic with native mobile UI
 - **Monitoring**: Comprehensive logging and error tracking
 
-## Contributing
-
-This is a personal project for CoOp Program demonstration, but the architecture and patterns can serve as a reference for similar dashboard applications.
-
 ## License
 
 Private project - All rights reserved.
